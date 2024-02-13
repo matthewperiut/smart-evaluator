@@ -1,0 +1,11 @@
+{
+  "name": "excel-proj",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm:start --prefix frontend\" \"npm:start --prefix backend\"",
+    "install": "npm install --prefix frontend && npm install --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^6.5.1"
+  }
+}
