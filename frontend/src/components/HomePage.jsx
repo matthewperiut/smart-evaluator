@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css'; // Assuming you have HomePage.css in the same directory
@@ -8,6 +8,14 @@ const HomePage = () => {
     const [excelData, setExcelData] = useState([]);
     const [a1test, seta1] = useState(null);
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
+
+    useEffect(() => {
+        const uploadedExcel = localStorage.getItem('uploadedExcel');
+        if (uploadedExcel) {
+            setExcelData(JSON.parse(uploadedExcel));
+            setIsExcelUploaded(true);
+        }
+    })
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -26,7 +34,12 @@ const HomePage = () => {
         });
 
         const rows = [];
+        let isFirstRow = true;
         worksheet.eachRow((row, rowNumber) => {
+            if (isFirstRow) {
+                isFirstRow = false;
+                return; // Skip the first row (It was displaying the first row twice initially)
+            }
             const rowData = new Array(maxColumnNumber).fill('');
             row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                 rowData[colNumber - 1] = cell.value || ''; // Ensure empty cells are represented
@@ -35,6 +48,7 @@ const HomePage = () => {
         });
         setExcelData(rows);
         setIsExcelUploaded(true);
+        localStorage.setItem('uploadedExcel', JSON.stringify(rows));
     };
 
     const handleSubmit = async (e) => {
@@ -90,7 +104,7 @@ const HomePage = () => {
                     </table>
                 </div>
             )}
-            {isExcelUploaded && (   // Conditional rendering to make allow for buttons to appear once excel is uploaded
+            {isExcelUploaded && (   // Conditional rendering to allow for further things to render once excel is uploaded
                 <div>
                     <p>Excel is uploaded</p>
                 </div>
