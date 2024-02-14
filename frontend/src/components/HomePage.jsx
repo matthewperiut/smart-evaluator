@@ -15,7 +15,7 @@ const HomePage = () => {
             setExcelData(JSON.parse(uploadedExcel));
             setIsExcelUploaded(true);
         }
-    })
+    }, []);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
