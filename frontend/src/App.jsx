@@ -1,17 +1,25 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import HomePage from './components/HomePage';
+import Header from './components/Header/Header.jsx';
+import HomePage from './components/HomePage/HomePage.jsx';
 
 function App() {
   return (
     <Router>
       <div>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HeaderAndPage page={<HomePage />} />} />
         </Routes>
       </div>
     </Router>
   );
 }
+
+const HeaderAndPage = ({ page }) => (
+  <div>
+    <Header />
+    {page}
+  </div>
+);
 
 export default App;

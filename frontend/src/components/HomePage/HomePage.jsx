@@ -79,6 +79,7 @@ const HomePage = () => {
 
     return (
         <div>
+            <br/>
             <h1>Upload and Display Excel Sheet</h1>
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />

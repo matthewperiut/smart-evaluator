@@ -1,4 +1,11 @@
 /* HomePage.css */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
 .scrollable-container {
     max-height: 400px;
     overflow-y: auto;
