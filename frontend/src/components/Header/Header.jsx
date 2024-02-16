@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Header.css";
+import CribmasterLogo from "/src/assets/Cribmaster_Logo_White.png"
 
 const Header = () => {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Header = () => {
 
     return (
         <header className='top-bar'>
+                <img src={CribmasterLogo} className="logo"></img>
             <nav className='nav-list'>
                 <button className="nav-link">Existing Session IDs</button>
                 <div className="nav-link">

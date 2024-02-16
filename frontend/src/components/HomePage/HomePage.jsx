@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css'; // Assuming you have HomePage.css in the same directory
+import Header from '../Header/Header';
 
 const HomePage = () => {
     const [file, setFile] = useState(null);
@@ -79,37 +80,48 @@ const HomePage = () => {
 
     return (
         <div>
-            <br/>
-            <h1>Upload and Display Excel Sheet</h1>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
-                <button type="submit">Upload</button>
-            </form>
-            {a1test &&
-                (
-                    <p>Backend says A1 is {a1test}</p>
-                )}
+            <Header />
+            <div>
+                <h2 className='work-dashboard'>Work Dashboard</h2>
+                <button className='button generate-new-solution'>+ Generate New Solution</button>
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." />
+                </div>
+                <br />
+                <br />
+                <div className='display-box'>
+                {/* <h1>Upload and Display Excel Sheet</h1> */}
+                <form onSubmit={handleSubmit} encType="multipart/form-data">
+                    <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
+                    <button type="submit">Upload</button>
+                </form>
+                {a1test &&
+                    (
+                        <p>Backend says A1 is {a1test}</p>
+                    )}
 
-            {excelData.length > 0 && (
-                <div className="scrollable-container">
-                    <table>
-                        <tbody>
-                            {excelData.map((row, rowIndex) => (
-                                <tr key={rowIndex}>
-                                    {row.map((cell, cellIndex) => (
-                                        <td key={cellIndex}>{cell}</td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                {excelData.length > 0 && (
+                    <div className="scrollable-container">
+                        <table>
+                            <tbody>
+                                {excelData.map((row, rowIndex) => (
+                                    <tr key={rowIndex}>
+                                        {row.map((cell, cellIndex) => (
+                                            <td key={cellIndex}>{cell}</td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+                {isExcelUploaded && (   // Conditional rendering to allow for further things to render once excel is uploaded
+                    <div>
+                        <p>Excel is uploaded</p>
+                    </div>
+                )}
                 </div>
-            )}
-            {isExcelUploaded && (   // Conditional rendering to allow for further things to render once excel is uploaded
-                <div>
-                    <p>Excel is uploaded</p>
-                </div>
-            )}
+            </div>
         </div>
     );
 };

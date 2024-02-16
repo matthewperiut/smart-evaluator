@@ -28,3 +28,12 @@
     border-radius: 5px;
     margin: 3px;
   }
+
+  .logo {
+    width: 200px;
+    height: auto;
+    position: absolute;
+    left: 0;
+    top: 50%; /* Adjust vertical position as needed */
+    transform: translateY(-50%); /* Center the logo vertically */
+  }
