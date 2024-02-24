@@ -78,48 +78,97 @@ const HomePage = () => {
         }
     };
 
+    const handleFormSubmit = async (e) => {
+
+    }
+
+    const toggleModal = async (e) => {
+        var modal = document.getElementById("generateSolution");
+        modal.style.display = modal.style.display === "block" ? "none" : "block";
+    }
+
+    const handleFileInputChange = async (e) => {
+
+    }
+
     return (
         <div>
             <Header />
             <div>
                 <h2 className='work-dashboard'>Work Dashboard</h2>
-                <button className='button generate-new-solution'>+ Generate New Solution</button>
-                <div class="search-container">
+                <button className='button generate-new-solution' onClick={toggleModal}>+ Generate New Solution</button>
+                <div className="search-container">
                     <input type="text" placeholder="Search..." />
                 </div>
                 <br />
                 <br />
                 <div className='display-box'>
-                {/* <h1>Upload and Display Excel Sheet</h1> */}
-                <form onSubmit={handleSubmit} encType="multipart/form-data">
-                    <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
-                    <button type="submit">Upload</button>
-                </form>
-                {a1test &&
-                    (
-                        <p>Backend says A1 is {a1test}</p>
-                    )}
 
-                {excelData.length > 0 && (
-                    <div className="scrollable-container">
-                        <table>
-                            <tbody>
-                                {excelData.map((row, rowIndex) => (
-                                    <tr key={rowIndex}>
-                                        {row.map((cell, cellIndex) => (
-                                            <td key={cellIndex}>{cell}</td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {/* Modal */}
+                    <div id="generateSolution" className='modal'>
+                        <div className='modal-content'>
+                            <span className='close' onClick={toggleModal}>&times;</span>
+                            <h2 className='poppins-regular' style={{color:'rgb(68, 167, 110)'}}>Import New Items</h2>
+                            <hr className='header-line'></hr>
+                            <form onSubmit={handleSubmit}>
+                                <h3 className='sarabun-regular'
+                                    style={{fontSize: '18px', display: 'flex', marginLeft:'312.5px', color:'rgb(20, 90, 50)'}}
+                                >
+                                    Upload
+                                </h3>
+                                <div className='upload-file'>
+                                    <label htmlFor="fileInput" className="upload-label">
+                                        Click or drag a file here to upload
+                                    </label>
+                                    <input
+                                        type="file"
+                                        id="fileInput"
+                                        onChange={handleFileInputChange}
+                                        accept=".xlsx, .xls"
+                                        className="file-input"
+                                    />
+                                </div>
+
+                                <div className='header-container'>
+                                    <h3 className='dark-green-text'>Solution Name</h3>
+                                    <h3 className='dark-green-text'>Area Type</h3>
+                                </div>
+
+                                <br />
+                                <h3 className='dark-green-text'>Instructions</h3>
+                            </form>
+                        </div>
                     </div>
-                )}
-                {isExcelUploaded && (   // Conditional rendering to allow for further things to render once excel is uploaded
-                    <div>
-                        <p>Excel is uploaded</p>
-                    </div>
-                )}
+
+                    {/* <form onSubmit={handleFormSubmit} encType="multipart/form-data">
+                        <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
+                        <button type="submit">Upload</button>
+                    </form>
+                    {a1test &&
+                        (
+                            <p>Backend says A1 is {a1test}</p>
+                        )} */}
+
+                    {/* {excelData.length > 0 && (
+                        <div className="scrollable-container">
+                            <table>
+                                <tbody>
+                                    {excelData.map((row, rowIndex) => (
+                                        <tr key={rowIndex}>
+                                            {row.map((cell, cellIndex) => (
+                                                <td key={cellIndex}>{cell}</td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    {isExcelUploaded && (   // Conditional rendering to allow for further things to render once excel is uploaded
+                        <div>
+                            <p>Excel is uploaded</p>
+                        </div>
+                    )} */}
                 </div>
             </div>
         </div>

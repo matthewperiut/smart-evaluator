@@ -14,6 +14,20 @@
   
 }
 
+
+/* Extra Fonts */
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.sarabun-regular {
+  font-family: "Sarabun", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
 /* Hyperlink CSS */
 a {
   font-weight: 500;
