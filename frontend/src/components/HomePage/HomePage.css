@@ -1,6 +1,6 @@
 /* HomePage.css */
 #root {
-  max-width: 1280px;
+  max-width: 1920px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -68,9 +68,9 @@ th {
 }
 
 /* Modal */
-.modal {
+/* Following CSS is in order of the layers of the modal */
+.modal-filter { /* AKA the gray filter outside the modal */
   display: none;
-  /* Hidden by default */
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -79,17 +79,19 @@ th {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
 }
-
-.modal-content {
+.modal-container {
+  display: flex;
+  justify-content: center;
+  margin: 10% auto;
+  width: 52.48%;
+  height: 60%;
   background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 1015px;
   border-radius: 52px;
+  padding: 20px;
 }
-
-
+.modal-content {  /* Everything in the modal */
+  height: 75%;
+}
 /* X button at top right of modal */
 .close {
   color: #aaa;
@@ -97,22 +99,29 @@ th {
   font-size: 28px;
   font-weight: bold;
 }
-
 .close:hover,
 .close:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
 }
-
+.modal-line {
+  border: none;
+  width: 689.675px;
+  height: 2px;
+  background-color: rgb(212, 239, 223);
+}
+/* Form inside the modal */
+.modal-form {
+  height: 100%;;
+}
 /* Upload File Box */
 .upload-file {
   border: 2px dashed #ccc;
   background-color: rgb(19, 50, 160, 5%);
   cursor: pointer;
   margin: auto;
-  width: 350px;
-  height: 200px;
+  width: 64%;
   padding: 20px;
   position: relative;
   display: flex;
@@ -120,11 +129,9 @@ th {
   justify-content: center;
   border-radius: 5px;
 }
-
 .upload-label {
   position: relative;
 }
-
 .file-input {
   position: absolute;
   /* Position the input absolutely */
@@ -135,28 +142,22 @@ th {
   opacity: 0;
   cursor: pointer;
 }
-
-.light-green-text {
-  color: rgb(68, 167, 110);
-}
-
-.dark-green-text {
-  color: rgb(20, 90, 50);
-}
-
-/* Modal Header Text */
-.header-line {
-  border: none;
-  height: 2px;
-  background-color: rgb(212, 239, 223);
-}
-
-
 .header-container {
   display: flex;
   justify-content: center; /* Center the items horizontally */
 }
 .header-container h3 {
-  display: inline-block;
+  text-align: left;
   margin-right: 25px;
+  margin-bottom: 2px;
+}
+.input-container {
+  align-items: center;
+}
+.input-container input[type="text"] {
+  background-color: rgb(203, 203, 203);
+  border-radius: 5px;
+  border: none;
+  margin-right: 25px;
+  padding: 5px;
 }

@@ -102,44 +102,63 @@ const HomePage = () => {
                 </div>
                 <br />
                 <br />
-                <div className='display-box'>
 
-                    {/* Modal */}
-                    <div id="generateSolution" className='modal'>
+
+                {/* Modal */}
+                <div id="generateSolution" className='modal-filter'>
+                    <div className='modal-container'>
                         <div className='modal-content'>
                             <span className='close' onClick={toggleModal}>&times;</span>
-                            <h2 className='poppins-regular' style={{color:'rgb(68, 167, 110)'}}>Import New Items</h2>
-                            <hr className='header-line'></hr>
-                            <form onSubmit={handleSubmit}>
-                                <h3 className='sarabun-regular'
-                                    style={{fontSize: '18px', display: 'flex', marginLeft:'312.5px', color:'rgb(20, 90, 50)'}}
-                                >
-                                    Upload
-                                </h3>
-                                <div className='upload-file'>
-                                    <label htmlFor="fileInput" className="upload-label">
-                                        Click or drag a file here to upload
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id="fileInput"
-                                        onChange={handleFileInputChange}
-                                        accept=".xlsx, .xls"
-                                        className="file-input"
-                                    />
-                                </div>
+                            <h2 className='poppins-regular' style={{ color: 'rgb(68, 167, 110)' }}>Import New Items</h2>
+                            <hr className='modal-line'></hr>
+                            <div className='modal-form'>
+                                <form onSubmit={handleSubmit}>
+                                    <h3 className='sarabun-regular'
+                                        style={{ fontSize: '18px', display: 'flex', marginLeft: '15%', color: 'rgb(20, 90, 50)' }}
+                                    >
+                                        Upload
+                                    </h3>
+                                    <div className='upload-file'>
+                                        <label htmlFor="fileInput" className="upload-label">
+                                            Click or drag a file here to upload
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="fileInput"
+                                            onChange={handleFileInputChange}
+                                            accept=".xlsx, .xls"
+                                            className="file-input"
+                                        />
+                                    </div>
 
-                                <div className='header-container'>
-                                    <h3 className='dark-green-text'>Solution Name</h3>
-                                    <h3 className='dark-green-text'>Area Type</h3>
-                                </div>
+                                    <div className='header-container'>
+                                        <div className='input-container'>
+                                            <h3 className='sarabun-regular'
+                                                style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
+                                            >
+                                                Solution Name
+                                            </h3>
+                                            <input type="text" placeholder="..." />
+                                        </div>
+                                        <div className='input-container'>
+                                            <h3 className='sarabun-regular'
+                                                style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
+                                            >
+                                                Area Type
+                                            </h3>
+                                            <input type="text" placeholder="..." />
+                                        </div>
+                                    </div>
 
-                                <br />
-                                <h3 className='dark-green-text'>Instructions</h3>
-                            </form>
+                                    <br />
+                                    <h3 className='dark-green-text'>Instructions</h3>
+                                </form>
+                            </div>
+                            <hr className='modal-line'></hr>
                         </div>
                     </div>
-
+                </div>
+                {/* <div className='display-box'>
                     {/* <form onSubmit={handleFormSubmit} encType="multipart/form-data">
                         <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
                         <button type="submit">Upload</button>
@@ -147,9 +166,9 @@ const HomePage = () => {
                     {a1test &&
                         (
                             <p>Backend says A1 is {a1test}</p>
-                        )} */}
+                        )}
 
-                    {/* {excelData.length > 0 && (
+                    {excelData.length > 0 && (
                         <div className="scrollable-container">
                             <table>
                                 <tbody>
@@ -168,8 +187,8 @@ const HomePage = () => {
                         <div>
                             <p>Excel is uploaded</p>
                         </div>
-                    )} */}
-                </div>
+                    )}
+                </div> */}
             </div>
         </div>
     );
