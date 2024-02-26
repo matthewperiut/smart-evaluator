@@ -4,9 +4,7 @@ exports.itemVendibility = async function (req, res) {
     //get parameters from request
     const { sessionId, itemId } = req.query;
 
-    /* -------------------------------*/
-    /* VENDIBILITY ANALYSIS GOES HERE */
-    /* -------------------------------*/
+
 
     try {
         //Connect to database
@@ -14,6 +12,10 @@ exports.itemVendibility = async function (req, res) {
 
         //Query Database for Item Info
         const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
+
+        /* -------------------------------*/
+        /* VENDIBILITY ANALYSIS GOES HERE */
+        /* -------------------------------*/
 
         //log item to console
         console.log(`Processed item vendibility request for item with id: ${item._id}`);
