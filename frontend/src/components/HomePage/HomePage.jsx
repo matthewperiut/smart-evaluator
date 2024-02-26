@@ -3,14 +3,14 @@ import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css'; // Assuming you have HomePage.css in the same directory
 import Header from '../Header/Header';
+import VendibilityRequestDemo from './VendibilityRequestDemo'
 
 const HomePage = () => {
     const [file, setFile] = useState(null);
     const [excelData, setExcelData] = useState([]);
     const [a1test, seta1] = useState(null);
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
-    const [itemId, setItemId] = useState('');
-    const [sessionId, setSessionId] = useState('');
+    const [popupShown, setPopupShown] = useState(false);
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -80,24 +80,7 @@ const HomePage = () => {
         }
     };
 
-    const requestItem = async (e) => {
-        e.preventDefault();
-        console.log( typeof sessionId , typeof itemId);
-        try {
-            const response = await axios.get('http://localhost:5001/itemVendibility', {
-                params: {
-                    sessionId: sessionId,
-                    itemId: itemId
-                }
-            })
-            .then( function (response) {
-                console.log(response)
-            });
-        } catch (error) {
-            console.error('Error requesting item information', error);
-            alert('Error requesting item information');
-        }
-    }
+   
 
     return (
         <div>
@@ -115,15 +98,6 @@ const HomePage = () => {
                 <form onSubmit={handleSubmit} encType="multipart/form-data">
                     <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
                     <button type="submit">Upload</button>
-                </form>
-                {/* Form to enter item info to request vendibility*/}
-                <form onSubmit = {requestItem} encType=  "multipart/form-data">
-                    <h3>Enter SessionID </h3>
-                    <input type = "text" value = {sessionId} name = "sessionId" onChange = {(e) => { setSessionId(e.target.value)}}/>
-                    <h3>Enter ItemID</h3>
-                    <input type = "text" value = {itemId} name = "itemId" onChange = {(e) => { setItemId(e.target.value)}}/>
-                    <br></br>
-                    <button type="submit"> Request Vendibility </button>
                 </form>
                 {a1test &&
                     (
@@ -150,6 +124,7 @@ const HomePage = () => {
                         <p>Excel is uploaded</p>
                     </div>
                 )}
+                <VendibilityRequestDemo/>
                 </div>
             </div>
         </div>
