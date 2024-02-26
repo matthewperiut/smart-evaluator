@@ -9,6 +9,8 @@ const HomePage = () => {
     const [excelData, setExcelData] = useState([]);
     const [a1test, seta1] = useState(null);
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
+    const [itemId, setItemID] = useState(null);
+    const [sessionId, setSessionID] = useState(null);
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -78,6 +80,25 @@ const HomePage = () => {
         }
     };
 
+    const requestItem = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.get('http://localhost:5001/itemVendibility', {
+                params: {
+                    sessionId: sessionId,
+                    itemId: itemId
+                }
+            })
+            .then( function (response) {
+                console.log(response)
+            })
+        } catch (error) {
+            console.error('Error requesting item information', error);
+            alert('Error requesting item information');
+        }
+    }
+
     return (
         <div>
             <Header />
@@ -94,6 +115,15 @@ const HomePage = () => {
                 <form onSubmit={handleSubmit} encType="multipart/form-data">
                     <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
                     <button type="submit">Upload</button>
+                </form>
+                {/* Form to enter item info to request vendibility*/}
+                <form onSubmit = {requestItem} encType=  "multipart/form-data">
+                    <h3>Enter SessionID</h3>
+                    <input type = "text" name = "SessionId" requred onChange = {setSessionID} />
+                    <h3>Enter ItemID</h3>
+                    <input type = "text" name = "itemId" requred onChange = {setItemID} />
+                    <br></br>
+                    <button type="submit"> Request Vendibility </button>
                 </form>
                 {a1test &&
                     (
