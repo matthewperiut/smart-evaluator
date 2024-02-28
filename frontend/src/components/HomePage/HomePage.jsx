@@ -98,22 +98,25 @@ const HomePage = () => {
                 <h2 className='work-dashboard'>Work Dashboard</h2>
                 <button className='button generate-new-solution' onClick={toggleModal}>+ Generate New Solution</button>
                 <div className="search-container">
-                    <input type="text" placeholder="Search"/>
+                    <input type="text" placeholder="Search" />
                 </div>
                 <div className="magnify"></div>
-                <br/>
-                <br/>
+                <br />
+                <br />
 
 
                 {/* Modal */}
                 <div id="generateSolution" className='modal-filter'>
                     <div className='modal-container'>
+                    <form onSubmit={handleSubmit} style={{width:"100%"}}>
                         <div className='modal-content'>
-                            <span className='close' onClick={toggleModal}>&times;</span>
-                            <h2 className='poppins-regular' style={{color: 'rgb(68, 167, 110)'}}>Import New Items</h2>
+                            <h2 className='poppins-regular'
+                                style={{ color: 'rgb(68, 167, 110)' }}>
+                                Import New Items
+                            </h2>
                             <hr className='modal-line'></hr>
                             <div className='modal-form'>
-                                <form onSubmit={handleSubmit}>
+                                
                                     <h3 className='sarabun-regular'
                                         style={{
                                             fontSize: '18px',
@@ -140,19 +143,19 @@ const HomePage = () => {
                                     <div className='header-container'>
                                         <div className='input-container'>
                                             <h3 className='sarabun-regular'
-                                                style={{fontSize: '18px', color: 'rgb(20, 90, 50)'}}
+                                                style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
                                             >
                                                 Solution Name
                                             </h3>
-                                            <input type="text" placeholder="..."/>
+                                            <input type="text" placeholder="..." />
                                         </div>
                                         <div className='input-container'>
                                             <h3 className='sarabun-regular'
-                                                style={{fontSize: '18px', color: 'rgb(20, 90, 50)'}}
+                                                style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
                                             >
                                                 Area Type
                                             </h3>
-                                            <input type="text" placeholder="..."/>
+                                            <input type="text" placeholder="..." />
                                         </div>
                                     </div>
                                     <h3 className='sarabun-regular'
@@ -177,16 +180,25 @@ const HomePage = () => {
                                         <li>Demand Time-Window</li>
                                         <li>Security Level</li>
                                     </ul>
-                                </form>
                             </div>
                             <hr className='modal-line'></hr>
-                            <button
-                                style={{ backgroundColor: "rgb(68, 167, 110)" }}
-                            >
-                                Import
-                            </button>
-                            <button className='close' onClick={toggleModal}>Cancel</button>
+                            <div style={{ display: "flex", justifyContent: "center", padding: "3%" }}>
+                                <button
+                                    style={{
+                                        backgroundColor: "rgb(68, 167, 110)",
+                                        justifyContent: "center", width: "24.7%", marginRight: "10%"
+                                    }}
+                                >
+                                    Import
+                                </button>
+                                <button onClick={toggleModal}
+                                    style={{ width: "24.7%" }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
+                        </form>
                     </div>
                 </div>
                 {/* <div className='display-box'>

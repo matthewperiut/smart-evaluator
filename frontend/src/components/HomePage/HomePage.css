@@ -32,64 +32,32 @@ th {
 .work-dashboard {
   color: rgb(20, 90, 50);
   position: fixed;
-  left: 25px;
-  top: 75px;
+  left: 20px;
+  top: 60px;
 }
 
 .generate-new-solution {
-  background-color: #44A76E;
+  background-color: rgb(68, 167, 110);
   color: rgb(251, 252, 252);
   position: absolute;
-  width: 250px;
-  height: 45px;
-  right: 25px;
-  top: 100px;
+  width: 276px;
+  height: 60px;
+  right: 10px;
+  top: 85px;
 }
 
 .search-container {
   position: fixed;
   width: 189px;
-  top: 150px;
-  left: 25px;
+  top: 115px;
+  left: 15px;
 }
 
 .search-container input[type="text"] {
-  padding: 5px 15px;
-  font-size: 16px;
-  border: 1px solid #676767;
-  border-radius: 10px;
-  color: #676767;
-  background-color: #CBCBCB;
-  width: 235px;
-  height: 23px;
-  text-align: center;
-}
-
-.search-container input[type="text"]::placeholder {
-  color: #676767;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.magnify {
-  position: relative;
-  border: 3px solid #676767;
-  width: .75rem;
-  height: .75rem;
-  border-radius: 50%;
-  top: 115px;
-  right: 10px;
-}
-
-.magnify:before {
-  content: "";
-  position: absolute;
-  background-color: #676767;
-  width: .7rem;
-  height: .25rem;
-  top: 100%;
-  left: 80%;
-  transform: rotate(45deg);
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: rgb(203, 203, 203);
 }
 
 .display-box {
@@ -115,13 +83,14 @@ th {
   display: flex;
   justify-content: center;
   margin: 10% auto;
-  width: 52.48%;
+  width: 43%;
   height: 65vh;
   background-color: #fefefe;
   border-radius: 52px;
-  padding: 20px;
+  padding: 0;
 }
 .modal-content {  /* Everything in the modal */
+  width: 100%;
   height: 75%;
 }
 /* X button at top right of modal */
@@ -139,7 +108,7 @@ th {
 }
 .modal-line {
   border: none;
-  width: 689.675px;
+  width: 99.5%;
   height: 2px;
   background-color: rgb(212, 239, 223);
 }
