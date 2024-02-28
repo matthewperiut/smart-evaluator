@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ExcelJS from 'exceljs';
-import './HomePage.css'; // Assuming you have HomePage.css in the same directory
+import './HomePage.css';
 import Header from '../Header/Header';
 
 const HomePage = () => {
     const [file, setFile] = useState(null);
     const [excelData, setExcelData] = useState([]);
-    const [a1test, seta1] = useState(null);
+    const [solutionName, setSolutionName] = useState('');
+    const [areaType, setAreaType] = useState('');
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
 
     useEffect(() => {
@@ -17,10 +18,6 @@ const HomePage = () => {
             setIsExcelUploaded(true);
         }
     }, []);
-
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-    };
 
     const readExcel = async (file) => {
         const workbook = new ExcelJS.Workbook();
@@ -71,16 +68,12 @@ const HomePage = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            seta1(response.data);
+            toggleModal();
         } catch (error) {
             console.error('Error uploading file:', error);
             alert('Error uploading file to backend server.');
         }
     };
-
-    const handleFormSubmit = async (e) => {
-
-    }
 
     const toggleModal = async (e) => {
         var modal = document.getElementById("generateSolution");
@@ -88,7 +81,9 @@ const HomePage = () => {
     }
 
     const handleFileInputChange = async (e) => {
-
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+        console.log(file);
     }
 
     return (
@@ -108,15 +103,14 @@ const HomePage = () => {
                 {/* Modal */}
                 <div id="generateSolution" className='modal-filter'>
                     <div className='modal-container'>
-                    <form onSubmit={handleSubmit} style={{width:"100%"}}>
-                        <div className='modal-content'>
-                            <h2 className='poppins-regular'
-                                style={{ color: 'rgb(68, 167, 110)' }}>
-                                Import New Items
-                            </h2>
-                            <hr className='modal-line'></hr>
-                            <div className='modal-form'>
-                                
+                        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+                            <div className='modal-content'>
+                                <h2 className='poppins-regular'
+                                    style={{ color: 'rgb(68, 167, 110)' }}>
+                                    Import New Items
+                                </h2>
+                                <hr className='modal-line'></hr>
+                                <div className='modal-form'>
                                     <h3 className='sarabun-regular'
                                         style={{
                                             fontSize: '18px',
@@ -127,19 +121,27 @@ const HomePage = () => {
                                     >
                                         Upload
                                     </h3>
-                                    <div className='upload-file'>
-                                        <label htmlFor="fileInput" className="upload-label">
-                                            Click or drag a file here to upload
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="fileInput"
-                                            onChange={handleFileInputChange}
-                                            accept=".xlsx, .xls"
-                                            className="file-input"
-                                        />
+                                    <div>
+                                        {file ? (
+                                            <div>
+                                                <p>File selected: {file.name}</p>
+                                                <button onClick={() => setFile(null)}>Clear</button>
+                                            </div>
+                                        ) : (
+                                            <div className='upload-file'>
+                                                <label htmlFor="fileInput">
+                                                    Click or drag a file here to upload
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    id="fileInput"
+                                                    required onChange={handleFileInputChange}
+                                                    accept=".xlsx, .xls"
+                                                    className="file-input"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-
                                     <div className='header-container'>
                                         <div className='input-container'>
                                             <h3 className='sarabun-regular'
@@ -147,7 +149,13 @@ const HomePage = () => {
                                             >
                                                 Solution Name
                                             </h3>
-                                            <input type="text" placeholder="..." />
+                                            <input 
+                                                type="text"
+                                                placeholder="..."
+                                                value={solutionName}
+                                                onChange={(e) => setSolutionName(e.target.value)}
+                                                required
+                                            />
                                         </div>
                                         <div className='input-container'>
                                             <h3 className='sarabun-regular'
@@ -155,7 +163,13 @@ const HomePage = () => {
                                             >
                                                 Area Type
                                             </h3>
-                                            <input type="text" placeholder="..." />
+                                            <input 
+                                                type="text"
+                                                placeholder="..."
+                                                value={areaType}
+                                                onChange={(e) => setAreaType(e.target.value)}
+                                                required
+                                            />
                                         </div>
                                     </div>
                                     <h3 className='sarabun-regular'
@@ -180,37 +194,29 @@ const HomePage = () => {
                                         <li>Demand Time-Window</li>
                                         <li>Security Level</li>
                                     </ul>
+                                </div>
+                                <hr className='modal-line'></hr>
+                                <div style={{ display: "flex", justifyContent: "center", padding: "3%" }}>
+                                    <button type='button'
+                                        style={{
+                                            backgroundColor: "rgb(68, 167, 110)",
+                                            justifyContent: "center", width: "24.7%", marginRight: "10%"
+                                        }}
+                                        onClick={handleSubmit}
+                                    >
+                                        Import
+                                    </button>
+                                    <button type='button' onClick={toggleModal}
+                                        style={{ width: "24.7%" }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
                             </div>
-                            <hr className='modal-line'></hr>
-                            <div style={{ display: "flex", justifyContent: "center", padding: "3%" }}>
-                                <button
-                                    style={{
-                                        backgroundColor: "rgb(68, 167, 110)",
-                                        justifyContent: "center", width: "24.7%", marginRight: "10%"
-                                    }}
-                                >
-                                    Import
-                                </button>
-                                <button onClick={toggleModal}
-                                    style={{ width: "24.7%" }}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
                         </form>
                     </div>
                 </div>
-                {/* <div className='display-box'>
-                    {/* <form onSubmit={handleFormSubmit} encType="multipart/form-data">
-                        <input type="file" name="excelFile" accept=".xlsx" required onChange={handleFileChange} />
-                        <button type="submit">Upload</button>
-                    </form>
-                    {a1test &&
-                        (
-                            <p>Backend says A1 is {a1test}</p>
-                        )}
-
+                <div className='display-box'>
                     {excelData.length > 0 && (
                         <div className="scrollable-container">
                             <table>
@@ -226,12 +232,7 @@ const HomePage = () => {
                             </table>
                         </div>
                     )}
-                    {isExcelUploaded && (   // Conditional rendering to allow for further things to render once excel is uploaded
-                        <div>
-                            <p>Excel is uploaded</p>
-                        </div>
-                    )}
-                </div> */}
+                </div>
             </div>
         </div>
     );
