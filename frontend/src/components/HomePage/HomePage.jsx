@@ -3,12 +3,14 @@ import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css'; // Assuming you have HomePage.css in the same directory
 import Header from '../Header/Header';
+import VendibilityRequestDemo from './VendibilityRequestDemo'
 
 const HomePage = () => {
     const [file, setFile] = useState(null);
     const [excelData, setExcelData] = useState([]);
     const [a1test, seta1] = useState(null);
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
+    const [popupShown, setPopupShown] = useState(false);
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -78,13 +80,15 @@ const HomePage = () => {
         }
     };
 
+   
+
     return (
         <div>
             <Header />
             <div>
                 <h2 className='work-dashboard'>Work Dashboard</h2>
                 <button className='button generate-new-solution'>+ Generate New Solution</button>
-                <div class="search-container">
+                <div className="search-container">
                     <input type="text" placeholder="Search..." />
                 </div>
                 <br />
@@ -120,6 +124,7 @@ const HomePage = () => {
                         <p>Excel is uploaded</p>
                     </div>
                 )}
+                <VendibilityRequestDemo/>
                 </div>
             </div>
         </div>
