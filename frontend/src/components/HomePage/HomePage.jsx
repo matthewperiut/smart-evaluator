@@ -98,10 +98,11 @@ const HomePage = () => {
                 <h2 className='work-dashboard'>Work Dashboard</h2>
                 <button className='button generate-new-solution' onClick={toggleModal}>+ Generate New Solution</button>
                 <div className="search-container">
-                    <input type="text" placeholder="Search..." />
+                    <input type="text" placeholder="Search"/>
                 </div>
-                <br />
-                <br />
+                <div className="magnify"></div>
+                <br/>
+                <br/>
 
 
                 {/* Modal */}
@@ -109,12 +110,17 @@ const HomePage = () => {
                     <div className='modal-container'>
                         <div className='modal-content'>
                             <span className='close' onClick={toggleModal}>&times;</span>
-                            <h2 className='poppins-regular' style={{ color: 'rgb(68, 167, 110)' }}>Import New Items</h2>
+                            <h2 className='poppins-regular' style={{color: 'rgb(68, 167, 110)'}}>Import New Items</h2>
                             <hr className='modal-line'></hr>
                             <div className='modal-form'>
                                 <form onSubmit={handleSubmit}>
                                     <h3 className='sarabun-regular'
-                                        style={{ fontSize: '18px', display: 'flex', marginLeft: '15%', color: 'rgb(20, 90, 50)' }}
+                                        style={{
+                                            fontSize: '18px',
+                                            display: 'flex',
+                                            marginLeft: '15%',
+                                            color: 'rgb(20, 90, 50)'
+                                        }}
                                     >
                                         Upload
                                     </h3>
@@ -134,23 +140,23 @@ const HomePage = () => {
                                     <div className='header-container'>
                                         <div className='input-container'>
                                             <h3 className='sarabun-regular'
-                                                style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
+                                                style={{fontSize: '18px', color: 'rgb(20, 90, 50)'}}
                                             >
                                                 Solution Name
                                             </h3>
-                                            <input type="text" placeholder="..." />
+                                            <input type="text" placeholder="..."/>
                                         </div>
                                         <div className='input-container'>
                                             <h3 className='sarabun-regular'
-                                                style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
+                                                style={{fontSize: '18px', color: 'rgb(20, 90, 50)'}}
                                             >
                                                 Area Type
                                             </h3>
-                                            <input type="text" placeholder="..." />
+                                            <input type="text" placeholder="..."/>
                                         </div>
                                     </div>
 
-                                    <br />
+                                    <br/>
                                     <h3 className='dark-green-text'>Instructions</h3>
                                 </form>
                             </div>
