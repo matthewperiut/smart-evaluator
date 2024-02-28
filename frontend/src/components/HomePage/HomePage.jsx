@@ -155,12 +155,37 @@ const HomePage = () => {
                                             <input type="text" placeholder="..."/>
                                         </div>
                                     </div>
-
-                                    <br/>
-                                    <h3 className='dark-green-text'>Instructions</h3>
+                                    <h3 className='sarabun-regular'
+                                        style={{ fontSize: '18px', display: 'flex', marginLeft: '15%', color: 'rgb(20, 90, 50)' }}
+                                    >
+                                        Instructions
+                                    </h3>
+                                    <h4
+                                        style={{ display: 'flex', marginLeft: '15%' }}
+                                    >
+                                        Structure your file to assign a column to each of the values below.
+                                    </h4>
+                                    <ul>
+                                        <li>SKU</li>
+                                        <li>Item Description</li>
+                                        <li>Manufacturer Part #</li>
+                                        <li>Item Manufacturer</li>
+                                        <li>Alt Item ID (SKU)</li>
+                                        <li>Org. Local Part Number</li>
+                                        <li>All in one Point-Of-Use (POU), or Area</li>
+                                        <li>Demand Quantity</li>
+                                        <li>Demand Time-Window</li>
+                                        <li>Security Level</li>
+                                    </ul>
                                 </form>
                             </div>
                             <hr className='modal-line'></hr>
+                            <button
+                                style={{ backgroundColor: "rgb(68, 167, 110)" }}
+                            >
+                                Import
+                            </button>
+                            <button className='close' onClick={toggleModal}>Cancel</button>
                         </div>
                     </div>
                 </div>
