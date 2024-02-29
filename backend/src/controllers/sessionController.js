@@ -32,26 +32,33 @@ exports.uploadSpreadsheet = async function (req, res) {
                 session_id: SYSTEM_DATA.SESSION_COUNTER
               }
               //Add item object to database. 
-              await db.newItem(db.client, item);
+              //await db.newItem(db.client, item);
       
               //Add item to session's uncompleted_items[]
               session.uncompleted_items.push(item._id);
               counter ++;
             }
       
+            /*
             //Create new session with session counter 
             await db.client.db("Backend_Database").collection("Session").insertOne(session);
             console.log(`Created New Session With ID: ${session._id}`);
       
+
+            
             //Encrement Session Counter
             const result = await db.client.db("Backend_Database").collection("System_Data").updateOne(
               { NAME: "COUNTER_INFO" },
               { $inc: { SESSION_COUNTER: 1}}
             );
-            console.log(`${result.matchedCount} document(s) matched the query criteria.`);
-            console.log(`${result.modifiedCount} document(s) was/were updated.`);
+            console.log(`${result.matchedCount} Sessions(s) were found.`);
+            console.log(`${result.modifiedCount} Sessions(s) were updated.`);
+            */
+
+            //Response must include array of items and the sessionid. 
+            res.json(session.uncompleted_items, session._id);
             
-            //
+
           } catch (e) {
               console.error(e);
           } finally {
