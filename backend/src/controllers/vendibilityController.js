@@ -10,20 +10,31 @@ exports.itemVendibility = async function (req, res) {
         //Connect to database
         await client.connect();
 
-        //Query Database for Item Info
-        const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
+        //Check Session For ItemId
+        const session = await client.db("Backend_Database").collection("Session").findOne({
+            _id: Number(sessionId),
+            uncompleted_items: Number (itemId)
+        });
 
-        /* -------------------------------*/
-        /* VENDIBILITY ANALYSIS GOES HERE */
-        /* -------------------------------*/
+        //If the session contains the itemID, proceed with vendibility Analysis
+        if(!session) { 
+            console.error("Session does not contain requested ID");
+            res.status(500).json({error: "That Item doesn't exist in the requested session"});
+        } else {
+            //Query Database for Item Info
+            const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
 
-        //log item to console
-        console.log(`Processed item vendibility request for item with id: ${item._id}`);
+            /* -------------------------------*/
+            /* VENDIBILITY ANALYSIS GOES HERE */
+            /* -------------------------------*/
 
-        res.json(item); // Return the item object as JSON response
+            //log item to console
+            console.log(`Processed item vendibility request for item with id: ${item._id}`);
 
+            res.json(item); // Return the item object as JSON response
+        }
     } catch (e) {
-        console.log("Error querying database");
+        console.log("Error Connecting to database");
         res.status(500).json({error: "Error querying database" });
     } finally {
         await client.close();
