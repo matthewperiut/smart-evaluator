@@ -1,4 +1,5 @@
 const {client} = require('../config/DatabaseConnection');
+const {dataAnalysis} = require('../utils/dataAnalysis')
 
 exports.itemVendibility = async function (req, res) {
     //get parameters from request
@@ -25,13 +26,17 @@ exports.itemVendibility = async function (req, res) {
             const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
 
             /* -------------------------------*/
-            /* VENDIBILITY ANALYSIS GOES HERE */
+            /*    DATA COLLECTION GOES HERE   */
             /* -------------------------------*/
+
+            //Initiate Data Analysis
+            const result = dataAnalysis(item);
 
             //log item to console
             console.log(`Processed item vendibility request for item with id: ${item._id}`);
-
-            res.json(item); // Return the item object as JSON response
+            console.log(result);
+            
+            res.json(result); // Return the resulting item object as JSON response
         }
     } catch (e) {
         console.log("Error Connecting to database");
