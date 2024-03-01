@@ -73,7 +73,14 @@ const HomePage = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            seta1(response.data);
+            //Print to DOM
+            seta1(`Session ID: ${response.data._id} \n ItemIDs: ${response.data.uncompleted_items}`);
+
+            //Print to console
+            console.log(`New Session Created! \n 
+            Session ID: ${response.data._id}
+            Item IDs: ${response.data.uncompleted_items}`);
+
         } catch (error) {
             console.error('Error uploading file:', error);
             alert('Error uploading file to backend server.');
@@ -101,7 +108,7 @@ const HomePage = () => {
                 </form>
                 {a1test &&
                     (
-                        <p>Backend says the Response data is: {a1test}</p>
+                        <p>{a1test}</p>
                     )}
 
                 {excelData.length > 0 && (
