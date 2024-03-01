@@ -23,13 +23,50 @@ exports.uploadSpreadsheet = async function (req, res) {
   
             //Create item object for each row in the spreadsheet
             let counter = 0
-            for (let row = 4; row <= 8; row ++) {
+            for (let row = 4; row <= 32; row ++) {
               const item = {
                 _id: SYSTEM_DATA.ITEM_COUNTER + counter,
                 sku: worksheet.getCell(`A${row}`).value,
                 item_description: worksheet.getCell(`B${row}`).value,
                 manufacturer_part_num: worksheet.getCell(`C${row}`).value,
-                session_id: SYSTEM_DATA.SESSION_COUNTER
+                point_of_use: worksheet.getCell(`G${row}`).value,
+                overall_vendability: worksheet.getCell(`K${row}`).value,
+                vendability_notes: worksheet.getCell(`L${row}`).value,
+                height_inch: worksheet.getCell(`O${row}`).value, 
+                width_inch: worksheet.getCell(`P${row}`).value, 
+                length_inch: worksheet.getCell(`Q${row}`).value, 
+                weight_lbs: worksheet.getCell(`R${row}`).value, 
+                heavy: worksheet.getCell(`S${row}`).value, 
+                fragile: worksheet.getCell(`T${row}`).value, 
+                default_issue_type: worksheet.getCell(`U${row}`).value, 
+                default_issue_qty: worksheet.getCell(`V${row}`).value, 
+                stackable: worksheet.getCell(`W${row}`).value, 
+                loose: worksheet.getCell(`X${row}`).value, 
+                store_vertically: worksheet.getCell(`Y${row}`).value, 
+                preferred_machine_type: worksheet.getCell(`Z${row}`).value, 
+                locker_vendability: {
+                  locker_vendable: worksheet.getCell(`AA${row}`).value, 
+                  num_compartments_per_locker_door: worksheet.getCell(`AB${row}`).value, 
+                  capacity_for_express_locker: worksheet.getCell(`AC${row}`).value, 
+                  capacity_for_prostock_locker: worksheet.getCell(`AD${row}`).value, 
+                  capacity_for_prolock_locker: worksheet.getCell(`AE${row}`).value, 
+                },
+                carousel_vendability: {
+                  carousel_vendable: worksheet.getCell(`AF${row}`).value, 
+                  needs_repack_for_carousel: worksheet.getCell(`AG${row}`).value, 
+                  num_slots_per_item: worksheet.getCell(`AH${row}`).value, 
+                },
+                coil_vendability: {
+                  coil_vendable: worksheet.getCell(`AI${row}`).value, 
+                  needs_repack_for_coil: worksheet.getCell(`AJ${row}`).value, 
+                  coil_pitch_num_items_per_row: worksheet.getCell(`AK${row}`).value, 
+                  coil_type: worksheet.getCell(`AL${row}`).value, 
+                  preferred_shelf: worksheet.getCell(`AM${row}`).value, 
+                  preferred_row: worksheet.getCell(`AN${row}`).value, 
+                  riser_required: worksheet.getCell(`AO${row}`).value, 
+                  flip_bar_required: worksheet.getCell(`AP${row}`).value, 
+                  coil_end_clock_position: worksheet.getCell(`AQ${row}`).value, 
+                }
               }
               //Add item object to database. 
               await db.newItem(db.client, item);
