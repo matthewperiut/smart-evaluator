@@ -23,7 +23,7 @@ exports.uploadSpreadsheet = async function (req, res) {
   
             //Create item object for each row in the spreadsheet
             let counter = 0
-            for (let row = 4; row <= 32; row ++) {
+            for (let row = 4; row <= 5; row ++) {
               const item = {
                 _id: SYSTEM_DATA.ITEM_COUNTER + counter,
                 sku: worksheet.getCell(`A${row}`).value,
