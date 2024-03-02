@@ -29,8 +29,8 @@ exports.itemVendibility = async function (req, res) {
             /*    DATA COLLECTION GOES HERE   */
             /* -------------------------------*/
 
-            //Initiate Data Analysis
-            const result = dataAnalysis(item);
+            /*-----INITIATE DATA ANALYSIS-----*/
+            const result = dataAnalysis(item); 
 
             //log item to console
             console.log(`Processed item vendibility request for item with id: ${item._id}`);
@@ -39,7 +39,7 @@ exports.itemVendibility = async function (req, res) {
             res.json(result); // Return the resulting item object as JSON response
         }
     } catch (e) {
-        console.log("Error Connecting to database");
+        console.log("Error Connecting to database: " , e);
         res.status(500).json({error: "Error querying database" });
     } finally {
         await client.close();
