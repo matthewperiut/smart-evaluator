@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css';
@@ -7,6 +8,7 @@ import Header from '../Header/Header';
 const HomePage = () => {
     const [file, setFile] = useState(null);
     const [excelData, setExcelData] = useState([]);
+    const [columnHeaders, setColumnHeaders] = useState([]);
     const [solutionName, setSolutionName] = useState('');
     const [areaType, setAreaType] = useState('');
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
@@ -17,7 +19,10 @@ const HomePage = () => {
             setExcelData(JSON.parse(uploadedExcel));
             setIsExcelUploaded(true);
         }
-    }, []);
+        if (excelData.length > 0) {
+            setColumnHeaders(excelData[0]);
+        }
+    }, [excelData]);
 
     const readExcel = async (file) => {
         const workbook = new ExcelJS.Workbook();
@@ -149,7 +154,7 @@ const HomePage = () => {
                                             >
                                                 Solution Name
                                             </h3>
-                                            <input 
+                                            <input
                                                 type="text"
                                                 placeholder="..."
                                                 value={solutionName}
@@ -163,7 +168,7 @@ const HomePage = () => {
                                             >
                                                 Area Type
                                             </h3>
-                                            <input 
+                                            <input
                                                 type="text"
                                                 placeholder="..."
                                                 value={areaType}
@@ -224,7 +229,18 @@ const HomePage = () => {
                                     {excelData.map((row, rowIndex) => (
                                         <tr key={rowIndex}>
                                             {row.map((cell, cellIndex) => (
-                                                <td key={cellIndex}>{cell}</td>
+                                                <td key={cellIndex}>
+                                                    {rowIndex >= 1 && cellIndex === 1 ? (
+                                                        <Link
+                                                            to={"/itemDetails"}
+                                                            state={{ rowData: row, columnHeaders: columnHeaders }}
+                                                        >
+                                                            {cell}
+                                                        </Link>
+                                                    ) : (
+                                                        cell
+                                                    )}
+                                                </td>
                                             ))}
                                         </tr>
                                     ))}
