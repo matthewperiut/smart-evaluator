@@ -44,13 +44,17 @@ const getLockerVendibility = (item) => {
 
         /* calculates the approximate number of items that can fit in a locker.*/
         const capacityCalculation = (height, width, depth) => {
-            if (item.stackable && item.num_compartments_per_locker_door == 1) {
+            let cap = 0; //Capacity count
+            console.log(item.stackable , locker_vendibility.num_compartments_per_locker_door);
+            if (item.stackable && locker_vendibility.num_compartments_per_locker_door == 1) {
                 //If stackable, calculate in 3 Dimensions
-                return Math.trunc(LOCKER_WIDTH_INCH/width) * Math.trunc(LOCKER_DEPTH_INCH/depth) * Math.trunc(LOCKER_HEIGHT_SINGLE/height);
+                cap = Math.trunc(LOCKER_WIDTH_INCH/width) * Math.trunc(LOCKER_DEPTH_INCH/depth) * Math.trunc(LOCKER_HEIGHT_SINGLE/height);
             } else {
                 //If not stackable, calculate number to fill bottom shelf with one layer
-                return Math.trunc(LOCKER_WIDTH_INCH/width) * Math.trunc(LOCKER_DEPTH_INCH/depth);
+                cap = Math.trunc(LOCKER_WIDTH_INCH/width) * Math.trunc(LOCKER_DEPTH_INCH/depth);
             }
+            //Returned capacity must not exceed shelf weight cap. 
+            return (item.weight_lbs * cap) > LOCKER_WEIGHT_CAP ? Math.floor(LOCKER_WEIGHT_CAP/item.weight_lbs) : cap
         }
 
         //Check Weight
@@ -79,16 +83,16 @@ const getLockerVendibility = (item) => {
                         return capacityCalculation(Dimensions[2], Dimensions[1], Dimensions[0]);
                     } else {
                         //Calculate necessary locker height based on the median dimension
-                        locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((Dimensions [2]- LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
+                        locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((Dimensions [1]- LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
                         if(Dimensions [2] < LOCKER_WIDTH_INCH) {
                             //ITEM is VENDABLE
-                           return capacityCalculation(Dimensions[1], Dimensions[1], Dimensions[0]); 
+                           return capacityCalculation(Dimensions[1], Dimensions[2], Dimensions[0]); 
                         } else return 0;
                     }
                 //Check Height, depth and width if item exceeds the locker depth
                 } else if (Dimensions [0] < (LOCKER_HEIGHT_SINGLE + (5 * LOCKER_HEIGHT_ADDITIONAL)) && Dimensions [1] < LOCKER_DEPTH_INCH && Dimensions [2] < LOCKER_WIDTH_INCH) {
                      //Calculate necessary locker height based on the largest dimension
-                     locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((Dimensions [2]- LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
+                     locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((Dimensions [0]- LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
                      //ITEM IS VENDABLE, Perform Area Calculation
                      return capacityCalculation(Dimensions[0], Dimensions[2], Dimensions[1]);
                 } else return 0;
