@@ -7,7 +7,7 @@
 }
 
 .scrollable-container {
-  max-height: 400px;
+  max-height: 660px;
   overflow-y: auto;
   border: 1px solid #ccc;
   margin-top: 20px;
@@ -94,9 +94,10 @@ th {
 
 .display-box {
   position: fixed;
-  left: 1px;
-  top: 190px;
-  width: 100%;
+  display: flex;
+  align-self: center;
+  top: 21%;
+  width: 95%;
 }
 
 /* Modal */
