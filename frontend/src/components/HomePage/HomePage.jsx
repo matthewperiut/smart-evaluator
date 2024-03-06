@@ -4,6 +4,7 @@ import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css';
 import Header from '../Header/Header';
+import VendibilityRequestDemo from './VendibilityRequestDemo'
 
 const HomePage = () => {
     const [file, setFile] = useState(null);
@@ -100,6 +101,14 @@ const HomePage = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            //Print to DOM
+            seta1(`Session ID: ${response.data._id} \n ItemIDs: ${response.data.uncompleted_items}`);
+
+            //Print to console
+            console.log(`New Session Created! \n 
+            Session ID: ${response.data._id}
+            Item IDs: ${response.data.uncompleted_items}`);
+
             toggleModal();
         } catch (error) {
             console.error('Error uploading file:', error);
