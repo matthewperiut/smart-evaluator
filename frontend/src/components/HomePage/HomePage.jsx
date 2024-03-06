@@ -168,15 +168,15 @@ const HomePage = () => {
             <div>
                 <div>
                 {!excelData.length > 0 ? (
-                    <h2 className = 'font-poppins text-green text-lg absolute left-4 top-20 md:absolute p-4 rounded-lg'>Work Dashboard</h2>
+                    <h2 className = 'font-poppins text-green absolute left-4 top-20 md:absolute p-4 rounded-lg text-sm md:text-lg'>Work Dashboard</h2>
                 ) : (
-                    <h2 className='font-poppins text-green text-lg fixed left-4 top-20 md:absolute p-4 rounded-lg'>{fileName}</h2>
+                    <h2 className='font-poppins text-green absolute left-4 top-20 md:absolute p-4 rounded-lg text-sm md:text-lg'>{fileName}</h2>
                 )}
-                <button className='button generate-new-solution' onClick={toggleModal}>+ Generate New Solution</button>
+                <button className=' hidden lg:block bg-green text-black absolute w-60 h-12 right-4 top-20 m-4' onClick={toggleModal}>+ Generate New Solution</button>
                 <div className ="fixed left-4 top-36 p-4">
                 <input type="text" placeholder="Search..." className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl"  value={searchQuery} onChange={handleSearchInputChange}/>
-                <button className = "hidden md:block fixed top-40 right-44">Export All</button>
-                <button className = "hidden md:block fixed top-40 right-6">Export Selected</button>
+                <button className = "hidden lg:block fixed top-40 right-44">Export All</button>
+                <button className = "hidden lg:block fixed top-40 right-6">Export Selected</button>
                 {/* <div className="magnify"></div> */}
                 <br />
                 <br />

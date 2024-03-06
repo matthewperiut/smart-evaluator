@@ -165,6 +165,7 @@ th {
 }
 .upload-label {
   position: relative;
+  color: #213547;
 }
 .file-input {
   position: absolute;
