@@ -4,58 +4,88 @@ import axios from 'axios';
 import ExcelJS from 'exceljs';
 import './HomePage.css';
 import Header from '../Header/Header';
+import VendibilityRequestDemo from './VendibilityRequestDemo'
 
 const HomePage = () => {
     const [file, setFile] = useState(null);
+    const [fileName, setFileName] = useState('');
     const [excelData, setExcelData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
     const [columnHeaders, setColumnHeaders] = useState([]);
     const [solutionName, setSolutionName] = useState('');
     const [areaType, setAreaType] = useState('');
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
+        setFileName(localStorage.getItem("fileName"));
         if (uploadedExcel) {
-            setExcelData(JSON.parse(uploadedExcel));
-            setIsExcelUploaded(true);
+            const parsedExcelData = JSON.parse(uploadedExcel);
+            setExcelData(parsedExcelData);
+            setFilteredData(parsedExcelData);
         }
         if (excelData.length > 0) {
             setColumnHeaders(excelData[0]);
         }
-    }, [excelData]);
+    }, []);
+
+    useEffect(() => {
+        if (debouncedSearchQuery === '') {
+            setFilteredData(excelData);
+        } else {
+            filterData(debouncedSearchQuery);
+        }
+    }, [debouncedSearchQuery, excelData]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 10000);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
 
     const readExcel = async (file) => {
-        const workbook = new ExcelJS.Workbook();
-        const arrayBuffer = await file.arrayBuffer();
-        await workbook.xlsx.load(arrayBuffer);
-        const worksheet = workbook.worksheets[0];
-        let maxColumnNumber = 0;
-        worksheet.eachRow((row) => {
-            if (row.cellCount > maxColumnNumber) {
-                maxColumnNumber = row.cellCount;
-            }
-        });
-        
-        setIsLoading(true);
-        const rows = [];
-        let isFirstRow = true;
-        worksheet.eachRow((row, rowNumber) => {
-            if (isFirstRow) {
-                isFirstRow = false;
-                return; // Skip the first row (It was displaying the first row twice initially)
-            }
-            const rowData = new Array(maxColumnNumber).fill('');
-            row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                rowData[colNumber - 1] = cell.value || ''; // Ensure empty cells are represented
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const arrayBuffer = await file.arrayBuffer();
+            await workbook.xlsx.load(arrayBuffer);
+            const worksheet = workbook.worksheets[0];
+            let maxColumnNumber = 0;
+            worksheet.eachRow((row) => {
+                if (row.cellCount > maxColumnNumber) {
+                    maxColumnNumber = row.cellCount;
+                }
             });
-            rows.push(rowData);
-        });
-        setExcelData(rows);
-        setIsExcelUploaded(true);
-        setIsLoading(false);
-        localStorage.setItem('uploadedExcel', JSON.stringify(rows));
+            
+            
+            const rows = [];
+            let isFirstRow = true;
+            worksheet.eachRow((row, rowNumber) => {
+                setIsLoading(true);
+                if (isFirstRow) {
+                    isFirstRow = false;
+                    return; // Skip the first row (It was displaying the first row twice initially)
+                }
+                const rowData = new Array(maxColumnNumber).fill('');
+                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                    rowData[colNumber - 1] = cell.value || ''; // Ensure empty cells are represented
+                });
+                rows.push(rowData);
+                setIsLoading(false);
+            });
+            setExcelData(rows);
+            setFileName(file.name);
+            setFilteredData(rows);
+            localStorage.setItem('uploadedExcel', JSON.stringify(rows));
+            localStorage.setItem('fileName', file.name);
+        } catch (error) {
+            console.error('Error reading excel document:', error);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -77,6 +107,14 @@ const HomePage = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            //Print to DOM
+            seta1(`Session ID: ${response.data._id} \n ItemIDs: ${response.data.uncompleted_items}`);
+
+            //Print to console
+            console.log(`New Session Created! \n 
+            Session ID: ${response.data._id}
+            Item IDs: ${response.data.uncompleted_items}`);
+
             toggleModal();
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -102,6 +140,26 @@ const HomePage = () => {
         else{
             setSelectedRows([...selectedRows, rowIndex]);
         }
+    }
+
+
+    // Function to filter data based on search query
+    const filterData = (query) => {
+        const filtered = excelData.filter((row, index) => {
+            // Always include the first row (headers)
+            if (index === 0) return true;
+            // Filter rows based on search query
+            return row.some((cell) => String(cell).toLowerCase().includes(query));
+        });
+        // Set filtered data including the first row (headers)
+        setFilteredData(filtered.length > 0 ? filtered : excelData);
+    };
+    
+    // Function to handle search input change
+    const handleSearchInputChange = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+        filterData(query);
     };
 
     return (
@@ -109,13 +167,17 @@ const HomePage = () => {
             <Header />
             <div>
                 <div>
-                <h2 className = 'font-poppins text-green text-lg fixed left-4 top-20 p-4 rounded-lg'>Work Dashboard</h2>
+                {!excelData.length > 0 ? (
+                    <h2 className = 'font-poppins text-green text-lg absolute left-4 top-20 md:absolute p-4 rounded-lg'>Work Dashboard</h2>
+                ) : (
+                    <h2 className='font-poppins text-green text-lg fixed left-4 top-20 md:absolute p-4 rounded-lg'>{fileName}</h2>
+                )}
                 <button className='button generate-new-solution' onClick={toggleModal}>+ Generate New Solution</button>
-                </div>
                 <div className ="fixed left-4 top-36 p-4">
-                <input type="text" placeholder="Search..." class="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl"/>
-                <button className = "fixed top-40 right-44">Export All</button>
-                <button className = "fixed top-40 right-6">Export Selected</button>
+                <input type="text" placeholder="Search..." className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl"  value={searchQuery} onChange={handleSearchInputChange}/>
+                <button className = "hidden md:block fixed top-40 right-44">Export All</button>
+                <button className = "hidden md:block fixed top-40 right-6">Export Selected</button>
+                {/* <div className="magnify"></div> */}
                 <br />
                 <br />
                 </div>
@@ -249,11 +311,11 @@ const HomePage = () => {
                         </div>
                     )}
                 <div className='display-box'>
-                    {excelData.length > 0 && (
+                    {filteredData.length > 0 && (
                         <div className="scrollable-container">
                             <table>
                                 <tbody>
-                                    {excelData.map((row, rowIndex) => (
+                                    {filteredData.map((row, rowIndex) => (
                                         <tr key={rowIndex} className={selectedRows.includes(rowIndex) ? 'selected-row' : ''}>
                                             <td>
                                                 <input
@@ -286,7 +348,9 @@ const HomePage = () => {
                 </div>
             </div>
         </div>
+        </div>
     );
 };
+
 
 export default HomePage;
