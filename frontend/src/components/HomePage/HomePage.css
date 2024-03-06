@@ -7,10 +7,12 @@
 }
 
 .scrollable-container {
-  max-height: 400px;
+  max-height: 600px;
   overflow-y: auto;
   border: 1px solid #ccc;
   margin-top: 20px;
+  margin: 2%;
+  box-shadow: 0 2px 10px #787878 ;
 }
 
 table {
@@ -29,12 +31,6 @@ th {
   background-color: #f2f2f2;
 }
 
-.work-dashboard {
-  color: rgb(20, 90, 50);
-  position: fixed;
-  left: 25px;
-  top: 75px;
-}
 
 .generate-new-solution {
   background-color: #44A76E;
@@ -118,7 +114,7 @@ th {
   width: 43%;
   height: 65vh;
   background-color: #fefefe;
-  border-radius: 52px;
+  border-radius: 7%;
   padding: 0;
 }
 .modal-content {  /* Everything in the modal */
@@ -140,7 +136,7 @@ th {
 }
 .modal-line {
   border: none;
-  width: 99.5%;
+  width: auto;
   height: 2px;
   background-color: rgb(212, 239, 223);
 }
@@ -155,6 +151,8 @@ th {
   background-color: rgb(19, 50, 160, 5%);
   cursor: pointer;
   margin: auto;
+  margin-left: 15%;
+  margin-bottom: 5%;
   width: 64%;
   height: 150px;
   padding: 20px;
@@ -212,3 +210,29 @@ li::before {
   content: '\2022'; /* Unicode character for bullet point */
   margin-right: 0.5em;
 }
+
+.loading-animation {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #44A76E;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  input[type="checkbox"] {
+    margin: 12px;
+    border-width:1px;
+    height: 1.1rem;
+    width: 1.1rem;
+    
+  }
+
+  .selected-row {
+    background-color: #CBCBCB;
+  }

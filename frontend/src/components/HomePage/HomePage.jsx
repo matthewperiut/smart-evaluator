@@ -12,6 +12,8 @@ const HomePage = () => {
     const [solutionName, setSolutionName] = useState('');
     const [areaType, setAreaType] = useState('');
     const [isExcelUploaded, setIsExcelUploaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedRows, setSelectedRows] = useState([]);
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -35,7 +37,8 @@ const HomePage = () => {
                 maxColumnNumber = row.cellCount;
             }
         });
-
+        
+        setIsLoading(true);
         const rows = [];
         let isFirstRow = true;
         worksheet.eachRow((row, rowNumber) => {
@@ -51,6 +54,7 @@ const HomePage = () => {
         });
         setExcelData(rows);
         setIsExcelUploaded(true);
+        setIsLoading(false);
         localStorage.setItem('uploadedExcel', JSON.stringify(rows));
     };
 
@@ -91,27 +95,45 @@ const HomePage = () => {
         console.log(file);
     }
 
+    const toggleRow = (rowIndex) => {
+        if (selectedRows.includes(rowIndex)) {
+            setSelectedRows(selectedRows.filter(row => row !== rowIndex));
+        }
+        else{
+            setSelectedRows([...selectedRows, rowIndex]);
+        }
+    };
+
     return (
         <div>
             <Header />
             <div>
-                <h2 className='work-dashboard'>Work Dashboard</h2>
+                <div>
+                <h2 className = 'font-poppins text-green text-lg fixed left-4 top-20 p-4 rounded-lg'>Work Dashboard</h2>
                 <button className='button generate-new-solution' onClick={toggleModal}>+ Generate New Solution</button>
-                <div className="search-container">
-                    <input type="text" placeholder="Search" />
                 </div>
-                <div className="magnify"></div>
+                <div className ="fixed left-4 top-36 p-4">
+                <input type="text" placeholder="Search..." class="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl"/>
+                <button className = "fixed top-40 right-44">Export All</button>
+                <button className = "fixed top-40 right-6">Export Selected</button>
                 <br />
                 <br />
-
-
+                </div>
+                
+                
+                
                 {/* Modal */}
                 <div id="generateSolution" className='modal-filter'>
                     <div className='modal-container'>
                         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
                             <div className='modal-content'>
                                 <h2 className='poppins-regular'
-                                    style={{ color: 'rgb(68, 167, 110)' }}>
+                                    style={{ 
+                                        color: 'rgb(68, 167, 110)',
+                                        fontSize: '24px',
+                                        margin: '5%'
+                                    
+                                    }}>
                                     Import New Items
                                 </h2>
                                 <hr className='modal-line'></hr>
@@ -121,6 +143,7 @@ const HomePage = () => {
                                             fontSize: '18px',
                                             display: 'flex',
                                             marginLeft: '15%',
+                                            padding: '2%',
                                             color: 'rgb(20, 90, 50)'
                                         }}
                                     >
@@ -134,7 +157,7 @@ const HomePage = () => {
                                             </div>
                                         ) : (
                                             <div className='upload-file'>
-                                                <label htmlFor="fileInput">
+                                                <label htmlFor="fileInput" style={{ color: '#213547' }}>
                                                     Click or drag a file here to upload
                                                 </label>
                                                 <input
@@ -183,11 +206,11 @@ const HomePage = () => {
                                         Instructions
                                     </h3>
                                     <h4
-                                        style={{ display: 'flex', marginLeft: '15%' }}
+                                        style={{ display: 'flex', marginLeft: '15%', color: '#213547'}}
                                     >
                                         Structure your file to assign a column to each of the values below.
                                     </h4>
-                                    <ul>
+                                    <ul style={{ marginLeft: '15%', color: '#213547'}}> 
                                         <li>SKU</li>
                                         <li>Item Description</li>
                                         <li>Manufacturer Part #</li>
@@ -212,7 +235,7 @@ const HomePage = () => {
                                         Import
                                     </button>
                                     <button type='button' onClick={toggleModal}
-                                        style={{ width: "24.7%" }}
+                                        style={{ width: "24.7%", color: '#213547' }}
                                     >
                                         Cancel
                                     </button>
@@ -221,13 +244,25 @@ const HomePage = () => {
                         </form>
                     </div>
                 </div>
+                {isLoading && (
+                        <div className = "animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green">
+                        </div>
+                    )}
                 <div className='display-box'>
                     {excelData.length > 0 && (
                         <div className="scrollable-container">
                             <table>
                                 <tbody>
                                     {excelData.map((row, rowIndex) => (
-                                        <tr key={rowIndex}>
+                                        <tr key={rowIndex} className={selectedRows.includes(rowIndex) ? 'selected-row' : ''}>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedRows.includes(rowIndex)}
+                                                    onChange={() => toggleRow(rowIndex)}
+                                                    disabled={rowIndex== 0}
+                                                    />
+                                            </td>
                                             {row.map((cell, cellIndex) => (
                                                 <td key={cellIndex}>
                                                     {rowIndex >= 1 && cellIndex === 1 ? (

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import CribmasterLogo from "/src/assets/Cribmaster_Logo_White.png"
 
+
 const Header = () => {
     const navigate = useNavigate();
 
