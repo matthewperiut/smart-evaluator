@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './TableDisplay.css';
 
-
-
-const TableDisplay = ({excelData}) => {
+const TableDisplay = ({ excelData, isExcelUploaded }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -15,7 +13,7 @@ const TableDisplay = ({excelData}) => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
         if (uploadedExcel) {
             const parsedExcelData = JSON.parse(uploadedExcel);
-            setFilteredData(parsedExcelData)
+            setFilteredData(parsedExcelData);
         } else if (excelData) {
             setFilteredData(excelData);
         }
@@ -26,7 +24,7 @@ const TableDisplay = ({excelData}) => {
             setFilteredData(excelData);
         } else {
             filterData(debouncedSearchQuery);
-            
+
         }
     }, [debouncedSearchQuery, excelData]);
 
@@ -42,7 +40,7 @@ const TableDisplay = ({excelData}) => {
         if (selectedRows.includes(rowIndex)) {
             setSelectedRows(selectedRows.filter(row => row !== rowIndex));
         }
-        else{
+        else {
             setSelectedRows([...selectedRows, rowIndex]);
         }
     }
@@ -58,7 +56,7 @@ const TableDisplay = ({excelData}) => {
         // Set filtered data including the first row (headers)
         setFilteredData(filtered.length > 0 ? filtered : excelData);
     };
-    
+
     // Function to handle search input change
     const handleSearchInputChange = (e) => {
         const query = e.target.value.toLowerCase();
@@ -70,15 +68,19 @@ const TableDisplay = ({excelData}) => {
         <div>
             <div className="fixed left-4 top-36 p-4">
                 <input type="text" placeholder="Search..." className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl" value={searchQuery} onChange={handleSearchInputChange} />
-                <button className="hidden lg:block fixed top-40 right-44">Export All</button>
-                <button className="hidden lg:block fixed top-40 right-6">Export Selected</button>
+                {isExcelUploaded &&
+                    <div>
+                        <button className="hidden lg:block fixed top-40 right-44">Export All</button>
+                        <button className="hidden lg:block fixed top-40 right-6">Export Selected</button>
+                    </div>
+                }
                 <br />
                 <br />
             </div>
             {isLoading && (
-                        <div className = "animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green">
-                        </div>
-                    )}
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green">
+                </div>
+            )}
             <div className='display-box'>
                 {filteredData.length > 0 && (
                     <div className="scrollable-container">

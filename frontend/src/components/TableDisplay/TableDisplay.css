@@ -19,6 +19,17 @@
     background-color: #CBCBCB;
 }
 
+th,
+td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
 .loading-animation {
     border: 16px solid #f3f3f3;
     border-top: 16px solid #44A76E;

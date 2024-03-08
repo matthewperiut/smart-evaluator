@@ -1,0 +1,116 @@
+.modal-filter {
+    /* AKA the gray filter outside the modal */
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 1920px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-container {
+    display: flex;
+    justify-content: center;
+    margin: 10% auto;
+    width: 43%;
+    height: 65vh;
+    background-color: #fefefe;
+    border-radius: 7%;
+    padding: 0;
+}
+
+.modal-content {
+    /* Everything in the modal */
+    width: 100%;
+    height: 75%;
+}
+
+.modal-line {
+    border: none;
+    width: auto;
+    height: 2px;
+    background-color: rgb(212, 239, 223);
+}
+
+/* Form inside the modal */
+.modal-form {
+    max-height: 90%;
+    overflow: auto;
+}
+
+/* Upload File Box */
+.upload-file {
+    border: 2px dashed #ccc;
+    background-color: rgb(19, 50, 160, 5%);
+    cursor: pointer;
+    margin: auto;
+    margin-left: 15%;
+    margin-bottom: 5%;
+    width: 64%;
+    height: 150px;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+}
+
+.upload-label {
+    position: relative;
+    color: #213547;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.header-container {
+    display: flex;
+    padding-left: 13%;
+}
+
+.header-container h3 {
+    text-align: left;
+    margin-right: 25px;
+    margin-bottom: 2px;
+}
+
+.input-container {
+    align-items: center;
+    margin-inline: 10px;
+}
+
+.input-container input[type="text"] {
+    background-color: rgb(203, 203, 203);
+    border-radius: 5px;
+    border: none;
+    margin-right: 25px;
+    padding: 5px;
+}
+
+ul {
+    list-style-position: inside;
+    padding-left: 17%;
+    margin-left: 0;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+}
+
+li::before {
+    content: '\2022';
+    /* Unicode character for bullet point */
+    margin-right: 0.5em;
+}
