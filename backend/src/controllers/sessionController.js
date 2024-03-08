@@ -59,7 +59,9 @@ exports.uploadSpreadsheet = async function (req, res) {
                 coil_vendability: {
                   coil_vendable: worksheet.getCell(`AI${row}`).value, 
                   needs_repack_for_coil: worksheet.getCell(`AJ${row}`).value, 
-                  coil_pitch_num_items_per_row: worksheet.getCell(`AK${row}`).value, 
+                  coil_pitch: null, //Added this to separate coil pitch from coil capacity
+                  coil_capacity: null, //Added this to represent actual capacity of an entire coil, factoring in weight.
+                  seven_shelf_compatable: null, //Added this to indicate if the item is vendable on the seven shelf toolbox, which has a smaller max height.           
                   coil_type: worksheet.getCell(`AL${row}`).value, 
                   preferred_shelf: worksheet.getCell(`AM${row}`).value, 
                   preferred_row: worksheet.getCell(`AN${row}`).value, 
