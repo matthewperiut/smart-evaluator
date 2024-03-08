@@ -6,15 +6,6 @@
   text-align: center;
 }
 
-.scrollable-container {
-  max-height: 660px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  margin-top: 20px;
-  margin: 2%;
-  box-shadow: 0 2px 10px #787878 ;
-}
-
 table {
   border-collapse: collapse;
   width: 100%;
@@ -86,14 +77,6 @@ th {
   top: 100%;
   left: 80%;
   transform: rotate(45deg);
-}
-
-.display-box {
-  position: fixed;
-  display: flex;
-  align-self: center;
-  top: 21%;
-  width: 95%;
 }
 
 /* Modal */
@@ -213,7 +196,7 @@ li::before {
   margin-right: 0.5em;
 }
 
-.loading-animation {
+/* .loading-animation {
   border: 16px solid #f3f3f3;
   border-top: 16px solid #44A76E;
   border-radius: 50%;
@@ -225,16 +208,4 @@ li::before {
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-  }
-
-  input[type="checkbox"] {
-    margin: 12px;
-    border-width:1px;
-    height: 1.1rem;
-    width: 1.1rem;
-    
-  }
-
-  .selected-row {
-    background-color: #CBCBCB;
-  }
+  } */
