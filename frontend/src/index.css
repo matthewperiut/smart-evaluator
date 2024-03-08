@@ -1,8 +1,10 @@
+@import "../node_modules/tailwindcss/base.css";
+@import "../node_modules/tailwindcss/components.css";
+@import "../node_modules/tailwindcss/utilities.css";
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  /* line-height: 1.5;
-  font-weight: 400; */
-
+  font-family: "Sarabun", sans-serif;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -13,6 +15,20 @@
   -moz-osx-font-smoothing: grayscale;
   
 }
+
+
+/* Extra Fonts */
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.sarabun-regular {
+  font-family: "Sarabun", sans-serif;
+  font-weight: bold;
+  font-style: normal;
+}
+
 
 /* Hyperlink CSS */
 a {

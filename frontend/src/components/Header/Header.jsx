@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import CribmasterLogo from "/src/assets/Cribmaster_Logo_White.png"
 
+
 const Header = () => {
     const navigate = useNavigate();
 
@@ -10,22 +11,15 @@ const Header = () => {
     //  ensuring that they happen at the right time during the component lifecycle. 
     //  In this case, it ensures that the navigation action occurs after the initial render and any updates to the navigate function.
     useEffect(() => {
-
         return () => { // Cleanup tasks can go in this function.
         };
     }, [navigate]);
 
     return (
         <header className='top-bar'>
-                <img src={CribmasterLogo} className="logo"></img>
+            <img src={CribmasterLogo} className="logo"></img>
             <nav className='nav-list'>
                 <button className="nav-link">Existing Session IDs</button>
-                <div className="nav-link">
-                <label>Enter Session ID: </label>
-                <input>
-                </input>
-                </div>
-
             </nav>
         </header>
     );
