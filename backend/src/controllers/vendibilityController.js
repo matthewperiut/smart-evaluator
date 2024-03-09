@@ -28,10 +28,10 @@ exports.itemVendibility = async function (req, res) {
 
             /* INITIATE DATA COLLECTION */
             
-            const item_dimensions = fillDimensions(item);
+            const item_dimensions = await fillDimensions(item);
             item.width_inch = item_dimensions.width_inch;
-            item.height_inch = item_dimensions.width_inch;
-            item.length_inch = item_dimensions.width_inch;
+            item.height_inch = item_dimensions.height_inch;
+            item.length_inch = item_dimensions.length_inch;
 
             /*-----INITIATE DATA ANALYSIS-----*/
             const result = dataAnalysis(item); 

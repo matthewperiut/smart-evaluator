@@ -211,7 +211,6 @@ const getCoilVendibility = (item) => {
             if(Dimensions[2] > slot_depths[i]) {
                 count = temp_count;
             } else temp_count = pitch_counts[i];
-            console.log(`count: ${count}, temp_count = ${temp_count}`)
         }
 
         if (Dimensions[2] < pitch_counts[pitch_counts.length-1]) {
