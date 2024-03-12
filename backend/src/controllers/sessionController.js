@@ -23,7 +23,7 @@ exports.uploadSpreadsheet = async function (req, res) {
   
             //Create item object for each row in the spreadsheet
             let counter = 0
-            for (let row = 4; row <= 5; row ++) {
+            for (let row = 4; row <= 4; row ++) {
               const item = {
                 _id: SYSTEM_DATA.ITEM_COUNTER + counter,
                 sku: worksheet.getCell(`A${row}`).value,
@@ -70,11 +70,12 @@ exports.uploadSpreadsheet = async function (req, res) {
                   coil_end_clock_position: worksheet.getCell(`AQ${row}`).value, 
                 }
               }
+
               //Add item object to database. 
-              await db.newItem(db.client, item);
+              const result = await db.newItem(db.client, item);
       
               //Add item to session's uncompleted_items[]
-              session.uncompleted_items.push(item._id);
+              session.uncompleted_items.push(result._id);
               counter ++;
             }
 
