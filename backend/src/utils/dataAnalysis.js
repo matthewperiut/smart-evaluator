@@ -131,12 +131,13 @@ const getCoilVendibility = (item) => {
     }
 
     //Constants Containing Coil Information
-    const SIX_SHELF_MAX_HEIGHT = 6; 
-    const SEVEN_SHELF_MAX_HEIGHT = 8; 
+    const SIX_SHELF_MAX_HEIGHT = 8; 
+    const SEVEN_SHELF_MAX_HEIGHT = 6; 
     const DUAL_HELIX_DIAMETER = 5;
     const LARGE_HELIX_DIAMETER = 3.75;
     const SINGLE_HELIX_DIAMETER = 2.5;
     const HELIX_MAX_WEIGHT = 10;
+    const RISER_PLATFORM_HEIGHT = 1.5; 
     
     const SINGLE_PITCH_COUNTS = [5, 7, 8, 9, 10, 12, 15, 18, 24, 32];
     const SINGLE_SLOT_DEPTHS = [4.04, 2.9, 2.51, 2.25, 2.02, 1.66, 1.3, 1.05, 0.75, 0.53];
@@ -148,10 +149,11 @@ const getCoilVendibility = (item) => {
     const DUAL_SLOT_DEPTHS = [4.04, 2.9, 2.02, 1.66, 1.3, 1.05, 0.75];
 
 
-    //Create an array containing item dimensions.
+    //Create an array containing item dimensions. This array will be used to determine
+    //Which axes should be considered "depth", "height" or "width". 
     const Dimensions = [Number(item.width_inch), Number(item.length_inch), Number(item.height_inch)];
 
-    // Vertical storage means the item can't be rotated longitudinally to fit .
+    // Vertical storage means the item can't be rotated longitudinally to fit.
     if (item.store_vertically) {
         //Set height to first dimension
         Dimensions[0] = item.height_inch;
@@ -240,6 +242,16 @@ const getCoilVendibility = (item) => {
     } else {
         coil_vendibility.coil_capacity = (capacity * item.weight_lbs) < HELIX_MAX_WEIGHT? capacity: Math.floor((HELIX_MAX_WEIGHT)/item.weight_lbs)
     }
+
+    //Calculate whether the item needs a riser
+    if (Dimensions[0] <= item.SINGLE_HELIX_DIAMETER) {
+        if (Dimensions [0] + RISER_PLATFORM_HEIGHT <= item.SINGLE_HELIX_DIAMETER) {
+            coil_vendibility.coil_vendable = false;//If item is STILL to short, it's not vendable. 
+        } else {
+            coil_vendibility.riser_required = true; 
+        }
+    } else coil_vendibility.riser_required = false;
+
     return coil_vendibility;
 }
 
