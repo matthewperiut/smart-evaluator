@@ -16,21 +16,35 @@ exports.client = new MongoClient(uri, {
 
 exports.newItem = async function (client, item) {
   try {
-    //Add Item to database
-    const result = await client.db("Backend_Database").collection("Item").insertOne(item);
+    //Check if item exists
+    result = await client.db("Backend_Database").collection("Item").findOne({sku: item.sku, manufacturer_part_num: item.manufacturer_part_num});
+    
+    if (result) {
+        // Print item information to the console
+        console.log(` Item already exists: \n
+        Existing id: ${result._id} \n 
+        item_description: ${result.item_description} \n 
+        manufacturer_part_num: ${result.manufacturer_part_num}`);
 
-    //Increment Item counter
-    await client.db("Backend_Database").collection("System_Data").updateOne(
-      { NAME: "COUNTER_INFO" },
-      { $inc: { ITEM_COUNTER: 1}}
-    );
-    console.log("Incremented item counter");
+        return result; 
+    } else {
+      //Add Item to database
+      const result = await client.db("Backend_Database").collection("Item").insertOne(item);
 
-    // Print item information to the console
-    console.log(`New Item id: ${item._id} \n 
-    item_description: ${item.item_description} \n 
-    manufacturer_part_num: ${item.manufacturer_part_num}`);
+      //Increment Item counter
+      await client.db("Backend_Database").collection("System_Data").updateOne(
+        { NAME: "COUNTER_INFO" },
+        { $inc: { ITEM_COUNTER: 1}}
+      );
+      console.log("Incremented item counter");
 
+      // Print item information to the console
+      console.log(`New Item id: ${item._id} \n 
+      item_description: ${item.item_description} \n 
+      manufacturer_part_num: ${item.manufacturer_part_num}`);
+
+      return item; 
+    }
   } catch (error) {
     console.error("Error adding item:", error);
   }
