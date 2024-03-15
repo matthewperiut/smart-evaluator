@@ -2,6 +2,7 @@
     position: fixed;
     display: flex;
     align-self: center;
+    flex-direction: column;
     top: 21%;
     width: 95%;
 }
@@ -47,6 +48,12 @@ th {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.display-box button {
+    max-width: 200px; /* Adjust the value as needed */
+    display: flex;
+    align-self:center;
 }
 
 input[type="checkbox"] {

@@ -12,6 +12,7 @@ function App() {
   const handleExcelUpload = (data, fileName, solutionId) => {
     localStorage.setItem('uploadedExcel', JSON.stringify(data));
     localStorage.setItem('fileName', fileName);
+    localStorage.setItem('solutionId', solutionId)
     setSolutionId(solutionId);
     setExcelData(data);
     setIsExcelUploaded(true);
