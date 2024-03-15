@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './TableDisplay.css';
 
-const TableDisplay = ({ excelData, isExcelUploaded }) => {
+const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -66,7 +66,9 @@ const TableDisplay = ({ excelData, isExcelUploaded }) => {
 
     return (
         <div>
+
             <div className="fixed left-4 top-36 p-4">
+            <h2>SolutionID = {solutionId}</h2>
                 <input type="text" placeholder="Search..." className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl" value={searchQuery} onChange={handleSearchInputChange} />
                 {isExcelUploaded &&
                     <div>

@@ -3,7 +3,7 @@ import Header from '../Header/Header';
 import TableDisplay from '../TableDisplay/TableDisplay';
 import Modal from '../Modal/Modal';
 
-const HomePage = ({ excelData, isExcelUploaded, onExcelUpload, fileName }) => {
+const HomePage = ({ excelData, solutionId, isExcelUploaded, onExcelUpload, fileName }) => {
     return (
         <div>
             <Header />
@@ -15,7 +15,7 @@ const HomePage = ({ excelData, isExcelUploaded, onExcelUpload, fileName }) => {
                         <h2 className='font-poppins text-green absolute left-4 top-20 md:absolute p-4 rounded-lg text-sm md:text-lg'>{fileName}</h2>
                     )}
                     <Modal onExcelUpload={onExcelUpload}/>
-                    <TableDisplay excelData={excelData} isExcelUploaded={isExcelUploaded} />
+                    <TableDisplay excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} />
                 </div>
             </div>
         </div>

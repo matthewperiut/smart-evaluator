@@ -7,10 +7,12 @@ function App() {
   const [excelData, setExcelData] = useState([]);
   const [isExcelUploaded, setIsExcelUploaded] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [solutionId, setSolutionId] = useState(0);
 
-  const handleExcelUpload = (data, fileName) => {
+  const handleExcelUpload = (data, fileName, solutionId) => {
     localStorage.setItem('uploadedExcel', JSON.stringify(data));
     localStorage.setItem('fileName', fileName);
+    setSolutionId(solutionId);
     setExcelData(data);
     setIsExcelUploaded(true);
     setFileName(fileName);
@@ -31,7 +33,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<HomePage excelData={excelData} isExcelUploaded={isExcelUploaded} onExcelUpload={handleExcelUpload} fileName={fileName} />}
+            element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} onExcelUpload={handleExcelUpload} fileName={fileName} />}
           />
           <Route path="/itemDetails" element={<ItemDetails />} />
         </Routes>

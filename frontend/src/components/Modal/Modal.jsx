@@ -8,7 +8,7 @@ const Modal = ({ onExcelUpload }) => {
     const [solutionName, setSolutionName] = useState('');
     const [areaType, setAreaType] = useState('');
 
-    const readExcel = async (file) => {
+    const readExcel = async (file, item_id_list, solutionId) => {
         try {
             const workbook = new ExcelJS.Workbook();
             const arrayBuffer = await file.arrayBuffer();
@@ -33,9 +33,11 @@ const Modal = ({ onExcelUpload }) => {
                 row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                     rowData[colNumber - 1] = cell.value || ''; // Ensure empty cells are represented
                 });
+                //Add itemID to alt item ID collumn
+                rowData[4] = rowNumber > 3? item_id_list[rowNumber - 4] : rowData[4];
                 rows.push(rowData);
             });
-            onExcelUpload(rows, file.name);
+            onExcelUpload(rows, file.name, solutionId);
         } catch (error) {
             console.error('Error reading excel document:', error);
         }
@@ -48,12 +50,7 @@ const Modal = ({ onExcelUpload }) => {
         const formData = new FormData();
         formData.append('excelFile', file);
 
-        try {
-            readExcel(file);
-        }
-        catch (error) {
-            console.error('Error reading excel document:', error);
-        }
+
         try {
             const response = await axios.post('http://localhost:5001/upload', formData, {
                 headers: {
@@ -61,10 +58,20 @@ const Modal = ({ onExcelUpload }) => {
                 },
             });
 
+
             //Print to console
             console.log(`New Session Created! \n 
             Session ID: ${response.data._id}
             Item IDs: ${response.data.uncompleted_items}`);
+
+            //const item_id_list = [1000000, 1000002, 1000003, 1000004];
+
+            try {
+                readExcel(file, response.data.uncompleted_items, response.data._id);
+            }
+            catch (error) {
+                console.error('Error reading excel document:', error);
+            }
 
             toggleModal();
         } catch (error) {
