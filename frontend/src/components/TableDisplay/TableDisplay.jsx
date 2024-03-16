@@ -20,13 +20,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
             setFilteredData(excelData);
         }
 
-        const sessionId = localStorage.getItem('solutionID');
-        if (sessionId) {
-            setSessionID(sessionId);
-        } else if (solutionId) {
+        const id = localStorage.getItem('solutionId');
+
+        if (solutionId) {
             setSessionID(solutionId);
+        }  else if (id) {
+            setSessionID(id);
         }
-    }, []);
+    }, [solutionId]);
 
     useEffect(() => {
         if (debouncedSearchQuery === '') {
@@ -74,10 +75,12 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     };
 
     //Initicates vendibility request for each item currently selected on the table. 
-    const handleVendibiilityRequest = () => {
-        let updatedData = filteredData; 
+    const handleVendibiilityRequest = async () => {
+        let updatedData = [...filteredData]; 
         //Cycle through each row (item) and request the backend for vendibility. 
-        selectedRows.forEach(async (rowIndex) => {
+        for (const rowIndex of selectedRows) {
+
+            console.log(`Session: ${sessionId} \n ItemId: ${filteredData[rowIndex][4]}`);
                 try {
                     const response = await axios.get('http://localhost:5001/itemVendibility', {
                         params: {
@@ -93,7 +96,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         updatedData[rowIndex][1] = item.item_description;
                         updatedData[rowIndex][2] = item.manufacturer_part_num;
                         updatedData[rowIndex][3] = item.item_manufacturer;
-                        updatedData[rowIndex][4] = item.alt_item_id_sku;
+                        updatedData[rowIndex][4] = item._id;
                         updatedData[rowIndex][5] = item.org_local_part_number;
                         updatedData[rowIndex][6] = item.point_of_use;
                         updatedData[rowIndex][7] = item.demand_quantity;
@@ -124,9 +127,9 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable;
                         updatedData[rowIndex][32] = item.carousel_vendability.needs_repack_for_carousel;
                         updatedData[rowIndex][33] = item.carousel_vendability.num_slots_per_item;
-                        updatedData[rowIndex][34] = item.coil_vendability.coil_vendable;
+                        updatedData[rowIndex][34] = item.coil_vendability.coil_vendable? 'Y' : 'N';
                         updatedData[rowIndex][35] = item.coil_vendability.needs_repack_for_coil;
-                        updatedData[rowIndex][36] = item.coil_vendability.coil_pitch_num_items_per_row;
+                        updatedData[rowIndex][36] = item.coil_vendability.coil_pitch;
                         updatedData[rowIndex][37] = item.coil_vendability.coil_type;
                         updatedData[rowIndex][38] = item.coil_vendability.preferred_shelf;
                         updatedData[rowIndex][39] = item.coil_vendability.preferred_row;
@@ -137,11 +140,13 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         updatedData[rowIndex][44] = item.item_image_url;
                         updatedData[rowIndex][45] = item.repacked_image_url;
                     });
+
+                    console.log(updatedData[rowIndex]);
                 } catch (error) {
                     console.error('Error requesting Vendibility', error);
                     alert('Error requesting Vendibility');
                 }
-        });
+        }
 
         setFilteredData(updatedData);
     }
@@ -150,7 +155,6 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         <div>
 
             <div className="fixed left-4 top-36 p-4">
-            <h2>SolutionID = {sessionId}</h2>
                 <input type="text" placeholder="Search..." className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl" value={searchQuery} onChange={handleSearchInputChange} />
                 {isExcelUploaded &&
                     <div>
