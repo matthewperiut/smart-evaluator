@@ -65,14 +65,26 @@ const ExportToExcel = ({excelData, selectedRows}) => {
 
         // Set header cell style for first row
         const row = sheet.getRow(1);
+        row.height = 50;
         
         row.eachCell({ includeEmpty: true }, function(cell, colNumber) {
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'A3C9E0' }
-                };
-                cell.font = { bold: true };
+            cell.font = { bold: true };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+            };
+            cell.alignment = {
+                vertical: 'middle',
+                horizontal: 'center'
+            };
+
+            if (colNumber <= 6) cell.fill.fgColor = { argb: 'A3C9E0' };
+            else if (colNumber <= 26) cell.fill.fgColor = { argb: 'EBBB8F' };
+            else if (colNumber <= 31) cell.fill.fgColor = { argb: '91AD7A' };
+            else if (colNumber <= 34) cell.fill.fgColor = { argb: 'B6CBA3' };
+            else if (colNumber <= 43) cell.fill.fgColor = { argb: 'ACAA8F' };
+            else if (colNumber <= 44) cell.fill.fgColor = { argb: 'C9B9E6' };
+            else if (colNumber <= 48) cell.fill.fgColor = { argb: 'E5C5AD' };
         });
 
         // Add data rows 

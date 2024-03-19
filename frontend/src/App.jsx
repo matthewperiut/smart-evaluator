@@ -23,7 +23,8 @@ function App() {
     const uploadedExcel = localStorage.getItem('uploadedExcel');
     if (uploadedExcel) {
       const parsedData = JSON.parse(uploadedExcel);
-      handleExcelUpload(parsedData, localStorage.getItem("fileName")); // Use handleExcelUpload instead of onExcelUpload
+      handleExcelUpload(parsedData, localStorage.getItem("fileName"), localStorage.getItem('solutionId')); // Use handleExcelUpload instead of onExcelUpload
+      setSolutionId(localStorage.getItem("solutionId"));
       setFileName(localStorage.getItem("fileName")); // Set fileName state
     }
   }, []);

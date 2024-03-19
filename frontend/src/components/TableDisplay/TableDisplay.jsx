@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import ExportToExcel from './ExportToExcel';
 import './TableDisplay.css';
 
 const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
@@ -24,10 +25,8 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
 
         if (solutionId) {
             setSessionID(solutionId);
-        }  else if (id) {
-            setSessionID(id);
         }
-    }, [solutionId]);
+    }, []);
 
     useEffect(() => {
         if (debouncedSearchQuery === '') {
@@ -153,14 +152,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
 
     return (
         <div>
-
             <div className="fixed left-4 top-36 p-4">
                 <input type="text" placeholder="Search..." className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left" placeholder-class="text-gray-400 font-bold text-xl" value={searchQuery} onChange={handleSearchInputChange} />
+                Session ID: {sessionId}
                 {isExcelUploaded &&
-                    <div>
-                        <button className="hidden lg:block fixed top-40 right-44">Export All</button>
-                        <button className="hidden lg:block fixed top-40 right-6">Export Selected</button>
-                    </div>
+                    <>
+                    <ExportToExcel excelData = {filteredData} selectedRows = {selectedRows}/>
+                    </>
+                    
                 }
                 <br />
                 <br />
