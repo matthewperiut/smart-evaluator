@@ -3,7 +3,8 @@
     display: flex;
     align-self: center;
     flex-direction: column;
-    top: 21%;
+    top: 23%;
+    height: 76%;
     width: 95%;
 }
 
@@ -61,4 +62,10 @@ input[type="checkbox"] {
     border-width: 1px;
     height: 1.1rem;
     width: 1.1rem;
+}
+
+.vendibility-button {
+    display: flex;
+    background-color: #44A76E;
+    
 }
