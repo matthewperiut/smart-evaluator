@@ -17,7 +17,7 @@ exports.client = new MongoClient(uri, {
 exports.newItem = async function (client, item) {
   try {
     //Check if item exists
-    result = await client.db("Backend_Database").collection("Item").findOne({sku: item.sku, manufacturer_part_num: item.manufacturer_part_num});
+    result = await client.db("Backend_Database").collection("Item").findOne({sku: item.sku, item_description: item.item_description, manufacturer_part_num: item.manufacturer_part_num});
     
     if (result) {
         // Print item information to the console
@@ -28,7 +28,11 @@ exports.newItem = async function (client, item) {
 
         return result; 
     } else {
-      //Add Item to database
+      //Get Counter (Maybe we should use a semaphore??? Idk)
+      const SYSTEM_DATA = await client.db("Backend_Database").collection("System_Data").findOne();
+
+      //Add Item to database with unique counter
+      item._id = SYSTEM_DATA.ITEM_COUNTER; 
       const result = await client.db("Backend_Database").collection("Item").insertOne(item);
 
       //Increment Item counter

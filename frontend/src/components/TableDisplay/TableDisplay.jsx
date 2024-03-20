@@ -25,8 +25,10 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
 
         if (solutionId) {
             setSessionID(solutionId);
+        } else if (id) {
+            setSessionID(id);
         }
-    }, []);
+    }, [solutionId]);
 
     useEffect(() => {
         if (debouncedSearchQuery === '') {

@@ -22,10 +22,8 @@ exports.uploadSpreadsheet = async function (req, res) {
             }
   
             //Create item object for each row in the spreadsheet
-            let counter = 0
             for (let row = 4; row <= 32; row ++) {
               const item = {
-                _id: SYSTEM_DATA.ITEM_COUNTER + counter,
                 sku: worksheet.getCell(`A${row}`).value,
                 item_description: worksheet.getCell(`B${row}`).value,
                 manufacturer_part_num: worksheet.getCell(`C${row}`).value,
@@ -76,7 +74,6 @@ exports.uploadSpreadsheet = async function (req, res) {
       
               //Add item to session's uncompleted_items[]
               session.uncompleted_items.push(result._id);
-              counter ++;
             }
 
             //Create new session with session counter 
