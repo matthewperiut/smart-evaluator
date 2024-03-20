@@ -66,6 +66,9 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         });
         // Set filtered data including the first row (headers)
         setFilteredData(filtered.length > 0 ? filtered : excelData);
+
+        // Update selectedRows to only contain valid indices after filtering
+        setSelectedRows(selectedRows.filter(rowIndex => rowIndex < filtered.length));
     };
 
     // Function to handle search input change
@@ -96,11 +99,11 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                     console.log(item);
                     //Update rows with information
                     // If the value from the response is null or undefined, updatedData is filled with the original updatedData index
-                    updatedData[rowIndex][0] = item.sku || updatedData[rowIndex][0];                    
+                    updatedData[rowIndex][0] = item.sku || updatedData[rowIndex][0];
                     updatedData[rowIndex][1] = item.item_description || updatedData[rowIndex][1];
                     updatedData[rowIndex][2] = item.manufacturer_part_num || updatedData[rowIndex][2];
                     updatedData[rowIndex][3] = item.item_manufacturer || updatedData[rowIndex][3];
-                    updatedData[rowIndex][4] = item._id || updatedData[rowIndex][4];                    
+                    updatedData[rowIndex][4] = item._id || updatedData[rowIndex][4];
                     updatedData[rowIndex][5] = item.org_local_part_number || updatedData[rowIndex][5];
                     updatedData[rowIndex][6] = item.point_of_use || updatedData[rowIndex][6];
                     updatedData[rowIndex][7] = item.demand_quantity || updatedData[rowIndex][7];
@@ -153,6 +156,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
             }
         }
         setFilteredData(updatedData);
+        localStorage.setItem('uploadedExcel', JSON.stringify(updatedData));
     }
 
     return (
