@@ -207,10 +207,10 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                                                         to={"/itemDetails"}
                                                         state={{ rowData: row, columnHeaders: excelData[0] }}
                                                     >
-                                                        {cell}
+                                                        {cell !== undefined && cell !== null ? String(cell) : ''}
                                                     </Link>
                                                 ) : (
-                                                    cell
+                                                    cell !== undefined && cell !== null ? String(cell) : ''
                                                 )}
                                             </td>
                                         ))}

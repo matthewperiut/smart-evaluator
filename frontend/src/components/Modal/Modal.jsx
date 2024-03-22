@@ -31,11 +31,13 @@ const Modal = ({ onExcelUpload }) => {
                 }
                 const rowData = new Array(maxColumnNumber).fill('');
                 row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                    rowData[colNumber - 1] = cell.value || ''; // Ensure empty cells are represented
+                    if(String(cell.value).length != 0 && cell.value !== null) rowData[colNumber - 1] = cell.value;
+                    else rowData[colNumber - 1] = ''; // Ensure empty cells are represented
                 });
                 //Add itemID to alt item ID collumn
                 rowData[4] = rowNumber > 3? item_id_list[rowNumber - 4] : rowData[4];
                 rows.push(rowData);
+                console.log(rowData);
             });
             onExcelUpload(rows, file.name, solutionId);
         } catch (error) {
