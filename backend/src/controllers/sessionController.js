@@ -22,10 +22,8 @@ exports.uploadSpreadsheet = async function (req, res) {
             }
   
             //Create item object for each row in the spreadsheet
-            let counter = 0
-            for (let row = 4; row <= 5; row ++) {
+            for (let row = 4; row <= 32; row ++) {
               const item = {
-                _id: SYSTEM_DATA.ITEM_COUNTER + counter,
                 sku: worksheet.getCell(`A${row}`).value,
                 item_description: worksheet.getCell(`B${row}`).value,
                 manufacturer_part_num: worksheet.getCell(`C${row}`).value,
@@ -59,7 +57,9 @@ exports.uploadSpreadsheet = async function (req, res) {
                 coil_vendability: {
                   coil_vendable: worksheet.getCell(`AI${row}`).value, 
                   needs_repack_for_coil: worksheet.getCell(`AJ${row}`).value, 
-                  coil_pitch_num_items_per_row: worksheet.getCell(`AK${row}`).value, 
+                  coil_pitch: null, //Added this to separate coil pitch from coil capacity
+                  coil_capacity: null, //Added this to represent actual capacity of an entire coil, factoring in weight.
+                  seven_shelf_compatable: null, //Added this to indicate if the item is vendable on the seven shelf toolbox, which has a smaller max height.           
                   coil_type: worksheet.getCell(`AL${row}`).value, 
                   preferred_shelf: worksheet.getCell(`AM${row}`).value, 
                   preferred_row: worksheet.getCell(`AN${row}`).value, 
@@ -68,12 +68,12 @@ exports.uploadSpreadsheet = async function (req, res) {
                   coil_end_clock_position: worksheet.getCell(`AQ${row}`).value, 
                 }
               }
+
               //Add item object to database. 
-              await db.newItem(db.client, item);
+              const result = await db.newItem(db.client, item);
       
               //Add item to session's uncompleted_items[]
-              session.uncompleted_items.push(item._id);
-              counter ++;
+              session.uncompleted_items.push(result._id);
             }
 
             //Create new session with session counter 

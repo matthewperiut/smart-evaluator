@@ -3,7 +3,7 @@ const qs = require('querystring');
 const puppeteer = require('puppeteer');
 const axios = require('axios');
 
-let verbose = false;
+let verbose = true;
 function log(...text) {
     if (verbose) {
         console.log(...text);
