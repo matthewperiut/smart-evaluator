@@ -1,4 +1,4 @@
-/* 
+/*
 * Name: dataAnalysis()
 * Description: Helper script that performs vendibility calculations used
 * on the data collected during the data collection phase of vendibility analysis. Called by external
@@ -209,9 +209,13 @@ const getCoilVendibility = (item) => {
     function calculatePitch(pitch_counts, slot_depths) {
         let temp_count = pitch_counts[0];
         let count = 0;
+
+        console.log(` Smallest dimension for this item is : ${Dimensions[2]} `);
         for(i = 0; i < pitch_counts.length - 1; i++) {
             if(Dimensions[2] > slot_depths[i]) {
+                console.log(`${Dimensions[2]} Is > ${slot_depths}`);
                 count = temp_count;
+                return count;
             } else temp_count = pitch_counts[i];
         }
 
