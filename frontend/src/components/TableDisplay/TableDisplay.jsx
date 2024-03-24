@@ -11,6 +11,25 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [sessionId, setSessionID] = useState();
+    const [sessionIDs, setSessionIDs] = useState([]);
+    useEffect(() => {
+        const fetchSessionIDs = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/getSessionIDs');
+                console.log("Response:", response.data._ids);
+                if (Array.isArray(response.data._ids)) {
+                    setSessionIDs(response.data._ids);
+                } else {
+                    console.error("Invalid response format: expected an array");
+                }
+            } catch (error) {
+                console.error("Error fetching session IDs:", error);
+                throw error;
+            }
+        };
+
+        fetchSessionIDs(); // Call the async function
+    }, []);
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -163,9 +182,10 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         <div>
             <div className="fixed left-4 top-36 p-4">
 
-                Session ID: {sessionId}
+
                 {isExcelUploaded &&
                     <div>
+                        Session ID: {sessionId}
                         <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
                         <input
                             type="text"
@@ -220,7 +240,22 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         </table>
                     </div>
                 ) : (
-                    <h1>Test</h1> // SessionIDs table to go here
+                    <div className="scrollable-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Session IDs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {sessionIDs.map((sessionId, index) => (
+                                    <tr key={index}>
+                                        <td>{sessionId}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
                 {selectedRows.length > 0 &&
                     <button className='vendibility-button' onClick={handleVendibiilityRequest}> Calculate Vendibility for {selectedRows.length} Item(s) </button>
