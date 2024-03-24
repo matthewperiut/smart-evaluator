@@ -12,6 +12,8 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [sessionId, setSessionID] = useState();
     const [sessionIDs, setSessionIDs] = useState([]);
+    const [completedItems, setCompletedItems] = useState([[]]);
+    const [uncompletedItems, setUncompletedItems] = useState([[]]);
     useEffect(() => {
         const fetchSessionIDs = async () => {
             try {
@@ -19,6 +21,18 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                 console.log("Response:", response.data._ids);
                 if (Array.isArray(response.data._ids)) {
                     setSessionIDs(response.data._ids);
+                } else {
+                    console.error("Invalid response format: expected an array");
+                }
+
+                if (Array.isArray(response.data.completedItems)) {
+                    setCompletedItems(response.data.completedItems);
+                } else {
+                    console.error("Invalid response format: expected an array");
+                }
+
+                if (Array.isArray(response.data.uncompletedItems)) {
+                    setUncompletedItems(response.data.uncompletedItems);
                 } else {
                     console.error("Invalid response format: expected an array");
                 }
@@ -240,21 +254,34 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         </table>
                     </div>
                 ) : (
-                    <div className="scrollable-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Session IDs</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sessionIDs.map((sessionId, index) => (
-                                    <tr key={index}>
-                                        <td>{sessionId}</td>
+                    <div className='display-box'>
+                        <div>
+                            <table style={{
+                                position: "fixed", width:"auto",
+                                left:"50%", transform: "translateX(-50%)",
+                                border: "1px solid #ccc",
+                                "margin-top": "20px",
+                                "box-shadow": "0 2px 10px #787878"
+                                }}
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>Session IDs</th>
+                                        <th>Completed Items</th>
+                                        <th>Uncompleted Items</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {sessionIDs.map((sessionId, index) => (
+                                        <tr key={index}>
+                                            <td>{sessionId}</td>
+                                            <td>{completedItems[index] ? completedItems[index].length : 0}</td>
+                                            <td>{uncompletedItems[index] ? uncompletedItems[index].length : 0}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
                 {selectedRows.length > 0 &&

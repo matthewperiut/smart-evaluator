@@ -118,9 +118,17 @@ exports.getSessionIDs = async function (req, res) {
 
     // Extract _id field from each document
     const sessionIDs = sessions.map(session => session._id);
+    // Extract completed_items and uncompleted_items from each document
+    const completedItems = sessions.map(session => session.completed_items);
+    const uncompletedItems = sessions.map(session => session.uncompleted_items);
+
+    console.log("Completed Items:", completedItems);
+    console.log("Uncompleted Items:", uncompletedItems);
 
     res.json({
-      _ids: sessionIDs
+      _ids: sessionIDs,
+      completedItems: completedItems,
+      uncompletedItems: uncompletedItems
     })
   } catch (error) {
     console.error("Error fetching session IDs:", error);
