@@ -27,7 +27,6 @@ exports.itemVendibility = async function (req, res) {
             const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
 
             /* INITIATE DATA COLLECTION */
-            
             const item_dimensions = await fillDimensions(item);
             item.width_inch = item_dimensions.width_inch;
             item.height_inch = item_dimensions.height_inch;

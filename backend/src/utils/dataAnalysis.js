@@ -121,9 +121,8 @@ const getCoilVendibility = (item) => {
         needs_repack_for_coil: null, 
         coil_pitch: null, //SEPARATED coil_pitch_num_items_per_row because the two values may not be equal due to weight
         coil_capacity: null,
-        seven_shelf_compatable: null, //Added this to indicate if the item is vendable on the seven shelf toolbox, which has a smaller max height. 
         coil_type: null, 
-        preferred_shelf: null, 
+        preferred_shelves: null, //Array of Shelves that can accomodate the item 
         preferred_row: null, 
         riser_required: null, 
         flip_bar_required: null, 
@@ -131,8 +130,7 @@ const getCoilVendibility = (item) => {
     }
 
     //Constants Containing Coil Information
-    const SIX_SHELF_MAX_HEIGHT = 8; 
-    const SEVEN_SHELF_MAX_HEIGHT = 6; 
+    const SHELF_HEIGHT_INCH = [8, 6, 7, 7, 7, 7]; 
     const DUAL_HELIX_DIAMETER = 5;
     const LARGE_HELIX_DIAMETER = 3.75;
     const SINGLE_HELIX_DIAMETER = 2.5;
@@ -153,55 +151,35 @@ const getCoilVendibility = (item) => {
     //Which axes should be considered "depth", "height" or "width". 
     const Dimensions = [Number(item.width_inch), Number(item.length_inch), Number(item.height_inch)];
 
-    // Vertical storage means the item can't be rotated longitudinally to fit.
+    // Vertically stored Items aren't vendable. 
     if (item.store_vertically) {
-        //Set height to first dimension
-        Dimensions[0] = item.height_inch;
-        Dimensions[1] = Math.max(item.width_inch, item.length_inch);
-        Dimensions[2] = Math.min(item.width_inch, item.length_inch);
+        coil_vendable = false;
+        return coil_vendibility;
     } else {
         /*If vertical storage isn't necessary, Sort item dimensions from largest to smallest. This 
         * effectively allows the item to be 'rotated' on any axis.*/
         Dimensions.sort((a, b) => {return b-a}); 
     }
 
-    //Check if the item will fit in a prolock with seven-shelf configuration
-    if(Dimensions[0] < SEVEN_SHELF_MAX_HEIGHT) {
-        //Item Fits in either six or seven-shelf configuration
-        coil_vendibility.seven_shelf_compatable = true;
-    } else if (Dimensions[0] < SIX_SHELF_MAX_HEIGHT) {
-        //Item Only fits in six-shelf configuration
-        coil_vendibility.seven_shelf_compatable = false;
-    } else {
+    //Check if the item will fit in the biggest shelf
+    if(Dimensions[0] > 8) {
         coil_vendibility.coil_vendable = false; 
         return coil_vendibility; //ITEM IS NOT VENDABLE
+    } else if (Dimensions [0] > 7 ) { 
+        coil_vendibility.preferred_shelves = [1]; //Only Shelf #8
+    } else if (Dimensions [0] > 6) {
+        coil_vendibility.preferred_shelves = [1, 3, 4, 5, 6]; //All but #2
+    } else {
+        coil_vendibility.preferred_shelves = [1, 2, 3, 4, 5, 6]; //All Shelves
     }
-
  
     //Calculation of coil type. 
     if (Dimensions[1] >= DUAL_HELIX_DIAMETER) {
         coil_vendibility.coil_vendable = false; 
         return coil_vendibility; //ITEM IS NOT VENDABLE
-    } else if (Dimensions[1] >= 4.1) {
-        coil_vendibility.coil_type = "dual";
-        console.log("1");
-    } else if (Dimensions[1] >= 4.04) {
-        coil_vendibility.coil_type = "large";
-        coil_vendibility.coil_pitch = 4;
-    } else if (Dimensions[1] >= LARGE_HELIX_DIAMETER) {
-        if (Dimensions[2] >= LARGE_HELIX_DIAMETER) {
-            coil_vendibility.coil_type = "dual";
-            coil_vendibility.coil_pitch = 5; 
-            console.log("2");
-        } else if(Dimensions[2] >= SINGLE_HELIX_DIAMETER) {
-                coil_vendibility.coil_type = "large";
-                coil_vendibility.coil_pitch = 4; 
-        } else {
-            coil_vendibility.coil_type = "single";
-            coil_vendibility.coil_pitch = 5; 
-        }
     } else if (Dimensions[1] >= SINGLE_HELIX_DIAMETER) {
-        coil_vendibility.coil_type = "large";
+        // Temporarily Set Coil type to large. This will be changed later if item is too heavy
+        coil_vendibility.coil_type = "large"; 
     } else {
         coil_vendibility.coil_type = "single";
     }
@@ -210,10 +188,15 @@ const getCoilVendibility = (item) => {
         let temp_count = pitch_counts[0];
         let count = 0;
 
-        console.log(` Smallest dimension for this item is : ${Dimensions[2]} `);
+        //Check if item is too big:
+        if (Dimensions[2] >= slot_depths[0]) {
+            coil_vendibility.coil_vendable = false; 
+            return -1; //ITEM IS NOT VENDABLE
+        }
+
+        //Check each of the coil pitch slot depths  to calculate best fit. 
         for(i = 0; i < pitch_counts.length - 1; i++) {
             if(Dimensions[2] > slot_depths[i]) {
-                console.log(`${Dimensions[2]} Is > ${slot_depths}`);
                 count = temp_count;
                 return count;
             } else temp_count = pitch_counts[i];
@@ -241,10 +224,17 @@ const getCoilVendibility = (item) => {
 
     let capacity = coil_vendibility.coil_pitch; 
     
-    if (coil_vendibility.coil_type == "dual") {
-        coil_vendibility.coil_capacity = (capacity * item.weight_lbs) < (2 * HELIX_MAX_WEIGHT)? capacity : Math.floor( (2*HELIX_MAX_WEIGHT)/item.weight_lbs)
+    if ((capacity * item.weight_lbs) > HELIX_MAX_WEIGHT) {
+        if (coil_vendibility.coil_type == 'large') {
+            coil_vendibility.coil_type = 'dual';
+            calculatePitch(DUAL_PITCH_COUNTS, DUAL_SLOT_DEPTHS);
+            capacity = coil_vendibility.coil_pitch;
+            coil_vendibility.coil_capacity = (capacity * item.weight_lbs) < (2 * HELIX_MAX_WEIGHT)? capacity : Math.floor( (2*HELIX_MAX_WEIGHT)/item.weight_lbs);
+        } else {
+            coil_vendibility.coil_capacity = Math.floor( (2*HELIX_MAX_WEIGHT)/item.weight_lbs);
+        }
     } else {
-        coil_vendibility.coil_capacity = (capacity * item.weight_lbs) < HELIX_MAX_WEIGHT? capacity: Math.floor((HELIX_MAX_WEIGHT)/item.weight_lbs)
+       coil_vendibility.coil_capacity = capacity;
     }
 
     //Calculate whether the item needs a riser
