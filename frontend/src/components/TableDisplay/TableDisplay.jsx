@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ExportToExcel from './ExportToExcel';
 import './TableDisplay.css';
+import ItemDetails from '../ItemDetails/ItemDetails';
 
 const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [filteredData, setFilteredData] = useState([]);
@@ -15,6 +16,22 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [sessionIDs, setSessionIDs] = useState([]);
     const [completedItems, setCompletedItems] = useState([[]]);
     const [uncompletedItems, setUncompletedItems] = useState([[]]);
+
+    // Selected Item Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [rowData, setRowData] = useState(null);
+    const [columnHeaders, setColumnHeaders] = useState(null);
+
+    const openModal = (row) => {
+        setRowData(row);
+        setColumnHeaders(filteredData[0]); // Assuming this is how you determine column headers
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
     useEffect(() => {
         const fetchSessionIDs = async () => {
             try {
@@ -203,6 +220,18 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         setSelectAll(!selectAll);
     };
 
+    if (isModalOpen) {
+        return (
+            <div>
+                <ItemDetails
+                    rowData={rowData}
+                    columnHeaders={columnHeaders}
+                    onClose={closeModal}
+                />
+            </div>
+        );
+    }
+
     return (
         <div>
             <div className="fixed left-4 top-36 p-4">
@@ -256,16 +285,17 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                                             />
                                         </td>
                                         {row.map((cell, cellIndex) => (
-                                            <td key={cellIndex}>
-                                                {cellIndex === 1 ? (
-                                                    <Link to={"/itemDetails"} state={{ rowData: row, columnHeaders: filteredData[0] }}>
-                                                        {cell}
-                                                    </Link>
-                                                ) : (
-                                                    cell
-                                                )}
-                                            </td>
-                                        ))}
+                                        <td key={cellIndex}>
+                                            {cellIndex === 1 ? (
+                                                <span style={{ cursor: 'pointer', color: '#666DFA', textDecoration: 'none' }}
+                                                    onClick={() => openModal(row)}>
+                                                    {cell}
+                                                </span>
+                                            ) : (
+                                                cell
+                                            )}
+                                        </td>
+                                    ))}
                                     </tr>
                                 ))}
                             </tbody>
