@@ -206,8 +206,6 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     return (
         <div>
             <div className="fixed left-4 top-36 p-4">
-
-
                 {isExcelUploaded &&
                     <div>
                         Session ID: {sessionId}
@@ -216,7 +214,6 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                             type="text"
                             placeholder="Search..."
                             className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left"
-                            placeholder-class="text-gray-400 font-bold text-xl"
                             value={searchQuery}
                             onChange={handleSearchInputChange}
                         />
@@ -224,51 +221,48 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                             {selectAll ? 'Deselect All' : 'Select All'}
                         </button>
                     </div>
-
                 }
-                <br />
-                <br />
             </div>
             {isLoading && (
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green">
-                </div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
             <div className='display-box'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {/* Checkbox to act as Select All/Deselect All - adjusts based on `selectAll` state */}
+                                        <input
+                                            type="checkbox"
+                                            onChange={toggleSelectAll}
+                                            checked={selectAll}
+                                        />
+                                    </th>
+                                    {filteredData[0].map((header, headerIndex) => (
+                                        <th key={headerIndex}>{header}</th>
+                                    ))}
+                                </tr>
+                            </thead>
                             <tbody>
-                                {filteredData.map((row, rowIndex) => (
-                                    <tr key={rowIndex} className={selectedRows.includes(rowIndex) ? 'selected-row' : ''}>
-                                        {rowIndex === 0 ? (
-                                        <td>
-                                            {/* Adjust this checkbox to act as Select All/Deselect All */}
-                                            <input
-                                                type="checkbox"
-                                                onChange={toggleSelectAll}
-                                                checked={selectAll}
-                                            />
-                                        </td>
-                                    ) : (
+                                {filteredData.slice(1).map((row, rowIndex) => (
+                                    <tr key={rowIndex + 1} className={selectedRows.includes(rowIndex + 1) ? 'selected-row' : ''}>
                                         <td>
                                             <input
                                                 type="checkbox"
-                                                checked={selectedRows.includes(rowIndex)}
-                                                onChange={() => toggleRow(rowIndex)}
+                                                checked={selectedRows.includes(rowIndex + 1)}
+                                                onChange={() => toggleRow(rowIndex + 1)}
                                             />
                                         </td>
-                                    )}
                                         {row.map((cell, cellIndex) => (
                                             <td key={cellIndex}>
-                                                {rowIndex >= 1 && cellIndex === 1 ? (
-                                                    <Link
-                                                        to={"/itemDetails"}
-                                                        state={{ rowData: row, columnHeaders: excelData[0] }}
-                                                    >
-                                                        {cell !== undefined && cell !== null ? String(cell) : ''}
+                                                {cellIndex === 1 ? (
+                                                    <Link to={"/itemDetails"} state={{ rowData: row, columnHeaders: filteredData[0] }}>
+                                                        {cell}
                                                     </Link>
                                                 ) : (
-                                                    cell !== undefined && cell !== null ? String(cell) : ''
+                                                    cell
                                                 )}
                                             </td>
                                         ))}
@@ -278,42 +272,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         </table>
                     </div>
                 ) : (
-                    <div className='display-box'>
-                        <div>
-                            <table style={{
-                                position: "fixed", width:"auto",
-                                left:"50%", transform: "translateX(-50%)",
-                                border: "1px solid #ccc",
-                                "margin-top": "20px",
-                                "box-shadow": "0 2px 10px #787878"
-                                }}
-                            >
-                                <thead>
-                                    <tr>
-                                        <th>Session IDs</th>
-                                        <th>Completed Items</th>
-                                        <th>Uncompleted Items</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {sessionIDs.map((sessionId, index) => (
-                                        <tr key={index}>
-                                            <td>{sessionId}</td>
-                                            <td>{completedItems[index] ? completedItems[index].length : 0}</td>
-                                            <td>{uncompletedItems[index] ? uncompletedItems[index].length : 0}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div>No data to display</div>
                 )}
-                {selectedRows.length > 0 &&
-                    <button className='vendibility-button' onClick={handleVendibiilityRequest}> Calculate Vendibility for {selectedRows.length} Item(s) </button>
-                }
+                {selectedRows.length > 0 && (
+                    <button className='vendibility-button' onClick={handleVendibiilityRequest}>Calculate Vendibility for {selectedRows.length} Item(s)</button>
+                )}
             </div>
         </div>
-    );
+    );    
 }
 
 export default TableDisplay;
