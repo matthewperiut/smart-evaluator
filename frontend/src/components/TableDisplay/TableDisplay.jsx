@@ -107,6 +107,24 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         }
     }
 
+    const toggleFilter = async(e) => {
+        var form = document.getElementById("filterChoices");
+        if (form) {
+            form.style.display = form.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    const toggleCollapsible = async(options) => {
+        var content = document.getElementById(options);
+        if (content) {
+            content.style.display = content.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    const clearFilters = async(e) => {
+
+    }
+
     // Function to filter data based on search query
     const filterData = (query) => {
         const filtered = excelData.filter((row, index) => {
@@ -236,11 +254,13 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         <div className='flex flex-col space-y-1'>
             <div className="absolute top-40 gap-x-4">
                 {isExcelUploaded &&
+                    <div>
+                    <div className="relative flex-col items-left">
+                    Session ID: {sessionId}
+                    </div>
+                    <br/>
                     <div className='flex flex-col items-center'>
-                        <div className="relative">
-                            Session ID: {sessionId}
-                        </div>
-                        <div>
+                        <div className="flex">
                         <input
                             type="text"
                             placeholder="Search..."
@@ -248,10 +268,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                             value={searchQuery}
                             onChange={handleSearchInputChange}
                         />
-                        <button onClick={toggleSelectAll} className="ml-4 btn btn-primary">
+                        <div className ="flex">
+                        <button onClick={toggleSelectAll} className="hidden lg:block ml-5 top-44">
                             {selectAll ? 'Deselect All' : 'Select All'}
                         </button>
+                        <button className='hidden lg:block ml-5 top-44' onClick={toggleFilter}>Filters</button>
                         </div>
+                        </div>
+                    </div>
                     </div>
                 }
             </div>
@@ -336,6 +360,21 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                     <button className='vendibility-button' onClick={handleVendibiilityRequest}>Calculate Vendibility for {selectedRows.length} Item(s)</button>
                 )}
             </div>
+            <div id="filterChoices" className="filter-overlay">
+                <div className='filter-container'>
+                    <div className='filter-header'>Filters</div>
+                    <div className='filter-subhead'>
+                        <div>Vendibility</div>
+                        <div>Data Availability</div>
+
+                    </div>
+
+                    <button className='filter-select'>Apply</button>
+                    <button className='filter-select' onClick={clearFilters}>Clear All</button>
+                    <button className='filter-cancel' onClick={toggleFilter}>Cancel</button>
+                </div>
+            </div>
+
         </div>
     );
 }

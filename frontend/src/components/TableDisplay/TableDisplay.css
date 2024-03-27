@@ -24,7 +24,7 @@
     display: flex;
     align-self: center;
     flex-direction: column;
-    top: 23%;
+    top: 21%;
     height: 76%;
     width: 95%;
 }
@@ -35,6 +35,7 @@
     border: 1px solid #ccc;
     box-shadow: 0 2px 10px #787878;
     display: block;
+    margin: 1%;
 }
 
 .scrollable-container table {
@@ -78,15 +79,6 @@ th {
     animation: spin 2s linear infinite;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
 
 .display-box button {
     max-width: 200px; /* Adjust the value as needed */
@@ -105,3 +97,82 @@ input[type="checkbox"] {
     display: flex;
     background-color: #44A76E;
 }
+
+.filter-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 1920px;
+    background-color: rgba(0, 0, 0, 0.5);
+
+}
+
+.filter-container {
+    position: absolute;
+    margin: 10% auto;
+    width: 43%;
+    height: 100%;
+    background-color: #fefefe;
+    border-radius: 0%;
+    padding: 0;
+    animation: slide-left 0.5s ease;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.filter-header {
+    margin: 5% auto;
+    margin-left: 7%;
+    font-family: "Poppins";
+    font-size: 28px;
+    text-align: left;
+    color: #44A76E;
+    
+}
+
+.filter-subhead {
+    font-family: "Poppins";
+    font-size: 20px;
+    text-align: left;
+    margin: 5% auto;
+    margin-left: 7%;
+}
+
+.filter-content{
+    font-size: 14px;
+
+}
+
+.filter-select{
+    background-color: #44A76E;
+    margin: 2%;
+}
+
+.filter-cancel{
+    margin: 2%;
+}
+
+
+@keyframes slide-left {
+    to{
+        transform: translateX(0%);
+    }
+    from {
+        transform: translateX(-100%);
+
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
