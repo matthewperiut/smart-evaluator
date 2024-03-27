@@ -259,7 +259,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
             {isLoading && (
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
-            <div className='display-box top-44'>
+            <div className='display-box top-32'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
@@ -306,7 +306,29 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         </table>
                     </div>
                 ) : (
-                    <div>No data to display</div>
+                        <div className='scrollable-container'>
+                            <table style={{
+                                width:"100%"
+                            }}
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>Session IDs</th>
+                                        <th>Completed Items</th>
+                                        <th>Uncompleted Items</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {sessionIDs.map((sessionId, index) => (
+                                        <tr key={index}>
+                                            <td>{sessionId}</td>
+                                            <td>{completedItems[index] ? completedItems[index].length : 0}</td>
+                                            <td>{uncompletedItems[index] ? uncompletedItems[index].length : 0}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                 )}
                 {selectedRows.length > 0 && (
                     <button className='vendibility-button' onClick={handleVendibiilityRequest}>Calculate Vendibility for {selectedRows.length} Item(s)</button>

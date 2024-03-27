@@ -2,28 +2,14 @@ import './HomePage.css';
 import Header from '../Header/Header';
 import TableDisplay from '../TableDisplay/TableDisplay';
 import Modal from '../Modal/Modal';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
 
 const HomePage = ({ excelData, solutionId, isExcelUploaded, onExcelUpload, fileName }) => {
-    const [sessionIDs, setSessionIDs] = useState([]);
-    useEffect(() => {
-        const fetchSessionIDs = async () => {
-            try {
-                const response = await axios.get('http://localhost:5001/getSessionIDs');
-                setSessionIDs(response.data);
-            } catch (error) {
-                console.error("Error fetching session IDs:", error);
-                throw error;
-            }
-        };
-
-        fetchSessionIDs(); // Call the async function
-    }, []);
-
     return (
         <div>
             <Header />
+            <nav className='nav-list'>
+                <button className="nav-link">Existing Session IDs</button>
+            </nav>
             <div>
                 <div>
                     {!isExcelUploaded ? (
