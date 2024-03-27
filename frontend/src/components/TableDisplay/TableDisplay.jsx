@@ -240,14 +240,24 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                             <tbody>
                                 {filteredData.map((row, rowIndex) => (
                                     <tr key={rowIndex} className={selectedRows.includes(rowIndex) ? 'selected-row' : ''}>
+                                        {rowIndex === 0 ? (
+                                        <td>
+                                            {/* Adjust this checkbox to act as Select All/Deselect All */}
+                                            <input
+                                                type="checkbox"
+                                                onChange={toggleSelectAll}
+                                                checked={selectAll}
+                                            />
+                                        </td>
+                                    ) : (
                                         <td>
                                             <input
                                                 type="checkbox"
                                                 checked={selectedRows.includes(rowIndex)}
                                                 onChange={() => toggleRow(rowIndex)}
-                                                disabled={rowIndex == 0}
                                             />
                                         </td>
+                                    )}
                                         {row.map((cell, cellIndex) => (
                                             <td key={cellIndex}>
                                                 {rowIndex >= 1 && cellIndex === 1 ? (

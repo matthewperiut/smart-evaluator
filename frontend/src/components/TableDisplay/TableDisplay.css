@@ -17,9 +17,26 @@
     box-shadow: 0 2px 10px #787878;
 }
 
-.selected-row {
-    background-color: #CBCBCB;
-}
+:root {
+    --selected-row-bg-light: #f0f0f0; /* Light mode color */
+    --selected-row-bg-dark: #2f3230; /* Dark mode color */
+  }
+  
+  @media (prefers-color-scheme: light) {
+    :root {
+      --selected-row-bg: var(--selected-row-bg-light);
+    }
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --selected-row-bg: var(--selected-row-bg-dark);
+    }
+  }
+  
+  .selected-row {
+    background-color: var(--selected-row-bg);
+  }
 
 th,
 td {
