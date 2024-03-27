@@ -22,7 +22,7 @@ exports.uploadSpreadsheet = async function (req, res) {
             }
   
             //Create item object for each row in the spreadsheet
-            for (let row = 4; row <= 32; row ++) {
+            for (let row = 4; row <= worksheet.rowCount; row ++) {
               const item = {
                 sku: worksheet.getCell(`A${row}`).value,
                 item_description: worksheet.getCell(`B${row}`).value,

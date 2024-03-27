@@ -32,8 +32,16 @@ exports.itemVendibility = async function (req, res) {
             item.height_inch = item_dimensions.height_inch;
             item.length_inch = item_dimensions.length_inch;
 
+            // FOR TESTING VARIOUS ITEM CONFIGS.
+            // item.width_inch = 1.97;
+            // item.height_inch = 5.91;
+            // item.length_inch = 13.78;
+
             /*-----INITIATE DATA ANALYSIS-----*/
-            const result = dataAnalysis(item); 
+            let result;
+            try { result = dataAnalysis(item);}
+            catch (e) {console.log(`Error Occurred During Data Analysis Phase ${e}`)}
+
 
             //log item to console
             console.log(`Processed item vendibility request for item with id: ${item._id}`);

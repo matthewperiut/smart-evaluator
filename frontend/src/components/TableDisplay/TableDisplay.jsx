@@ -125,7 +125,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                     updatedData[rowIndex][23] = item.loose || updatedData[rowIndex][23];
                     updatedData[rowIndex][24] = item.store_vertically || updatedData[rowIndex][24];
                     updatedData[rowIndex][25] = item.preferred_machine_type || updatedData[rowIndex][25];
-                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable || updatedData[rowIndex][26];
+                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable? 'Y' : 'N' || updatedData[rowIndex][26];
                     updatedData[rowIndex][27] = item.locker_vendability.num_compartments_per_locker_door || updatedData[rowIndex][27];
                     updatedData[rowIndex][28] = item.locker_vendability.capacity_for_express_locker || updatedData[rowIndex][28];
                     updatedData[rowIndex][29] = item.locker_vendability.capacity_for_prostock_locker || updatedData[rowIndex][29];

@@ -23,7 +23,7 @@ const getLockerVendibility = (item) => {
 
     // Replace null values with any necessary calculations, function calls, etc. 
     const locker_vendibility =  {
-        locker_vendable: null, 
+        locker_vendable: true, //Item is vendable until proven otherwise
         num_compartments_per_locker_door: null, //This one is only for prolock. 
         capacity_for_express_locker: null, 
         capacity_for_prostock_locker: null,  
@@ -65,7 +65,7 @@ const getLockerVendibility = (item) => {
             if (item.store_vertically) {
                 //Check Item's height, width, and length
                 if(Math.max(item.width_inch, item.length_inch) < LOCKER_DEPTH_INCH && Math.min(item.width_inch, item.length_inch) < LOCKER_WIDTH_INCH) {
-                    if(item.height_inch < (LOCKER_HEIGHT_SINGLE + (5 * LOCKER_HEIGHT_ADDITIONAL))) {
+                    if(item.height_inch < (LOCKER_HEIGHT_SINGLE + (11 * LOCKER_HEIGHT_ADDITIONAL))) {
                         //Calculate minimum number of compartments necessary to store item
                         locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((item.height_inch - LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
                         //ITEM IS VENDABLE
@@ -76,11 +76,13 @@ const getLockerVendibility = (item) => {
                 /*If vertical storage isn't necessary, Sort item dimensions from largest to smallest. This 
                 * effectively allows the item to be 'rotated' on any axis. If the item can be rotated, 
                 * Check if the largest dimension is smaller than the locker depth. */
+               console.log(Dimensions)
                 if(Dimensions[0] < LOCKER_DEPTH_INCH) {
                     //Check if second largest dimension is smaller than the locker width
                     if(Dimensions[1] < LOCKER_WIDTH_INCH) {
                         //Calculate necessary locker height based on the smallest dimension
                         locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((Dimensions[2] - LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
+                        console.log(`num compartments = ${locker_vendibility.num_compartments_per_locker_door}`);
                         //ITEM IS VENDABLE
                         return capacityCalculation(Dimensions[2], Dimensions[1], Dimensions[0]);
                     } else {
@@ -92,8 +94,8 @@ const getLockerVendibility = (item) => {
                         } else return 0;
                     }
                 //Check Height, depth and width if item exceeds the locker depth
-                } else if (Dimensions [0] < (LOCKER_HEIGHT_SINGLE + (5 * LOCKER_HEIGHT_ADDITIONAL)) && Dimensions [1] < LOCKER_DEPTH_INCH && Dimensions [2] < LOCKER_WIDTH_INCH) {
-                     //Calculate necessary locker height based on the largest dimension
+                } else if (Dimensions [0] < (LOCKER_HEIGHT_SINGLE + (11 * LOCKER_HEIGHT_ADDITIONAL)) && Dimensions [1] < LOCKER_DEPTH_INCH && Dimensions [2] < LOCKER_WIDTH_INCH) {
+                     //Calculate minimum number of compartments necessary to store item
                      locker_vendibility.num_compartments_per_locker_door = Math.floor(Math.ceil((Dimensions [0]- LOCKER_HEIGHT_SINGLE)/LOCKER_HEIGHT_ADDITIONAL) + 1);
                      //ITEM IS VENDABLE, Perform Area Calculation
                      return capacityCalculation(Dimensions[0], Dimensions[2], Dimensions[1]);
@@ -109,6 +111,7 @@ const getLockerVendibility = (item) => {
 
     //Use Method Calls
     locker_vendibility.capacity_for_prolock_locker = getProLockCapacity();
+    locker_vendibility.locker_vendable = locker_vendibility.capacity_for_prolock_locker > 0? true : false;
 
     return locker_vendibility;
 }
@@ -136,6 +139,7 @@ const getCoilVendibility = (item) => {
     const SINGLE_HELIX_DIAMETER = 2.5;
     const HELIX_MAX_WEIGHT = 10;
     const RISER_PLATFORM_HEIGHT = 1.5; 
+    const HEAVY_ITEM_WEIGHT = 3; //Items exceeding this weight will be placed on bottom shelf.
     
     const SINGLE_PITCH_COUNTS = [5, 7, 8, 9, 10, 12, 15, 18, 24, 32];
     const SINGLE_SLOT_DEPTHS = [4.04, 2.9, 2.51, 2.25, 2.02, 1.66, 1.3, 1.05, 0.75, 0.53];
@@ -161,12 +165,12 @@ const getCoilVendibility = (item) => {
         Dimensions.sort((a, b) => {return b-a}); 
     }
 
-    //Check if the item will fit in the biggest shelf
+    //Check which shelves can accommodate the item.
     if(Dimensions[0] > 8) {
         coil_vendibility.coil_vendable = false; 
         return coil_vendibility; //ITEM IS NOT VENDABLE
     } else if (Dimensions [0] > 7 ) { 
-        coil_vendibility.preferred_shelves = [1]; //Only Shelf #8
+        coil_vendibility.preferred_shelves = [1]; //Only Top Shelf
     } else if (Dimensions [0] > 6) {
         coil_vendibility.preferred_shelves = [1, 3, 4, 5, 6]; //All but #2
     } else {
@@ -245,6 +249,11 @@ const getCoilVendibility = (item) => {
             coil_vendibility.riser_required = true; 
         }
     } else coil_vendibility.riser_required = false;
+
+    //Calculate if item is heavy
+    if (item.weight_lbs >= HEAVY_ITEM_WEIGHT) {
+        coil_vendibility.preferred_shelves = [6];
+    }
 
     return coil_vendibility;
 }
