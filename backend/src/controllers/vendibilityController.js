@@ -1,6 +1,6 @@
 const {client} = require('../config/DatabaseConnection');
 const {dataAnalysis} = require('../utils/dataAnalysis')
-const {fillDimensions} = require ('../generative/gpt')
+const {fillData} = require ('../generative/gpt')
 
 exports.itemVendibility = async function (req, res) {
     //get parameters from request
@@ -27,10 +27,11 @@ exports.itemVendibility = async function (req, res) {
             const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
 
             /* INITIATE DATA COLLECTION */
-            const item_dimensions = await fillDimensions(item);
-            item.width_inch = item_dimensions.width_inch;
-            item.height_inch = item_dimensions.height_inch;
-            item.length_inch = item_dimensions.length_inch;
+            const item_data = await fillData(item);
+            item.width_inch = item_data.width_inch;
+            item.height_inch = item_data.height_inch;
+            item.length_inch = item_data.length_inch;
+            item.weight_lbs = item_data.weight_lbs;
 
             // FOR TESTING VARIOUS ITEM CONFIGS.
             // item.width_inch = 1.97;
