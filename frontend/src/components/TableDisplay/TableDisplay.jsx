@@ -7,6 +7,7 @@ import './TableDisplay.css';
 const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false); 
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -192,6 +193,16 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         localStorage.setItem('uploadedExcel', JSON.stringify(updatedData));
     }
 
+    const toggleSelectAll = () => {
+        if (selectAll) {
+            setSelectedRows([]);
+        } else {
+            const allRowIndices = filteredData.map((_, index) => index).slice(1);
+            setSelectedRows(allRowIndices);
+        }
+        setSelectAll(!selectAll);
+    };
+
     return (
         <div>
             <div className="fixed left-4 top-36 p-4">
@@ -209,6 +220,9 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                             value={searchQuery}
                             onChange={handleSearchInputChange}
                         />
+                        <button onClick={toggleSelectAll} className="ml-4 btn btn-primary">
+                            {selectAll ? 'Deselect All' : 'Select All'}
+                        </button>
                     </div>
 
                 }
