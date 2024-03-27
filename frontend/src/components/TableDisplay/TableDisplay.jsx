@@ -233,11 +233,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     }
 
     return (
-        <div>
-            <div className="fixed left-4 top-36 p-4">
+        <div className='flex flex-col space-y-10'>
+            <div className="absolute top-40 gap-x-4">
                 {isExcelUploaded &&
-                    <div>
+                    <div className='flex flex-col relative left-9'>
+                        <div className="relative">
                         Session ID: {sessionId}
+                        </div>
+                        <div>
                         <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
                         <input
                             type="text"
@@ -249,13 +252,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         <button onClick={toggleSelectAll} className="ml-4 btn btn-primary">
                             {selectAll ? 'Deselect All' : 'Select All'}
                         </button>
+                        </div>
                     </div>
                 }
             </div>
             {isLoading && (
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
-            <div className='display-box'>
+            <div className='display-box top-44'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
