@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import HomePage from './components/HomePage/HomePage.jsx';
-import ItemDetails from './components/ItemDetails/ItemDetails.jsx';
 
 function App() {
   const [excelData, setExcelData] = useState([]);
@@ -37,7 +36,6 @@ function App() {
             path="/"
             element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} onExcelUpload={handleExcelUpload} fileName={fileName} />}
           />
-          <Route path="/itemDetails" element={<ItemDetails />} />
         </Routes>
       </div>
     </Router>

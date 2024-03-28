@@ -3,14 +3,65 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ExportToExcel from './ExportToExcel';
 import './TableDisplay.css';
+import ItemDetails from '../ItemDetails/ItemDetails';
 
 const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [sessionId, setSessionID] = useState();
+    const [sessionIDs, setSessionIDs] = useState([]);
+    const [completedItems, setCompletedItems] = useState([[]]);
+    const [uncompletedItems, setUncompletedItems] = useState([[]]);
+
+    // Selected Item Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [rowData, setRowData] = useState(null);
+    const [columnHeaders, setColumnHeaders] = useState(null);
+
+    const openModal = (row) => {
+        setRowData(row);
+        setColumnHeaders(filteredData[0]); // Assuming this is how you determine column headers
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    useEffect(() => {
+        const fetchSessionIDs = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/getSessionIDs');
+                console.log("Response:", response.data._ids);
+                if (Array.isArray(response.data._ids)) {
+                    setSessionIDs(response.data._ids);
+                } else {
+                    console.error("Invalid response format: expected an array");
+                }
+
+                if (Array.isArray(response.data.completedItems)) {
+                    setCompletedItems(response.data.completedItems);
+                } else {
+                    console.error("Invalid response format: expected an array");
+                }
+
+                if (Array.isArray(response.data.uncompletedItems)) {
+                    setUncompletedItems(response.data.uncompletedItems);
+                } else {
+                    console.error("Invalid response format: expected an array");
+                }
+            } catch (error) {
+                console.error("Error fetching session IDs:", error);
+                throw error;
+            }
+        };
+
+        fetchSessionIDs(); // Call the async function
+    }, []);
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -54,6 +105,24 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         else {
             setSelectedRows([...selectedRows, rowIndex]);
         }
+    }
+
+    const toggleFilter = async(e) => {
+        var form = document.getElementById("filterChoices");
+        if (form) {
+            form.style.display = form.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    const toggleCollapsible = async(options) => {
+        var content = document.getElementById(options);
+        if (content) {
+            content.style.display = content.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    const clearFilters = async(e) => {
+
     }
 
     // Function to filter data based on search query
@@ -159,58 +228,101 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         localStorage.setItem('uploadedExcel', JSON.stringify(updatedData));
     }
 
-    return (
-        <div>
-            <div className="fixed left-4 top-36 p-4">
+    const toggleSelectAll = () => {
+        if (selectAll) {
+            setSelectedRows([]);
+        } else {
+            const allRowIndices = filteredData.map((_, index) => index).slice(1);
+            setSelectedRows(allRowIndices);
+        }
+        setSelectAll(!selectAll);
+    };
 
-                Session ID: {sessionId}
+    if (isModalOpen) {
+        return (
+            <div>
+                <ItemDetails
+                    rowData={rowData}
+                    columnHeaders={columnHeaders}
+                    onClose={closeModal}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className='flex flex-col space-y-1'>
+            <div className="absolute top-40 gap-x-4">
                 {isExcelUploaded &&
                     <div>
-                        <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
+                    <div className="relative flex-col items-left">
+                    Session ID: {sessionId}
+                    </div>
+                    <br/>
+                    <div className='flex flex-col items-center'>
+                        <div className="flex">
                         <input
                             type="text"
                             placeholder="Search..."
                             className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left"
-                            placeholder-class="text-gray-400 font-bold text-xl"
                             value={searchQuery}
                             onChange={handleSearchInputChange}
                         />
+                        <div className ="flex">
+                        <button onClick={toggleSelectAll} className="hidden lg:block ml-5 top-44">
+                            {selectAll ? 'Deselect All' : 'Select All'}
+                        </button>
+                        <button className='hidden lg:block ml-5 top-44' onClick={toggleFilter}>Filters</button>
+                        </div>
+                        </div>
                     </div>
-
+                    </div>
                 }
-                <br />
-                <br />
+            </div>
+            <div dir="rtl" className=''>
+                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
             </div>
             {isLoading && (
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green">
-                </div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
-            <div className='display-box'>
+            <div className='display-box top-28 space-y-2'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {/* Checkbox to act as Select All/Deselect All - adjusts based on `selectAll` state */}
+                                        <input
+                                            type="checkbox"
+                                            onChange={toggleSelectAll}
+                                            checked={selectAll}
+                                        />
+                                    </th>
+                                    {filteredData[0].map((header, headerIndex) => (
+                                        <th key={headerIndex}>{header}</th>
+                                    ))}
+                                </tr>
+                            </thead>
                             <tbody>
-                                {filteredData.map((row, rowIndex) => (
-                                    <tr key={rowIndex} className={selectedRows.includes(rowIndex) ? 'selected-row' : ''}>
+                                {filteredData.slice(1).map((row, rowIndex) => (
+                                    <tr key={rowIndex + 1} className={selectedRows.includes(rowIndex + 1) ? 'selected-row' : ''}>
                                         <td>
                                             <input
                                                 type="checkbox"
-                                                checked={selectedRows.includes(rowIndex)}
-                                                onChange={() => toggleRow(rowIndex)}
-                                                disabled={rowIndex == 0}
+                                                checked={selectedRows.includes(rowIndex + 1)}
+                                                onChange={() => toggleRow(rowIndex + 1)}
                                             />
                                         </td>
                                         {row.map((cell, cellIndex) => (
                                             <td key={cellIndex}>
-                                                {rowIndex >= 1 && cellIndex === 1 ? (
-                                                    <Link
-                                                        to={"/itemDetails"}
-                                                        state={{ rowData: row, columnHeaders: excelData[0] }}
-                                                    >
-                                                        {cell !== undefined && cell !== null ? String(cell) : ''}
-                                                    </Link>
+                                                {cellIndex === 1 ? (
+                                                    <span style={{ cursor: 'pointer', color: '#666DFA', textDecoration: 'none' }}
+                                                        onClick={() => openModal(row)}>
+                                                        {cell}
+                                                    </span>
                                                 ) : (
-                                                    cell !== undefined && cell !== null ? String(cell) : ''
+                                                    cell
                                                 )}
                                             </td>
                                         ))}
@@ -220,12 +332,49 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         </table>
                     </div>
                 ) : (
-                    <h1>Test</h1> // SessionIDs table to go here
+                    <div className='scrollable-container'>
+                        <table style={{
+                            width: "100%"
+                        }}
+                        >
+                            <thead>
+                                <tr>
+                                    <th>Session IDs</th>
+                                    <th>Completed Items</th>
+                                    <th>Uncompleted Items</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {sessionIDs.map((sessionId, index) => (
+                                    <tr key={index}>
+                                        <td>{sessionId}</td>
+                                        <td>{completedItems[index] ? completedItems[index].length : 0}</td>
+                                        <td>{uncompletedItems[index] ? uncompletedItems[index].length : 0}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
-                {selectedRows.length > 0 &&
-                    <button className='vendibility-button' onClick={handleVendibiilityRequest}> Calculate Vendibility for {selectedRows.length} Item(s) </button>
-                }
+                {selectedRows.length > 0 && (
+                    <button className='vendibility-button' onClick={handleVendibiilityRequest}>Calculate Vendibility for {selectedRows.length} Item(s)</button>
+                )}
             </div>
+            <div id="filterChoices" className="filter-overlay">
+                <div className='filter-container'>
+                    <div className='filter-header'>Filters</div>
+                    <div className='filter-subhead'>
+                        <div>Vendibility</div>
+                        <div>Data Availability</div>
+
+                    </div>
+
+                    <button className='filter-select'>Apply</button>
+                    <button className='filter-select' onClick={clearFilters}>Clear All</button>
+                    <button className='filter-cancel' onClick={toggleFilter}>Cancel</button>
+                </div>
+            </div>
+
         </div>
     );
 }

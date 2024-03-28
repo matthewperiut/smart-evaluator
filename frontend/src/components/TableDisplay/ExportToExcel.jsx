@@ -115,9 +115,9 @@ const ExportToExcel = ({excelData, selectedRows}) => {
         });
     };
     return (
-        <div>
-            <button className="hidden lg:block fixed top-40 right-44" onClick = {() => {handleExport(excelData)}}>Export All</button>
-            <button className="hidden lg:block fixed top-40 right-6" onClick = {() => {handleExport(excelData, selectedRows)}}>Export Selected</button>
+        <div className='flex flex-row relative top-20'>
+            <button className="hidden lg:block top-40 right-44" onClick = {() => {handleExport(excelData)}}>Export All</button>
+            <button className="hidden lg:block top-40 right-6" onClick = {() => {handleExport(excelData, selectedRows)}}>Export Selected</button>
         </div>
     );
 

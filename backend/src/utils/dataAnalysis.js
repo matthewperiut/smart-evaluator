@@ -107,10 +107,109 @@ const getLockerVendibility = (item) => {
     //Manual Calculation of ProStock Capacity
     const getProStockCapacity = () => {
         
-    }
+        // Height, Depth, and Weight Limits
+        const PS_LOCKER_HEIGHT_INCH = 4;
+        const PS_LOCKER_DEPTH_INCH = 28;
+        const PS_LOCKER_MAX_WEIGHT_LBS = 100;
+
+        // Various Locker Widths
+        const LOCKER_WIDTHS = 
+        [23.5, 11, 7.5, 3.5];
+
+        // Keeps Track of Current Capacity
+        let CURRENT_CAPACITY = 0;
+
+        // Sorts Dimensions from largest to smallest
+        const Dimensions = [Number(item.width_inch), Number(item.length_inch), Number(item.height_inch)];
+        Dimensions.sort((a, b) => {return b-a}); 
+
+        const calculateCapacity = (height, width, depth, lockerNum) => {
+            if (item.stackable) {
+                switch(lockerNum){
+                    case 0:
+                        CURRENT_CAPACITY = Math.trunc(PS_LOCKER_HEIGHT_INCH/height) * Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth);
+                        break;
+                    
+                    case 1:
+                        CURRENT_CAPACITY = 2 * (Math.trunc(PS_LOCKER_HEIGHT_INCH/height) * Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth));
+                        break;
+                    
+                    case 2:
+                        CURRENT_CAPACITY = 3 * (Math.trunc(PS_LOCKER_HEIGHT_INCH/height) * Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth));
+                        break;
+                    
+                    case 3:
+                        CURRENT_CAPACITY = 6 * (Math.trunc(PS_LOCKER_HEIGHT_INCH/height) * Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth));
+                        break;
+                }
+            } else {
+                switch(lockerNum){
+                    case 0:
+                        CURRENT_CAPACITY = Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth);
+                        break;
+                    
+                    case 1:
+                        CURRENT_CAPACITY = 2 * (Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth));
+                        break;
+                    
+                    case 2:
+                        CURRENT_CAPACITY = 3 * (Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth));
+                        break;
+                    
+                    case 3:
+                        CURRENT_CAPACITY = 6 * (Math.trunc(LOCKER_WIDTHS[lockerNum]/width) * Math.trunc(PS_LOCKER_DEPTH_INCH/depth));
+                        break;
+                }
+
+            }
+
+            return (item.weight_lbs * CURRENT_CAPACITY) > PS_LOCKER_MAX_WEIGHT_LBS ? Math.floor(PS_LOCKER_MAX_WEIGHT_LBS/item.weight_lbs) : CURRENT_CAPACITY;
+            
+            
+        }
+
+        if (item.weight_lbs < PS_LOCKER_MAX_WEIGHT_LBS) {
+            if (item.store_vertically) {
+                // Height Check
+                if(item.height_inch < PS_LOCKER_HEIGHT_INCH) {
+                    // Alternate Length/Width Check
+                    if (Math.max(item.width_inch, item.length_inch) < PS_LOCKER_DEPTH_INCH && Math.min(item.width_inch, item.length_inch) < LOCKER_WIDTHS[0]) {
+                        for (let i = 0; i < 3; i++) {
+                            if(Math.min(item.width_inch, item.length_inch) >= LOCKER_WIDTHS[i+1]){
+                                return calculateCapacity(item.height_inch, Math.min(item.width_inch, item.length_inch), Math.max(item.width_inch, item.length_inch), i);
+                            }
+                        }
+                        return calculateCapacity(item.height_inch, Math.min(item.width_inch, item.length_inch), Math.max(item.width_inch, item.length_inch), 3)
+                    } else return 0;
+
+                } else return 0;
+            
+            } else {
+                // 
+                if(Dimensions[0] < PS_LOCKER_DEPTH_INCH) {
+                   if(Dimension[1] < LOCKER_WIDTHS[0]) {
+                        if (Dimensions[1] >= PS_LOCKER_HEIGHT_INCH) {
+                            for (let i = 0; i < 3; i++){
+                                if (Dimensions[1] >= LOCKER_WIDTHS[i+1]){
+                                    if(Dimensions[2] <= PS_LOCKER_HEIGHT_INCH) {
+                                        return calculateCapacity(Dimensions[2], Dimensions[1], Dimensions[0], i);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            if (Dimensions[2] < LOCKER_WIDTHS[3]) {
+                                return calculateCapacity(Dimensions[1], Dimensions[2], Dimensions[0], 3);
+                            } else return 0;
+                        } 
+                    }
+                } else return 0;
+            }
+        } else return 0;
 
     //Use Method Calls
     locker_vendibility.capacity_for_prolock_locker = getProLockCapacity();
+    locker_vendability.capacity_for_prostock_locker = getProStockCapacity();
     locker_vendibility.locker_vendable = locker_vendibility.capacity_for_prolock_locker > 0? true : false;
 
     return locker_vendibility;
@@ -265,7 +364,169 @@ const getCarouselVendibility = (item) => {
         carousel_vendable: null,
         needs_repack_for_carousel: null, 
         num_slots_per_item: null, 
-    }
+        carousel_capacity: null,
+        }
+
+        // Height, Depth, and Weight Limits
+        const MAX_HEIGHT_INCH = 4.75;
+        const RADIUS = 9.6;
+        const MAX_WEIGHT_LBS = 35;
+        
+        let unusablePercentage;
+        let sectionMaximumWidth;
+        let currentCapacity = 0;
+        
+        // Array of widths for each section => [SECTION_NUMBER, FRONT_WIDTH_INCH, BACK_WIDTH_INCH]
+        const sectionWidths = [
+            [1, 1.2, 0],
+            [2, 2.4, 0.19],
+            [3, 3.6, 0.38],
+            [4, 4.8, 0.56],
+            [5, 6.0, 0.75],
+            [6, 7.2, 0.94],
+            [7, 8.4, 1.13],
+            [8, 9.6, 1.32],
+            [9, 10.8, 1.51],
+            [10, 12, 1.70]
+        ];
+
+        // Sorts Dimensions from largest to smallest
+        const Dimensions = [Number(item.width_inch), Number(item.length_inch), Number(item.height_inch)];
+        Dimensions.sort((a, b) => {return b-a}); 
+
+        const carouselCalculation = (height, width, depth, minimumSection) => { 
+            let temp = minimumSection;
+            let sectionsUsed = 0;
+
+            do {
+                let totalDepth = Math.trunc(RADIUS/depth);
+                let unusable = (RADIUS - totalDepth) / RADIUS;
+                let maxWidth =  sectionWidths[temp,2] + (unusable * (sectionWidths[temp,1] - sectionWidths[temp,2]));
+                let totalWidth = Math.trunc(maxWidth/width);
+
+                if(item.stackable) {
+                    currentCapacity += Math.trunc(MAX_HEIGHT_INCH/height) * totalDepth * totalWidth;
+                }
+
+                else{
+                    currentCapacity += totalDepth * totalWidth;
+                }
+
+                sectionsUsed++;
+                temp++;
+
+            } while (temp < 10)
+
+            carousel_vendibility.num_slots_per_item = sectionsUsed;
+            return (item.weight_lbs * currentCapacity) > MAX_WEIGHT_LBS ? Math.floor(MAX_WEIGHT_LBS/item.weight_lbs) : currentCapacity;
+
+
+        }
+        
+        // Determines whether item is vendable w/ carousel. Returns true or false.
+        const isCarouselVendable = () => {
+            if (item.weight_lbs < MAX_WEIGHT_LBS) {
+                if (item.store_vertically) {
+                    // Determines if height is acceptable.
+                    if (item.height_inch < MAX_HEIGHT_INCH) {
+                        // Makes sure all values are smaller than the largest width size.
+                        if (Math.max(item.width_inch, item.length_inch) < sectionWidths[9,1]) {
+                            
+                            // Determines that max will be length and min will be width.
+                            if (Math.max(item.width_inch, item.length_inch) < RADIUS) {
+                                for (let i = 0; i < 7; i++) {
+                                    if(Math.min(item.width_inch) < sectionWidths[i,1]) {
+                                        unusablePercentage = (RADIUS - Math.max(item.width_inch, item.length_inch)) / RADIUS;
+                                        sectionMaximumWidth = sectionWidths[i,2] + (unusablePercentage * (sectionWidths[i,1] - sectionWidths[i,2]))
+                                        if (Math.min(item.width_inch, item.length_inch) < sectionMaximumWidth) {
+                                            carousel_capacity = carouselCalculation(item.height_inch, Math.min(item.width_inch, item.length_inch), Math.max(item.width_inch, item.length_inch), i);
+                                            return true;
+                                        } else return false;
+                                    }
+                                }  
+                            }
+
+                            // Min will be length and max will be width.
+                            else {
+                                // Makes sure length can fit.
+                                if (Math.min(item.width_inch, item.length_inch) < RADIUS) {
+                                    for (let i = 7; i < 10; i++) {
+                                        if (Math.max(item.width_inch, item.length_inch) < sectionWidths[i,1]) {
+                                            unusablePercentage = (RADIUS - Math.min(item.width_inch, item.length_inch)) / RADIUS;
+                                            sectionMaximumWidth = sectionWidths[i,2] + (unusablePercentage * (sectionWidths[i,1] - sectionWidths[i,2]));
+                                            if (Math.max(item.width_inch, item.length_inch) < sectionMaximumWidth) {
+                                                carousel_capacity = carouselCalculation(item.height_inch, Math.max(item.width_inch, item.length_inch), Math.min(item.width_inch, item.length_inch), i);
+                                                return true;
+                                            } else return false;
+                                        }
+                                    }
+                                } else return false;
+                            }
+                        } else return false;
+                    } else return false;
+                } 
+                else {
+                    if (Dimensions[0] < sectionWidths[9,1]) {
+                        
+                        if (Dimensions[0] < RADIUS) {
+                            if (Dimensions[1] < MAX_HEIGHT_INCH) {
+                            // Checks Sections 1 - 4. D[0] will be depth, D[1] will be height, D[2] will be width.
+                                for (let i = 0; i < 4; i++) {
+                                    if (Dimensions[2] < sectionWidths[i,1]) {
+                                        unusablePercentage = (RADIUS - Dimensions[0]) / RADIUS;
+                                        sectionMaximumWidth =  sectionWidths[i,2] + (unusablePercentage * (sectionWidths[i,1] - sectionWidths[i,2]));
+                                        if (Dimensions[2] < sectionMaximumWidth) {
+                                            carousel_capacity = carouselCalculation(Dimensions[1], Dimensions[2], Dimensions[0], i);
+                                            return true;
+                                        } else return false;
+                                    }
+                                } 
+                            }
+                            else{
+                            // Checks Sections 5- 7. D[0] will be depth, D[1] will be width.
+                            // Making sure D[2] can be used as height.
+                                if (Dimensions[2] < MAX_HEIGHT_INCH) {
+                                    for (let i = 4; i < 7; i++) {
+                                        if (Dimensions[1] < sectionWidths[i,1]) {
+                                            unusablePercentage = (RADIUS - Dimensions[0]) / RADIUS;
+                                            sectionMaximumWidth =  sectionWidths[i,2] + (unusablePercentage * (sectionWidths[i,1] - sectionWidths[i,2]));
+                                            if (Dimensions[1] < sectionMaximumWidth) {
+                                                carousel_capacity = carouselCalculation(Dimensions[2], Dimensions[1], Dimensions[0], i);
+                                                return true;
+                                            } else return false;
+                                        }
+
+                                    }
+
+                                } else return false;
+                            }
+                            
+                        }
+                        else {
+                        // Making sure the next two dimensions are the acceptable length/height;
+                            if (Dimensions[1] < RADIUS) {
+                                if (Dimensions[2] < MAX_HEIGHT_INCH) {
+                                // Checks Sections 8 - 10. D[0] is width, D[1] is depth, D[2] is height.
+                                    for (let i = 7; i < 10; i++) {
+                                        if (Dimensions[0] < sectionWidths[i,1]) {
+                                            unusablePercentage = (RADIUS - Dimensions[1]) / RADIUS;
+                                            sectionMaximumWidth =  sectionWidths[i,2] + (unusablePercentage * (sectionWidths[i,1] - sectionWidths[i,2]));
+                                            if (Dimensions[0] < sectionMaximumWidth) {
+                                                carousel_capacity = carouselCalculation(Dimensions[2], Dimensions[0], Dimensions[1], i);
+                                                return true;
+                                            } else return false;
+                                        }
+                                    }
+                                } else return false;
+                            }else return false;
+                        }
+                    } else return false;
+                }
+            } else return false;
+        }
+
+
+    carousel_vendibility.carousel_vendable = isCarouselVendable();
 
     return carousel_vendibility;
 }

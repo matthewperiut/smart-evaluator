@@ -7,6 +7,9 @@ const HomePage = ({ excelData, solutionId, isExcelUploaded, onExcelUpload, fileN
     return (
         <div>
             <Header />
+            <nav className='nav-list'>
+                <button className="nav-link">Existing Session IDs</button>
+            </nav>
             <div>
                 <div>
                     {!isExcelUploaded ? (
@@ -14,7 +17,7 @@ const HomePage = ({ excelData, solutionId, isExcelUploaded, onExcelUpload, fileN
                     ) : (
                         <h2 className='font-poppins text-green absolute left-4 top-20 md:absolute p-4 rounded-lg text-sm md:text-lg'>{fileName}</h2>
                     )}
-                    <Modal onExcelUpload={onExcelUpload}/>
+                    <Modal onExcelUpload={onExcelUpload} />
                     <TableDisplay excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} />
                 </div>
             </div>
