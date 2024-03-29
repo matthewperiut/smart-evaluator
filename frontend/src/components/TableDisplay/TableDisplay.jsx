@@ -199,7 +199,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                     updatedData[rowIndex][28] = item.locker_vendability.capacity_for_express_locker || updatedData[rowIndex][28];
                     updatedData[rowIndex][29] = item.locker_vendability.capacity_for_prostock_locker || updatedData[rowIndex][29];
                     updatedData[rowIndex][30] = item.locker_vendability.capacity_for_prolock_locker || updatedData[rowIndex][30];
-                    updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable || updatedData[rowIndex][31];
+                    updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable ? 'Y' : 'N' || updatedData[rowIndex][31];
                     updatedData[rowIndex][32] = item.carousel_vendability.needs_repack_for_carousel || updatedData[rowIndex][32];
                     updatedData[rowIndex][33] = item.carousel_vendability.num_slots_per_item || updatedData[rowIndex][33];
                     updatedData[rowIndex][34] = item.coil_vendability.coil_vendable ? 'Y' : 'N' || updatedData[rowIndex][34];

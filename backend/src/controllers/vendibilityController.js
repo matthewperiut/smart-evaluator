@@ -33,10 +33,11 @@ exports.itemVendibility = async function (req, res) {
             item.length_inch = item_data.length_inch;
             item.weight_lbs = item_data.weight_lbs;
 
-            // FOR TESTING VARIOUS ITEM CONFIGS.
-            // item.width_inch = 1.97;
-            // item.height_inch = 5.91;
-            // item.length_inch = 13.78;
+            //FOR TESTING VARIOUS ITEM CONFIGS.
+            // item.width_inch = 5;
+            // item.height_inch = 2;
+            // item.length_inch = 1;
+            // item.weight_lbs = 0.01
 
             /*-----INITIATE DATA ANALYSIS-----*/
             let result;

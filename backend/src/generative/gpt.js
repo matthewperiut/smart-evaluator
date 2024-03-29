@@ -166,51 +166,54 @@ exports.fillData = async function (item) {
     const gpt_result = {};
     const dimensions = extractDimensions(bingSearch);
     const weight_lbs = extractAndConvertWeight(bingSearch);
-
-
+    
     if(bingSearch.length > 0) {
       let question = "Item Description:" + item.item_description + "\n" + bingSearch +
       "\n\nBased on the text above answer the questions. Follow the format provided strictly. If you cannot complete the task respond with\
-      \"impossible\" otherwise only provide the data. Prioritize higher precision answers in the text, ensure it is dimensions not $\n";
-      if (!dimensions || !weight_lbs) {
-          question += "Q: Provide the item's dimensions in the specified format\n\
-          width_inch=\n\
+      \"impossible\" otherwise only provide the data. Prioritize higher precision answers in the text, ensure it is dimensions not $\n\
+      Q: Provide the item's dimensions in the specified format\n";
+    
+      if (! dimensions  && !weight_lbs) {
+        //add queries to prompt as needed
+        if (!dimensions) {
+          question += 
+          "width_inch=\n\
           length_inch=\n\
-          height_inch=\n\
-          weight_lbs=\n";
+          height_inch=\n";
+        }
+        if (!weight_lbs) {
+          question += "weight_lbs=\n"; 
+        }
 
-          log("Algorithm Couldn't find data, requesting chatGPT")
-          const response = await promptGPT(question);
-          const lines = response.split('\n');
-          
-            lines.forEach(line => {
-                const [key, value] = line.split('=');
-                gpt_result[key] = parseFloat(value); // Convert to float to handle numerical values correctly
-            });
-      } 
-
-      if (!dimensions) {
-        result.width_inch = gpt_result.width_inch;
-        result.height_inch = gpt_result.height_inch;
-        result.length_inch = gpt_result.length_inch;
+        log("Algorithm Couldn't find data, requesting chatGPT");
+        const response = await promptGPT(question);
+        const lines = response.split('\n');
+        
+        lines.forEach(line => {
+            const [key, value] = line.split('=');
+            gpt_result[key] = parseFloat(value); // Convert to float to handle numerical values correctly
+        });
+        if (!dimensions) {
+          result.width_inch = gpt_result.width_inch;
+          result.height_inch = gpt_result.height_inch;
+          result.length_inch = gpt_result.length_inch;
+        } 
+        if (!weight_lbs) {
+          result.weight_lbs = gpt_result.weight_lbs;
+        } 
       } else {
         const { width_inch, length_inch, height_inch } = dimensions;
         log("Width:", width_inch, "inches");
         log("Length:", length_inch, "inches");
         log("Height:", height_inch, "inches");
+        log("Weight:", weight_lbs, "inches");
         result.width_inch = width_inch;
         result.length_inch = length_inch;
         result.height_inch = height_inch;
-      }
-
-      if (!weight_lbs) {
-        result.weight_lbs = gpt_result.weight_lbs;
-      } else {
-        log("Weight:", weight_lbs, "inches");
         result.weight_lbs = weight_lbs;
       }
     } 
-  return result; 
+    return result;
 }
 
 // const {fillDimensions} = require("./generative/gpt")
