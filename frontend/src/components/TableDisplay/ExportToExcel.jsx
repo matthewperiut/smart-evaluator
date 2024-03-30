@@ -8,9 +8,14 @@ import ExcelJS from 'exceljs';
 const ExportToExcel = ({excelData, selectedRows}) => {
 
     const handleExport = (excelData, selectedRows) => {
+        // Check if 'selectedRows' is provided and is empty
+        if (selectedRows && selectedRows.length === 0) {
+            alert('No rows selected for export.');
+            return;
+        }
+
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('SEMROS_Vendibility_Data');
-
 
         //Set the collumns for each item. 
         sheet.columns = [
@@ -114,13 +119,21 @@ const ExportToExcel = ({excelData, selectedRows}) => {
             document.body.removeChild(a);
         });
     };
+
     return (
-        <div className='flex flex-row relative top-20'>
-            <button className="hidden lg:block top-40 right-44" onClick = {() => {handleExport(excelData)}}>Export All</button>
-            <button className="hidden lg:block top-40 right-6" onClick = {() => {handleExport(excelData, selectedRows)}}>Export Selected</button>
+        <div>
+            <div className='flex flex-row relative top-20'>
+                <button className="hidden lg:block fixed top-40 right-44" onClick={() => {handleExport(excelData)}}>Export All</button>
+                <button 
+                    className="hidden lg:block fixed top-40 right-6"
+                    onClick={() => {handleExport(excelData, selectedRows)}}
+                    disabled={selectedRows.length === 0}
+                >
+                    Export Selected
+                </button>
+            </div>
         </div>
     );
-
 };
 
 export default ExportToExcel;
