@@ -11,7 +11,7 @@ exports.dataAnalysis = function(item) {
     let result = item
 
     //Calls to auxilary functions
-    if (item.height_inch && item.depth_inch && item.length_inch) {
+    if (item.height_inch && item.width_inch && item.length_inch) {
         result.locker_vendability = getLockerVendibility(item);
         result.coil_vendability = getCoilVendibility(item);
         result.carousel_vendability = getCarouselVendibility(item);
