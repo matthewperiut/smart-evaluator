@@ -80,7 +80,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
     }
   }
   
-  // Function to format search URL for Bing
+  
   function formatBingSearchURL(query) {
     return `https://www.duckduckgo.com/?${qs.stringify({q: query})}`;
   }
@@ -164,55 +164,60 @@ exports.fillData = async function (item) {
 
     let result = {};
     const gpt_result = {};
-    const dimensions = extractDimensions(bingSearch);
-    const weight_lbs = extractAndConvertWeight(bingSearch);
     
-    if(bingSearch.length > 0) {
-      let question = "Item Description:" + item.item_description + "\n" + bingSearch +
-      "\n\nBased on the text above answer the questions. Follow the format provided strictly. If you cannot complete the task respond with\
-      \"impossible\" otherwise only provide the data. Prioritize higher precision answers in the text, ensure it is dimensions not $\n\
-      Q: Provide the item's dimensions in the specified format\n";
-    
-      if (! dimensions  && !weight_lbs) {
-        //add queries to prompt as needed
-        if (!dimensions) {
-          question += 
-          "width_inch=\n\
-          length_inch=\n\
-          height_inch=\n";
+if(bingSearch.length > 0) {
+        let question = "Item Description:" + item.item_description + "\n" + bingSearch +
+            "\n\nBased on the text above answer the questions. Follow the format provided strictly. If you cannot complete the task respond with\
+            \"impossible\" otherwise only provide the data. Prioritize higher precision answers in the text, ensure it is dimensions not $\n\
+            Q: Provide the item's dimensions in the specified format\n";
+
+        if (!gpt_result.width_inch || !gpt_result.length_inch || !gpt_result.height_inch) {
+            //add queries to prompt as needed
+            question += 
+                "width_inch=\n\
+                length_inch=\n\
+                height_inch=\n";
         }
-        if (!weight_lbs) {
-          question += "weight_lbs=\n"; 
+        if (!gpt_result.weight_lbs) {
+            question += "weight_lbs=\n"; 
         }
 
-        log("Algorithm Couldn't find data, requesting chatGPT");
+        log("Requesting ChatGPT for data extraction");
         const response = await promptGPT(question);
         const lines = response.split('\n');
-        
+
         lines.forEach(line => {
             const [key, value] = line.split('=');
             gpt_result[key] = parseFloat(value); // Convert to float to handle numerical values correctly
         });
-        if (!dimensions) {
-          result.width_inch = gpt_result.width_inch;
-          result.height_inch = gpt_result.height_inch;
-          result.length_inch = gpt_result.length_inch;
-        } 
+
+        const dimensions = {
+            width_inch: gpt_result.width_inch,
+            length_inch: gpt_result.length_inch,
+            height_inch: gpt_result.height_inch
+        };
+
+        const weight_lbs = gpt_result.weight_lbs;
+
+        if (!dimensions.width_inch || !dimensions.length_inch || !dimensions.height_inch) {
+            // If any dimension is missing, use the algorithm to extract them
+            const extractedDimensions = extractDimensions(bingSearch);
+            Object.assign(dimensions, extractedDimensions);
+        }
+
         if (!weight_lbs) {
-          result.weight_lbs = gpt_result.weight_lbs;
-        } 
-      } else {
-        const { width_inch, length_inch, height_inch } = dimensions;
-        log("Width:", width_inch, "inches");
-        log("Length:", length_inch, "inches");
-        log("Height:", height_inch, "inches");
-        log("Weight:", weight_lbs, "inches");
-        result.width_inch = width_inch;
-        result.length_inch = length_inch;
-        result.height_inch = height_inch;
-        result.weight_lbs = weight_lbs;
-      }
-    } 
+            // If weight is missing, use the algorithm to extract it
+            const extractedWeight = extractAndConvertWeight(bingSearch);
+            result.weight_lbs = extractedWeight;
+        } else {
+            result.weight_lbs = weight_lbs; // Copy weight to the result object
+        }
+
+        // Copy dimensions to the result object
+        Object.assign(result, dimensions);
+
+    }
+
     return result;
 }
 

@@ -11,9 +11,44 @@ exports.dataAnalysis = function(item) {
     let result = item
 
     //Calls to auxilary functions
-    result.locker_vendability = getLockerVendibility(item);
-    result.coil_vendability = getCoilVendibility(item);
-    result.carousel_vendability = getCarouselVendibility(item);
+    if (item.height_inch && item.depth_inch && item.length_inch) {
+        result.locker_vendability = getLockerVendibility(item);
+        result.coil_vendability = getCoilVendibility(item);
+        result.carousel_vendability = getCarouselVendibility(item);
+    }
+
+    //Return null values if the item is not vendable for that category
+    if (!result.locker_vendability.locker_vendable) {
+        result.locker_vendability =  {
+            locker_vendable: false, //Item is vendable until proven otherwise
+            num_compartments_per_locker_door: null, //This one is only for prolock. 
+            capacity_for_express_locker: null, 
+            capacity_for_prostock_locker: null,  
+            capacity_for_prolock_locker: null, 
+        }
+    }
+    if (!result.coil_vendability.coil_vendable) {
+        result.coil_vendability =  {
+            coil_vendable: false,
+            needs_repack_for_coil: null, 
+            coil_pitch: null, 
+            coil_capacity: null,
+            coil_type: null, 
+            preferred_shelves: null, 
+            preferred_row: null, 
+            riser_required: null, 
+            flip_bar_required: null, 
+            coil_end_clock_position: null, 
+        }
+    } 
+    if (!result.carousel_vendability.carousel_vendable) {
+       result.carousel_vendability =  {
+            carousel_vendable: false,
+            needs_repack_for_carousel: null, 
+            num_slots_per_item: null, 
+            carousel_capacity: null,
+            }
+    }
 
     return result;
 }
@@ -21,6 +56,7 @@ exports.dataAnalysis = function(item) {
 
 const getLockerVendibility = (item) => {
 
+        item.stackable = true;
         // Replace null values with any necessary calculations, function calls, etc. 
         const locker_vendibility =  {
             locker_vendable: true, //Item is vendable until proven otherwise
@@ -204,7 +240,7 @@ const getLockerVendibility = (item) => {
                     } else return 0;
                 }
             } else return 0;
-    }
+        }
 
     //Use Method Calls
     locker_vendibility.capacity_for_prolock_locker = getProLockCapacity();
@@ -292,7 +328,7 @@ const getCoilVendibility = (item) => {
         //Check if item is too big:
         if (Dimensions[2] >= slot_depths[0]) {
             coil_vendibility.coil_vendable = false; 
-            return -1; //ITEM IS NOT VENDABLE
+            return coil_vendibility; //ITEM IS NOT VENDABLE
         }
 
         //Check each of the coil pitch slot depths  to calculate best fit. 
