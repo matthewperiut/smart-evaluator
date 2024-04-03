@@ -5,7 +5,7 @@ const qs = require("querystring");
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY); // Directly use the API key here
 
-let verbose = true;
+let verbose = false;
 function log(...text) {
     if (verbose) {
         console.log(...text);
@@ -88,7 +88,7 @@ function formatDuckDuckGoSearchURL(query) {
 }
 
 // Specific function for scraping Bing with certain keywords
-async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
+async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 100) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
     return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
@@ -114,12 +114,13 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
             role: "system",
             content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
                 "the first is `google(question, keyword)`. Both question and keyword are strings, question will be what is searched for and" +
-                " the function grabs the first 10 webpages and the text around the keyword (300 characters around it). use the function to find" +
-                " the variable Please include item description in the question variable. " +
+                " the function grabs the first 10 webpages and the text around the keyword (100 characters around it). use the function to find" +
+                " the variable Please include item description in the question variable. Please focus on adjusting keywords to units used, and try to vary it between" +
+                " google searches." +
                 "Try not to answer what the variable is until you find it. The output will be given to you as an array of surround near the" +
                 " keyword from each website \n" +
                 "The second response you can do is `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n" +
-                "Follow these guidelines strictly."
+                "Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
         },
         {
             role: "user",
@@ -128,8 +129,8 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
     ];
 
     var keywords = "";
-
-    for (let tries = 0; tries < 10; tries++) {
+    let maxTries = 5;
+    for (let tries = 0; tries < maxTries; tries++) {
         let response = await promptGPT(messages);
         console.log(response);
 
@@ -162,8 +163,17 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
                 content: "Sorry, your response did not match the expected format. Please reply with 'google(question, keyword)'."
             });
         }
+
+        if (tries === (maxTries - 2)) {
+            messages.push({
+                role: "system",
+                content: "You must answer now, googling is disallowed. respond (variable):(answer)"
+            });
+        }
         //console.log("results from try " + tries + " messages: " + JSON.stringify(messages));
     }
+
+    // todo: store messages for further analysis
 
     return "not found";
 }
