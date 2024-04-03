@@ -166,3 +166,115 @@ exports.getItem = async function (req, res) {
       await db.client.close();
   }
 }
+
+exports.createSession = async function (req, res) {
+  try {
+    await db.client.connect();
+
+    // Get the current session counter
+    const SYSTEM_DATA = await db.client.db("Backend_Database").collection("System_Data").findOne();
+
+    // Create a new session object
+    const session = {
+      _id: SYSTEM_DATA.SESSION_COUNTER,
+      completed_items: [],
+      uncompleted_items: [],
+    };
+
+    // Insert the new session into the database
+    await db.client.db("Backend_Database").collection("Session").insertOne(session);
+
+    // Increment the session counter
+    await db.client.db("Backend_Database").collection("System_Data").updateOne(
+        { NAME: "COUNTER_INFO" },
+        { $inc: { SESSION_COUNTER: 1 } }
+    );
+
+    res.json({ sessionId: session._id });
+  } catch (error) {
+    console.error("Error creating session:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.client.close();
+  }
+}
+
+/* a little documentation: the json should be formatted something like this, not all values are needed
+{
+  "sku": "some_sku_value",
+  "item_description": "some_description",
+  "manufacturer_part_num": "some_part_number",
+  "point_of_use": "some_point_of_use",
+  "overall_vendability": "some_overall_vendability",
+  "vendability_notes": "some_notes",
+  "height_inch": 0,
+  "width_inch": 0,
+  "length_inch": 0,
+  "weight_lbs": 0,
+  "heavy": true,
+  "fragile": true,
+  "default_issue_type": "some_issue_type",
+  "default_issue_qty": 0,
+  "stackable": true,
+  "loose": true,
+  "store_vertically": true,
+  "preferred_machine_type": "some_machine_type",
+  "locker_vendability": {
+    "locker_vendable": true,
+    "num_compartments_per_locker_door": 0,
+    "capacity_for_express_locker": 0,
+    "capacity_for_prostock_locker": 0,
+    "capacity_for_prolock_locker": 0
+  },
+  "carousel_vendability": {
+    "carousel_vendable": true,
+    "needs_repack_for_carousel": true,
+    "num_slots_per_item": 0
+  },
+  "coil_vendability": {
+    "coil_vendable": true,
+    "needs_repack_for_coil": true,
+    "coil_pitch": null,
+    "coil_capacity": null,
+    "seven_shelf_compatable": null,
+    "coil_type": "some_coil_type",
+    "preferred_shelf": "some_shelf",
+    "preferred_row": "some_row",
+    "riser_required": true,
+    "flip_bar_required": true,
+    "coil_end_clock_position": "some_position"
+  }
+}
+ */
+
+exports.addItem = async function (req, res) {
+  const { sessionId, item } = req.body;
+
+  try {
+    await db.client.connect();
+
+    // Find the session by ID
+    const session = await db.client.db("Backend_Database").collection("Session").findOne({ _id: sessionId });
+
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Insert the item into the 'Item' collection and get the inserted ID
+    const result = await db.client.db("Backend_Database").collection("Item").insertOne(item);
+    const itemId = result.insertedId;
+
+    // Add the item ID to the session's uncompleted_items array
+    await db.client.db("Backend_Database").collection("Session").updateOne(
+        { _id: sessionId },
+        { $push: { uncompleted_items: itemId } }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error adding item to session:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.client.close();
+  }
+}

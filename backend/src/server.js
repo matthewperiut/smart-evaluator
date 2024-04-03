@@ -1,12 +1,19 @@
 const express = require('express');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-const {getSessionIDs, getItem, uploadSpreadsheet} = require ("./controllers/sessionController")
+const {getSessionIDs, getItem, uploadSpreadsheet, addItem, createSession} = require ("./controllers/sessionController")
 const {itemVendibility} = require ("./controllers/vendibilityController")
 const cors = require('cors'); // Import cors
 const app = express();
 
-app.use(cors()); // Enable All CORS Requests
+// Enable All CORS Requests
+app.use(cors());
+
+// To parse JSON bodies
+app.use(express.json());
+
+// To parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 
 // POST /upload endpoint axcepts excel file, and generates a new session
 app.post('/upload', upload.single('excelFile'), uploadSpreadsheet);
@@ -18,12 +25,16 @@ app.get('/itemVendibility', itemVendibility);
 app.get('/getSessionIDs', getSessionIDs);
 
 // GET /getItem endpoint returns item data if it exists in the session. 
-app.get('/getItem', getItem); 
+app.get('/getItem', getItem);
+
+app.post('/createSession', createSession);
+
+app.post('/addItem', addItem);
 
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));
 
-// feel free to delete, just for testing
+
 const {continuous_scrape} = require("./generative/continuous_gpt");
 
 async function test() {
@@ -35,9 +46,9 @@ async function test() {
     try {
         // Using the function and sending response back to the client
         let answer = await continuous_scrape(item.item_description,
-            "weight_in_lbs",
-            "float",
-            "weight in lbs, please calculate if only given oz, grams, etc.")
+            "fragility",
+            "boolean",
+            "fragility describes if it is likely to break if dropped or handled improperly")
         console.log(answer);
     } catch (error) {
         console.error("Error during GPT prompt:", error);
