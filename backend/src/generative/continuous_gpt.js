@@ -51,14 +51,20 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
 
                 const data = await page.evaluate((keywords, surroundingChars) => {
                     const bodyText = document.body.innerText;
+                    let cummulativeResults = "";
                     for (let keyword of keywords) {
                         const index = bodyText.toLowerCase().indexOf(keyword);
                         console.log("keyword: " + keyword + "\n");
                         if (index !== -1) {
-                            return bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                            cummulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
                         }
                     }
-                    return null;
+                    if (cummulativeResults.length > 0) {
+                        return cummulativeResults;
+                    }
+                    else {
+                        return null;
+                    }
                 }, keywords, surroundingChars);
 
                 if (data) {
@@ -115,9 +121,11 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
             role: "system",
             content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
                 "the first is `google(question, keywords)`. Both question and keyword are strings, question will be what is searched for and" +
-                " the function grabs the first 10 webpages and the text around the keywords (100 characters around it). keywords is a string, and seperate items are described" +
+                " the function grabs the first 10 webpages and the text around the keywords (100 characters around it). keywords is a string," +
+                " and seperate items are described" +
                 " using |, use many keywords. use the function to find. example usage google(\"how tall is mt everest?\", \"height|feet\"" +
-                " the variable Please include item description in the question variable. Please focus on adjusting keywords to units used, and try to vary it between" +
+                " the variable Please include item description in the question variable. Please focus on adjusting keywords to units used," +
+                " and try to vary it between" +
                 " google searches. If the results is [] it is likely that the keywords did not work." +
                 "Try not to answer what the variable is until you find it. The output will be given to you as an array of surround near the" +
                 " keyword from each website \n" +
@@ -145,7 +153,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
         let match = response.match(/google\(([^,]+),\s*([^\)]+)\)/);
         if (match) {
             let question = match[1].trim().replace(/^"|"$/g, '');
-            let keywords = match[2].trim().replace(/^"|"$/g, '').split("|");
+            let keywords = match[2].trim().replace(/^"|"$/g, '').replace('"', '').replace('\'', '').split("|");
             console.log(keywords);
 
             // Call scrapeBingSearchForKeywords and await its result
