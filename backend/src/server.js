@@ -23,3 +23,25 @@ app.get('/getItem', getItem);
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));
 
+// feel free to delete, just for testing
+const {continuous_scrape} = require("./generative/continuous_gpt");
+
+async function test() {
+    //for testing
+    const item = {
+        item_description: "CL110 CHECKLITE CLEAR LENS"
+    };
+
+    try {
+        // Using the function and sending response back to the client
+        let answer = await continuous_scrape(item.item_description,
+            "weight_in_lbs",
+            "float",
+            "weight in lbs, please calculate if only given oz, grams, etc.")
+        console.log(answer);
+    } catch (error) {
+        console.error("Error during GPT prompt:", error);
+    }
+}
+
+test();
