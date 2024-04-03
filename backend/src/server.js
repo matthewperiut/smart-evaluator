@@ -42,8 +42,8 @@ const {continuous_scrape} = require("./generative/continuous_gpt");
 async function test() {
     //for testing
     const item = {
-        // item_description: "CYS Excel Clear Glass Cylinder Vase"
-        item_description: "CL110 CHECKLITE CLEAR LENS"
+        item_description: "CYS Excel Clear Glass Cylinder Vase"
+        //item_description: "CL110 CHECKLITE CLEAR LENS"
         //item_description: "Lysol All-Purpose Cleaner, Sanitizing and Disinfecting Spray"
     };
 
