@@ -43,23 +43,28 @@ async function test() {
     //for testing
     const item = {
         // item_description: "CYS Excel Clear Glass Cylinder Vase"
-        // item_description: "CL110 CHECKLITE CLEAR LENS"
+        item_description: "CL110 CHECKLITE CLEAR LENS"
+        //item_description: "Lysol All-Purpose Cleaner, Sanitizing and Disinfecting Spray"
     };
 
     try {
         // Using the function and sending response back to the client
-        // let answer = await continuous_scrape(item.item_description,
-        //     "fragility",
-        //     "boolean",
-        //     "fragility describes if it is likely to break if dropped or handled improperly")
+        //let answer = await continuous_scrape(item.item_description,
+            // "fragility",
+            // "boolean",
+            // "fragility describes if it is likely to break if dropped or handled improperly")
         // let answer = await continuous_scrape(item.item_description,
         //     "stackable",
         //     "boolean",
         //     "stackable means can you comfortably stack one of these items on another")
-        let answer = await continuous_scrape(item.item_description,
-            "stackable",
-            "boolean",
-            "stackable means can you comfortable stack one of these items on another")
+        // let answer = await continuous_scrape(item.item_description,
+        //     "store_vertical",
+        //     "boolean",
+        //     "store_vertical describes if an item must be stored vertically for it to be safe, false if it doesn't matter.")
+            let answer = await continuous_scrape(item.item_description,
+                "weight_in_lb",
+                "float",
+                "weight_in_lb is the weight of the item in pounds, can be derived from oz, gram, etc.")
         console.log(answer);
     } catch (error) {
         console.error("Error during GPT prompt:", error);

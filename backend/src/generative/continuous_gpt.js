@@ -5,7 +5,7 @@ const qs = require("querystring");
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY); // Directly use the API key here
 
-let verbose = false;
+let verbose = true;
 function log(...text) {
     if (verbose) {
         console.log(...text);
@@ -53,6 +53,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
                     const bodyText = document.body.innerText;
                     for (let keyword of keywords) {
                         const index = bodyText.toLowerCase().indexOf(keyword);
+                        console.log("keyword: " + keyword + "\n");
                         if (index !== -1) {
                             return bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
                         }
@@ -88,7 +89,7 @@ function formatDuckDuckGoSearchURL(query) {
 }
 
 // Specific function for scraping Bing with certain keywords
-async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 100) {
+async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
     return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
@@ -113,10 +114,11 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
         {
             role: "system",
             content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
-                "the first is `google(question, keyword)`. Both question and keyword are strings, question will be what is searched for and" +
-                " the function grabs the first 10 webpages and the text around the keyword (100 characters around it). use the function to find" +
+                "the first is `google(question, keywords)`. Both question and keyword are strings, question will be what is searched for and" +
+                " the function grabs the first 10 webpages and the text around the keywords (100 characters around it). keywords is a string, and seperate items are described" +
+                " using |, use many keywords. use the function to find. example usage google(\"how tall is mt everest?\", \"height|feet\"" +
                 " the variable Please include item description in the question variable. Please focus on adjusting keywords to units used, and try to vary it between" +
-                " google searches." +
+                " google searches. If the results is [] it is likely that the keywords did not work." +
                 "Try not to answer what the variable is until you find it. The output will be given to you as an array of surround near the" +
                 " keyword from each website \n" +
                 "The second response you can do is `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n" +
@@ -143,7 +145,8 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
         let match = response.match(/google\(([^,]+),\s*([^\)]+)\)/);
         if (match) {
             let question = match[1].trim().replace(/^"|"$/g, '');
-            let keywords = match[2].trim().replace(/^"|"$/g, '');
+            let keywords = match[2].trim().replace(/^"|"$/g, '').split("|");
+            console.log(keywords);
 
             // Call scrapeBingSearchForKeywords and await its result
             let content = await scrapeDuckDuckGoSearchForKeywords(question, keywords);
@@ -170,7 +173,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
                 content: "You must answer now, googling is disallowed. respond (variable):(answer)"
             });
         }
-        //console.log("results from try " + tries + " messages: " + JSON.stringify(messages));
+        console.log("results from try " + tries + " messages: " + JSON.stringify(messages));
     }
 
     // todo: store messages for further analysis
