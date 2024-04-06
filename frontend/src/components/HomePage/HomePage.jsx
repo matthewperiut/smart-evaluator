@@ -18,7 +18,8 @@ const HomePage = ({ excelData, solutionId, isExcelUploaded, onExcelUpload, fileN
                         <h2 className='font-poppins text-green absolute left-4 top-20 md:absolute p-4 rounded-lg text-sm md:text-lg'>{fileName}</h2>
                     )}
                     <Modal onExcelUpload={onExcelUpload} />
-                    <TableDisplay excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} />
+                    <TableDisplay excelData={excelData} solutionId={solutionId} 
+                        isExcelUploaded={isExcelUploaded} onExcelUpload={onExcelUpload} />
                 </div>
             </div>
         </div>
