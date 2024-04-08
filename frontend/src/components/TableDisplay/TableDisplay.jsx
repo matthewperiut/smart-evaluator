@@ -362,7 +362,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
                                     <div className='ml-8 flex flex-row'>
                                         <div className='' style={{ width: "25px", height: "25px", backgroundColor: "red" }} />
                                         <h1 className='flex text-nowrap ml-1 mr-2'>0-50% Confidence</h1>
-                                        <div style={{ width: "25px", height: "25px", backgroundColor: "blue" }} />
+                                        <div style={{ width: "25px", height: "25px", backgroundColor: "gold" }} />
                                         <h1 className='flex text-nowrap ml-1 mr-2'>50-75% Confidence</h1>
                                         <div style={{ width: "25px", height: "25px", backgroundColor: "green" }} />
                                         <h1 className='flex text-nowrap ml-1 mr-2'>75-100% Confidence</h1>
