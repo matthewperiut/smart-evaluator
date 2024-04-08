@@ -15,6 +15,9 @@ const ItemDetails = ({ rowData, columnHeaders, onClose }) => {
           <div>
             <h1 className="text-2xl font-poppins text-lg text-green mb-4">{rowData[1]}</h1>
             {/* Replace Link with a button that calls onClose */}
+            <button className="return-button mr-4">
+              Edit Details
+            </button>
             <button onClick={onClose} className="return-button">
               Return
             </button>
