@@ -1,6 +1,6 @@
 const {client} = require('../config/DatabaseConnection');
-const {dataAnalysis} = require('../utils/dataAnalysis')
-const {fillData} = require ('../generative/gpt')
+const {dataAnalysis} = require('../utils/dataAnalysis');
+const {dataCollection} = require('../utils/dataCollection');
 
 exports.itemVendibility = async function (req, res) {
     //get parameters from request
@@ -23,25 +23,32 @@ exports.itemVendibility = async function (req, res) {
             console.error("Session does not contain requested ID");
             res.status(500).json({error: "That Item doesn't exist in the requested session"});
         } else {
-            //Query Database for Item Info
-            const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});
+
+            const item = await client.db("Backend_Database").collection("Item").findOne({_id: Number(itemId)});//Query Database for Item Info
+
+            //for testing
+            // const item = {
+            //     item_description: `135354 24221 242 REMOVABLE TL 10 ML BO`,
+            //     //sku: "Mar P208";
+            //     manufacturer_part_num: "135354" ,
+            //     height_inch: null,
+            //     width_inch: null,
+            //     length_inch: null,
+            //     //weight_lbs: 0.5,
+            //     fragile: false,
+            //     default_issue_type: "ea", 
+            //     default_issue_qty: "1"
+            // };
+
 
             /* INITIATE DATA COLLECTION */
-            const item_data = await fillData(item);
-            item.width_inch = item_data.width_inch;
-            item.height_inch = item_data.height_inch;
-            item.length_inch = item_data.length_inch;
-            item.weight_lbs = item_data.weight_lbs;
-
-            //FOR TESTING VARIOUS ITEM CONFIGS.
-            // item.width_inch = 5;
-            // item.height_inch = 2;
-            // item.length_inch = 1;
-            // item.weight_lbs = 0.01
+            let item_filled_data;
+            try { item_filled_data = await dataCollection(item);}
+            catch (e) {console.log(`Error Occurred During Data Collection Phase ${e}`)}
 
             /*-----INITIATE DATA ANALYSIS-----*/
-            let result;
-            try { result = dataAnalysis(item);}
+            let result; 
+            try { result = await dataAnalysis(item_filled_data);}
             catch (e) {console.log(`Error Occurred During Data Analysis Phase ${e}`)}
 
 

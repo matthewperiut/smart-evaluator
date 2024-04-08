@@ -92,6 +92,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
 
 function formatDuckDuckGoSearchURL(query) {
     return `https://www.duckduckgo.com/?${qs.stringify({q: query})}`;
+    //return `https://www.bing.com/search?${qs.stringify({q: query})}`;
 }
 
 // Specific function for scraping Bing with certain keywords
@@ -115,26 +116,29 @@ async function promptGPT(messages) {
     }
 }
 
-exports.continuous_scrape = async function continuous_scrape(item_desc, variable, variable_type, additional_info = "") {
+exports.continuous_scrape = async function continuous_scrape(item_desc, manufacturer_part_num, variable, variable_type, additional_info = "") {
     let messages = [
         {
             role: "system",
             content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
-                "the first is `google(question, keywords)`. Both question and keyword are strings, question will be what is searched for and" +
-                " the function grabs the first 10 webpages and the text around the keywords (100 characters around it). keywords is a string," +
-                " and seperate items are described" +
-                " using |, use many keywords. use the function to find. example usage google(\"how tall is mt everest?\", \"height|feet\"" +
-                " the variable Please include item description in the question variable. Please focus on adjusting keywords to units used," +
-                " and try to vary it between" +
-                " google searches. If the results is [] it is likely that the keywords did not work." +
-                "Try not to answer what the variable is until you find it. The output will be given to you as an array of surround near the" +
-                " keyword from each website \n" +
-                "The second response you can do is `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n" +
-                "Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
+                " the first is `google(\"question\", \"keywords\")`. If you respond this way, my function will search the internet using the" + 
+                " question that you provide, evaluate the first 10 webpages, and return any text within 100 characters of the keywords. " +
+                " Use | to separate keywords. Example usage: google(\"how tall is mt everest?\", \"height|feet\")" +
+                " If the results is [] it is likely that the keywords did not work." +
+                " Please include item description in the question variable." + 
+                (manufacturer_part_num? "the start of individual website data are marked by\"data\", validate the data by"+
+                " checking if the manufacturer part number is found on the data from that website": "") +
+                " If you aren't confident in the data, adjust the keywords and try again." +
+                " When you have found the answer, you may use the second response: `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
+                " However, try not to answer what the variable is until you find it. If you can't find enough data, search again." +
+                " Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
+
+
+
         },
         {
             role: "user",
-            content: `item description is "${item_desc}", variable is "${variable}" as a "${variable_type}", additional info is "${additional_info}"`
+            content: `item description is "${item_desc}", ` + (manufacturer_part_num? `Manufacturer part number: ${manufacturer_part_num}`:``) +` variable is "${variable}" as a "${variable_type}", additional info is "${additional_info}"`
         }
     ];
 
@@ -150,7 +154,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, variable
             return response.substring(colonIndex + 1).trim();
         }
 
-        let match = response.match(/google\(([^,]+),\s*([^\)]+)\)/);
+let match = response.match(/google\("([^"]+)",\s*"([^"]+)"\)/);
         if (match) {
             let question = match[1].trim().replace(/^"|"$/g, '');
             let keywords = match[2].trim().replace(/^"|"$/g, '').replace('"', '').replace('\'', '').split("|");

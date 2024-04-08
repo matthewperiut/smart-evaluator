@@ -37,38 +37,27 @@ const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));
 
 
-const {continuous_scrape} = require("./generative/continuous_gpt");
+const {dataCollection} = require("./utils/dataCollection");
 
 async function test() {
-    //for testing
-    const item = {
-        item_description: "CYS Excel Clear Glass Cylinder Vase"
-        //item_description: "CL110 CHECKLITE CLEAR LENS"
-        //item_description: "Lysol All-Purpose Cleaner, Sanitizing and Disinfecting Spray"
-    };
+        //Sample item for testing
+        const item = {
+            item_description: `135354 24221 242 REMOVABLE TL 10 ML BO`,
+            //sku: "Mar P208";
+            manufacturer_part_num: "135354" ,
+            height_inch: 0.5,
+            width_inch: 0.5,
+            length_inch: 0.5,
+            weight_lbs: 0.5,
+            //fragile: false,
+            default_issue_type: "ea", 
+            default_issue_qty: "1"
+        };
 
-    try {
-        // Using the function and sending response back to the client
-        //let answer = await continuous_scrape(item.item_description,
-            // "fragility",
-            // "boolean",
-            // "fragility describes if it is likely to break if dropped or handled improperly")
-        // let answer = await continuous_scrape(item.item_description,
-        //     "stackable",
-        //     "boolean",
-        //     "stackable means can you comfortably stack one of these items on another")
-        // let answer = await continuous_scrape(item.item_description,
-        //     "store_vertical",
-        //     "boolean",
-        //     "store_vertical describes if an item must be stored vertically for it to be safe, false if it doesn't matter.")
-            let answer = await continuous_scrape(item.item_description,
-                "weight_in_lb",
-                "float",
-                "weight_in_lb is the weight of the item in pounds, can be derived from oz, gram, etc.")
-        console.log(answer);
-    } catch (error) {
-        console.error("Error during GPT prompt:", error);
-    }
+        try {await dataCollection(item)} 
+        catch (error) { console.error("Error during GPT prompt:", error)}
+
+        console.log(item);
 }
 
-test();
+//test();
