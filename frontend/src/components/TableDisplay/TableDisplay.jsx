@@ -124,7 +124,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
                 data.push(rowData);
             });
 
-            
+
             // Generate a buffer from the workbook
             const buffer = await workbook.xlsx.writeBuffer();
 
@@ -334,41 +334,54 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
     }
 
     return (
-        <div className='flex flex-col space-y-1'>
-            <div className="absolute top-40 gap-x-4">
-                {isExcelUploaded &&
+        <div className='flex flex-col'>
+            {isExcelUploaded &&
+                <div className='flex flex-col absolute mt-[5%] w-[100%]'>
                     <div>
-                        <div className="relative flex-col items-left">
+                        <div className='flex flex-col items-start pl-28'>
                             Session ID: {sessionID}
                         </div>
                         <br />
-                        <div className='flex flex-col items-center'>
-                            <div className="flex">
+                        <div>
+                            <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row">
                                 <input
                                     type="text"
                                     placeholder="Search..."
-                                    className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left"
+                                    className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 lg:w-80 md:w-64 sm:w-40 text-left"
                                     value={searchQuery}
                                     onChange={handleSearchInputChange}
                                 />
                                 <div className="flex">
-                                    <button onClick={toggleSelectAll} className="hidden lg:block ml-5 top-44">
+                                    <button onClick={toggleSelectAll} className="ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]">
                                         {selectAll ? 'Deselect All' : 'Select All'}
                                     </button>
-                                    <button className='hidden lg:block ml-5 top-44' onClick={toggleFilter}>Filters</button>
+                                    <button className='top-44 ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]' onClick={toggleFilter}>Filters</button>
+                                </div>
+                                <div className='content-center'>
+                                    <h1>Legend For AI Generation Confidence</h1>
+                                    <div className='ml-8 flex flex-row'>
+                                        <div className='' style={{ width: "25px", height: "25px", backgroundColor: "red" }} />
+                                        <h1 className='flex text-nowrap ml-1 mr-2'>0-50% Confidence</h1>
+                                        <div style={{ width: "25px", height: "25px", backgroundColor: "blue" }} />
+                                        <h1 className='flex text-nowrap ml-1 mr-2'>50-75% Confidence</h1>
+                                        <div style={{ width: "25px", height: "25px", backgroundColor: "green" }} />
+                                        <h1 className='flex text-nowrap ml-1 mr-2'>75-100% Confidence</h1>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                }
-            </div>
-            <div dir="rtl" className=''>
+
+                </div>
+            }
+
+            <div dir="rtl">
                 <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
             </div>
             {isLoading && (
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
-            <div className='display-box top-44 space-y-2'>
+            <div className='display-box top-48'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
