@@ -23,11 +23,13 @@ exports.dataCollection = async function(item) {
             "string",
             "May be listed as manufacturer model number, manufacturer part number, mpn, item model number, product code, manufacturer # or something similar")
             .then(result => item.manufacturer_part_num = result));
+
+        console.log("manufacturer part number just fired");
     }
 
     // Check if height inch exists, if not, scrape for it
     if (!item.height_inch || !item.width_inch || !item.length_inch) {
-        tasks.push( await continuous_scrape(item.item_description, item.manufacturer_part_num,
+        tasks.push( continuous_scrape(item.item_description, item.manufacturer_part_num,
             "dimensions",
             "string",
             item.default_issue_type == "BX" ?
@@ -45,7 +47,7 @@ exports.dataCollection = async function(item) {
 
     // Check if weight exists, if not, scrape for it
     if (!item.weight_lbs) {
-        tasks.push( await continuous_scrape(item.item_description, item.manufacturer_part_num,
+        tasks.push( continuous_scrape(item.item_description, item.manufacturer_part_num,
             "weight_lbs",
             "float",
             "Item's weight in pounds rounded to two decimal places, convert if necessary ")
@@ -54,7 +56,7 @@ exports.dataCollection = async function(item) {
 
     // Check if fragile flag exists, if not, scrape for it
     if (typeof item.fragile === 'undefined' || item.fragile === null) {
-        tasks.push( await continuous_scrape(item.item_description,
+        tasks.push(continuous_scrape(item.item_description,
             "fragile",
             "boolean",
             "An item is fragile if it has any chance of breaking or shattering from a 18 inch drop")
@@ -62,7 +64,7 @@ exports.dataCollection = async function(item) {
     }
 
     // Wait for all asynchronous tasks to complete
-    //await Promise.all(tasks);
+    await Promise.all(tasks);
 
     return item;
 }

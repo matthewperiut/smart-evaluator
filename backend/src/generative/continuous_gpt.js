@@ -1,6 +1,8 @@
 const { OpenAI } = require('openai');
 const { scrapeBingSearchForKeywords } = require("./gpt");
 const puppeteer = require("puppeteer");
+const axios = require('axios');
+const { JSDOM } = require('jsdom');
 const qs = require("querystring");
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY); // Directly use the API key here
@@ -12,7 +14,8 @@ function log(...text) {
     }
 }
 
-async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars) {
+//Uses Puppeteer to scrape duckduckGo Search, and visit the links found in that search. 
+async function scrapeWebForKeywordsPuppeteer(searchURL, keywords, limit, surroundingChars) {
     try {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
@@ -89,17 +92,109 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
     }
 }
 
+//Uses ScrapingBee API to scrape search engine Search, and uses puppeteer to
+// visit the links found in that search. This should avoid some rate limiting.
+async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars) {
+    try {
+        const response = await axios.get('https://app.scrapingbee.com/api/v1/', {
+            params: {
+            api_key: process.env.SCRAPING_BEE_API_KEY,
+            url: searchURL,
+            wait_browser: 'load',
+            render_js: 'true', // Set to 'true' if JavaScript rendering is needed
+            }
+        });
+
+        const { window } = new JSDOM(response.data, { resources: 'usable' });
+        const links = [];
+
+        const loadPromise = new Promise((resolve, reject) => {
+            window.addEventListener('load', resolve);
+            window.addEventListener('error', reject);
+            setTimeout(reject, 10000); // 10 seconds timeout
+        });
+
+        // Extract the first few search result links
+        const linkSelectors = window.document.querySelectorAll('h2 a');
+        console.log(linkSelectors);
+        linkSelectors.forEach(link => {
+            if (link.href) {
+                links.push(link.href);
+            }
+        });
+        
+        //Begin using puppeteer for links provided.
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+        const dimensionsData = [];
+        for (let i = 0; i < Math.min(limit, links.length); i++) {
+            try {
+                const link = links[i];
+                log("Processing link:", link); // Debugging output to see the processed link
+                try {
+                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 10000}); // Attempt to navigate with a custom timeout
+                    // Proceed with your scraping logic...
+                } catch (error) {
+                    if (error.name === 'TimeoutError') {
+                        log("Page took too long to load:", link);
+                        // Handle the timeout, e.g., by skipping this page or logging the timeout
+                    } else {
+                        log("An error occurred:", error.message);
+                        // Handle other potential errors
+                    }
+                }
+
+                const data = await page.evaluate((keywords, surroundingChars) => {
+                    const bodyText = document.body.innerText;
+                    let cummulativeResults = "";
+                    for (let keyword of keywords) {
+                        const index = bodyText.toLowerCase().indexOf(keyword);
+                        console.log("keyword: " + keyword + "\n");
+                        if (index !== -1) {
+                            cummulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                        }
+                    }
+                    if (cummulativeResults.length > 0) {
+                        return cummulativeResults;
+                    }
+                    else {
+                        return null;
+                    }
+                }, keywords, surroundingChars);
+
+                if (data) {
+                    //can use: dimensionsData.push({url: link, data: data});
+                    log(`This website contains: ${data}`);
+                    dimensionsData.push({data: data});
+                }
+            }
+            catch (error) {
+                log('Error:', error.message);
+                continue;
+            }
+        }
+
+        await browser.close();
+        return dimensionsData;
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        await browser.close();
+        return [];
+    } 
+}
 
 function formatDuckDuckGoSearchURL(query) {
     return `https://www.duckduckgo.com/?${qs.stringify({q: query})}`;
     //return `https://www.bing.com/search?${qs.stringify({q: query})}`;
 }
 
-// Specific function for scraping Bing with certain keywords
+// Specific function for scraping DuckDuckGo with certain keywords
 async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
-    return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
+    return await scrapeWebForKeywordsPuppeteer(searchURL, keywords, limit, surroundingChars);
 }
 
 async function promptGPT(messages) {
@@ -123,8 +218,8 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
             content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
                 " the first is `google(\"question\", \"keywords\")`. If you respond this way, my function will search the internet using the" + 
                 " question that you provide, evaluate the first 10 webpages, and return any text within 100 characters of the keywords. " +
-                " Use | to separate keywords. Example usage: google(\"how tall is mt everest?\", \"height|feet\")" +
-                " If the results is [] it is likely that the keywords did not work." +
+                " Use | to separate keywords. Example usage: google(\"how tall is mt everest?\", \"height|feet|miles|distance\")" +
+                " If the results is [] it is likely that the keywords did not work. It's best to use 3-4 keywords at a time." +
                 " Please include item description in the question variable." + 
                 (manufacturer_part_num? "the start of individual website data are marked by\"data\", validate the data by"+
                 " checking if the manufacturer part number is found on the data from that website": "") +
@@ -143,7 +238,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
     ];
 
     var keywords = "";
-    let maxTries = 5;
+    let maxTries =  5;
     for (let tries = 0; tries < maxTries; tries++) {
         let response = await promptGPT(messages);
         console.log(response);
