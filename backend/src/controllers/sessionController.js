@@ -122,9 +122,6 @@ exports.getSessionIDs = async function (req, res) {
     const completedItems = sessions.map(session => session.completed_items);
     const uncompletedItems = sessions.map(session => session.uncompleted_items);
 
-    console.log("Completed Items:", completedItems);
-    console.log("Uncompleted Items:", uncompletedItems);
-
     res.json({
       _ids: sessionIDs,
       completedItems: completedItems,
@@ -276,5 +273,43 @@ exports.addItem = async function (req, res) {
     res.status(500).json({ error: 'Internal server error' });
   } finally {
     await db.client.close();
+  }
+}
+
+exports.getTableFromSessionID = async function (req, res) {
+
+  const chosenSessionID = parseInt(req.query.sessionID);
+  console.log(chosenSessionID);
+
+  try {
+    // Connect to the Database
+    await db.client.connect();
+
+    // Get all documents from the "Session" collection
+    const session = await db.client.db("Backend_Database").collection("Session").findOne({ _id: chosenSessionID });
+
+    if (session) {
+      // If session is found, extract the arrays of completed and uncompleted items
+      const completedItems = session.completed_items || [];
+      const uncompletedItems = session.uncompleted_items || [];
+
+      // Combine completed and uncompleted items into a single array
+      const allItems = completedItems.concat(uncompletedItems);
+
+      // Query the "Item" collection for documents matching the items
+      const matchedItems = await db.client.db("Backend_Database").collection("Item").find({ _id: { $in: allItems } }).toArray();
+
+      console.log(matchedItems);
+
+      res.json({ items: matchedItems });
+
+    } else {
+      // If session is not found, return a 404 Not Found response
+      res.status(404).json({ error: 'Session not found' });
+    }
+
+  } catch (error) {
+    console.error("Error fetching table from sessionID:", error);
+    res.status(500).json({ error: 'Internal server error' }); // Send error response to client
   }
 }

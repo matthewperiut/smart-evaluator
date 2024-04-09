@@ -5,7 +5,7 @@
 * functions using the dataAnalysis() function below. 
 */
 
-exports.dataAnalysis = function(item) {
+exports.dataAnalysis = function (item) {
 
     //resulting item to be returned after data completion
     let result = item
@@ -252,9 +252,9 @@ const getLockerVendibility = (item) => {
 const getCoilVendibility = (item) => {
 
     // Replace null values with any necessary calculations, function calls, etc. 
-    const coil_vendibility =  {
+    const coil_vendibility = {
         coil_vendable: true,
-        needs_repack_for_coil: null, 
+        needs_repack_for_coil: null,
         coil_pitch: null, //SEPARATED coil_pitch_num_items_per_row because the two values may not be equal due to weight
         coil_capacity: null,
         coil_type: null, 
@@ -295,7 +295,7 @@ const getCoilVendibility = (item) => {
     } else {
         /*If vertical storage isn't necessary, Sort item dimensions from largest to smallest. This 
         * effectively allows the item to be 'rotated' on any axis.*/
-        Dimensions.sort((a, b) => {return b-a}); 
+        Dimensions.sort((a, b) => { return b - a });
     }
 
     //Check which shelves can accommodate the item.
@@ -312,7 +312,7 @@ const getCoilVendibility = (item) => {
  
     //Calculation of coil type. 
     if (Dimensions[1] >= DUAL_HELIX_DIAMETER) {
-        coil_vendibility.coil_vendable = false; 
+        coil_vendibility.coil_vendable = false;
         return coil_vendibility; //ITEM IS NOT VENDABLE
     } else if (Dimensions[1] >= SINGLE_HELIX_DIAMETER) {
         // Temporarily Set Coil type to large. This will be changed later if item is too heavy
@@ -339,23 +339,23 @@ const getCoilVendibility = (item) => {
             } else temp_count = pitch_counts[i];
         }
 
-        if (Dimensions[2] < pitch_counts[pitch_counts.length-1]) {
-            return pitch_counts[pitch_counts.length-1];
+        if (Dimensions[2] < pitch_counts[pitch_counts.length - 1]) {
+            return pitch_counts[pitch_counts.length - 1];
         } else return count;//Return the final pitch count
     }
 
     //Calculation of pitch size, (if not already calculated)
-    if(coil_vendibility.coil_pitch == null) {
+    if (coil_vendibility.coil_pitch == null) {
         switch (coil_vendibility.coil_type) {
             case "dual":
                 coil_vendibility.coil_pitch = calculatePitch(DUAL_PITCH_COUNTS, DUAL_SLOT_DEPTHS);
-            break;
+                break;
             case "large":
                 coil_vendibility.coil_pitch = calculatePitch(LARGE_PITCH_COUNTS, LARGE_SLOT_DEPTHS);
-            break;
+                break;
             case "single":
                 coil_vendibility.coil_pitch = calculatePitch(SINGLE_PITCH_COUNTS, SINGLE_SLOT_DEPTHS);
-            break;
+                break;
         }
     }
 
@@ -376,10 +376,10 @@ const getCoilVendibility = (item) => {
 
     //Calculate whether the item needs a riser
     if (Dimensions[0] <= item.SINGLE_HELIX_DIAMETER) {
-        if (Dimensions [0] + RISER_PLATFORM_HEIGHT <= item.SINGLE_HELIX_DIAMETER) {
+        if (Dimensions[0] + RISER_PLATFORM_HEIGHT <= item.SINGLE_HELIX_DIAMETER) {
             coil_vendibility.coil_vendable = false;//If item is STILL to short, it's not vendable. 
         } else {
-            coil_vendibility.riser_required = true; 
+            coil_vendibility.riser_required = true;
         }
     } else coil_vendibility.riser_required = false;
 
@@ -394,12 +394,14 @@ const getCoilVendibility = (item) => {
 const getCarouselVendibility = (item) => {
 
     // Replace null values with any necessary calculations, function calls, etc. 
-    const carousel_vendibility =  {
-        carousel_vendable: null,
-        needs_repack_for_carousel: null, 
-        num_slots_per_item: null, 
-        carousel_capacity: null,
-        }
+    let carousel_vendibility = {};
+
+    carousel_vendibility = {
+        carousel_vendable: carousel_vendibility.carousel_vendable || null,
+        needs_repack_for_carousel: carousel_vendibility.needs_repack_for_carousel || null,
+        num_slots_per_item: carousel_vendibility.num_slots_per_item || null,
+        carousel_capacity: carousel_vendibility.carousel_capacity || null,
+    };
 
         // Height, Depth, and Weight Limits
         const MAX_HEIGHT_INCH = 4.75;
@@ -427,9 +429,9 @@ const getCarouselVendibility = (item) => {
             [10, 12, 1.70]
         ];
 
-        // Sorts Dimensions from largest to smallest
-        const Dimensions = [Number(item.width_inch), Number(item.length_inch), Number(item.height_inch)];
-        Dimensions.sort((a, b) => {return b-a}); 
+    // Sorts Dimensions from largest to smallest
+    const Dimensions = [Number(item.width_inch), Number(item.length_inch), Number(item.height_inch)];
+    Dimensions.sort((a, b) => { return b - a });
 
         const carouselCalculation = (minimumSection) => { 
             carousel_vendibility.num_slots_per_item = sectionWidths[minimumSection][0];
@@ -519,8 +521,8 @@ const getCarouselVendibility = (item) => {
                         }
                         else {
                         // Making sure the next two dimensions are the acceptable length/height;
-                            if (Dimensions[1] < RADIUS) {
-                                if (Dimensions[2] < MAX_HEIGHT_INCH) {
+                        if (Dimensions[1] < RADIUS) {
+                            if (Dimensions[2] < MAX_HEIGHT_INCH) {
                                 // Checks Sections 8 - 10. D[0] is width, D[1] is depth, D[2] is height.
                                     for (let i = 7; i < 10; i++) {
                                         if (Dimensions[0] < sectionWidths[i][1]) {
