@@ -20,6 +20,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
       const searchResultsLinks = await page.evaluate(() => {
         const links = [];
         const linkSelectors = document.querySelectorAll('h2 a');
+        console.log(linkSelectors);
         linkSelectors.forEach(link => {
           if (link.href) {
             links.push(link.href);
@@ -59,6 +60,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
       
             if (data) {
               //can use: dimensionsData.push({url: link, data: data});
+              log(`This website contains: ${data}`);
               dimensionsData.push({data: data});
             }
         }
@@ -78,16 +80,16 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
     }
   }
   
-  // Function to format search URL for Bing
+  
   function formatBingSearchURL(query) {
-    return `https://www.bing.com/search?${qs.stringify({q: query})}`;
+    return `https://www.duckduckgo.com/?${qs.stringify({q: query})}`;
   }
   
   // Specific function for scraping Bing with certain keywords
-  async function scrapeBingSearchForDimensions(query, limit = 10, surroundingChars = 300) {
+  async function scrapeBingSearchForKeywords(query, limit = 10, surroundingChars = 300) {
     const searchURL = formatBingSearchURL(query);
     log("Search URL:" + searchURL);
-    const keywords = ['dimensions', "inches", 'width', 'height', 'length'];
+    const keywords = ['dimensions', "inches", 'width', 'height', 'length', 'weight'];
     return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
   }
 
@@ -123,30 +125,100 @@ async function promptGPT(text_prompt) {
     }
   }
 
-exports.fillDimensions = async function (item) {
-    let bingSearch = await JSON.stringify(await scrapeBingSearchForDimensions(item.item_description + " dimensions"));
+exports.fillData = async function (item) {
+    let bingSearch = await JSON.stringify(await scrapeBingSearchForKeywords(item.item_description + item.sku + item.manufacturer_part_num + " dimensions"));
     log(bingSearch);
-    if(bingSearch.length > 0) {
+    //This function uses a regular expression to algorithmically gather Dimensional Data
+    //This method is faster and slightly less prone to outputing erroneous data. 
+    function extractDimensions(text) {
+      let dimensions = text.match(/(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)/);
+      if (dimensions) {
+          let width_inch = parseFloat(dimensions[1]);
+          let length_inch = parseFloat(dimensions[3]);
+          let height_inch = parseFloat(dimensions[5]);
+          return { width_inch, length_inch, height_inch };
+      } else {
+          return null; // Return null if dimensions are not found
+      }
+  }
+  
+    //This function uses a regular expression to algorithmically gather weight Data
+    function extractAndConvertWeight(data) {
+      let weightRegex = /(\d+(\.\d+)?)\s*(ounces|oz|grams|pounds|lbs)/i;
+      let match = data.match(weightRegex);
+      if (match) {
+          let value = parseFloat(match[1]);
+          let unit = match[3].toLowerCase();
+          // Convert to pounds
+          if (unit === "ounces" || unit === "oz") {
+              value /= 16; // 1 pound = 16 ounces
+          } else if (unit === "grams" || unit === "g") {
+              value /= 453.592; // 1 pound = 453.592 grams
+          }
+          // Return weight rounded to 2 decimal places
+          return parseFloat(value.toFixed(2));
+      } else {
+          return null; // Return null if weight is not found
+      }
+    }
+
+    let result = {};
+    const gpt_result = {};
+    
+if(bingSearch.length > 0) {
         let question = "Item Description:" + item.item_description + "\n" + bingSearch +
-        "\n\nBased on the text above answer the questions. Follow the format provided strictly. If you cannot complete the task respond with\
-        \"impossible\" otherwise only provide the data. Prioritize higher precision answers in the text, ensure it is dimensions not $\n";
-        if (!item.width_inch || !item.length_inch || !item.height_inch) {
-            question += "Q: Provide the item's dimensions in the specified format\n\
-            width_inch=\n\
-            length_inch=\n\
-            height_inch=\n"
+            "\n\nBased on the text above answer the questions. Follow the format provided strictly. If you cannot complete the task respond with\
+            \"impossible\" otherwise only provide the data. Prioritize higher precision answers in the text, ensure it is dimensions not $\n\
+            Q: Provide the item's dimensions in the specified format\n";
+
+        if (!gpt_result.width_inch || !gpt_result.length_inch || !gpt_result.height_inch) {
+            //add queries to prompt as needed
+            question += 
+                "width_inch=\n\
+                length_inch=\n\
+                height_inch=\n";
         }
+        if (!gpt_result.weight_lbs) {
+            question += "weight_lbs=\n"; 
+        }
+
+        log("Requesting ChatGPT for data extraction");
         const response = await promptGPT(question);
         const lines = response.split('\n');
-        const result = {};
-        
+
         lines.forEach(line => {
             const [key, value] = line.split('=');
-            result[key] = parseFloat(value); // Convert to float to handle numerical values correctly
+            gpt_result[key] = parseFloat(value); // Convert to float to handle numerical values correctly
         });
-        log(result);
-        return result;
+
+        const dimensions = {
+            width_inch: gpt_result.width_inch,
+            length_inch: gpt_result.length_inch,
+            height_inch: gpt_result.height_inch
+        };
+
+        const weight_lbs = gpt_result.weight_lbs;
+
+        if (!dimensions.width_inch || !dimensions.length_inch || !dimensions.height_inch) {
+            // If any dimension is missing, use the algorithm to extract them
+            const extractedDimensions = extractDimensions(bingSearch);
+            Object.assign(dimensions, extractedDimensions);
+        }
+
+        if (!weight_lbs) {
+            // If weight is missing, use the algorithm to extract it
+            const extractedWeight = extractAndConvertWeight(bingSearch);
+            result.weight_lbs = extractedWeight;
+        } else {
+            result.weight_lbs = weight_lbs; // Copy weight to the result object
+        }
+
+        // Copy dimensions to the result object
+        Object.assign(result, dimensions);
+
     }
+
+    return result;
 }
 
 // const {fillDimensions} = require("./generative/gpt")

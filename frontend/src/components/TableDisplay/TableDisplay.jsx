@@ -1,16 +1,142 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import ExcelJS from 'exceljs';
 import axios from 'axios';
 import ExportToExcel from './ExportToExcel';
 import './TableDisplay.css';
+import ItemDetails from '../ItemDetails/ItemDetails';
+import SessionIDs from '../SessionIDs/SessionIDs';
 
-const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
+const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [sessionId, setSessionID] = useState();
+    const [sessionID, setSessionID] = useState();
+    const [chosenSessionID, setChosenSessionID] = useState();
+
+    // Selected Item Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [rowData, setRowData] = useState(null);
+    const [columnHeaders, setColumnHeaders] = useState(null);
+
+    const openModal = (row) => {
+        setRowData(row);
+        setColumnHeaders(filteredData[0]); // Assuming this is how you determine column headers
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    useEffect(() => {
+        if (chosenSessionID) {
+            fetchTableFromSessionID(chosenSessionID);
+        }
+    }, [chosenSessionID]);
+
+    const fetchTableFromSessionID = async (sessionID) => {
+        try {
+            const response = await axios.get('http://localhost:5001/getTableFromSessionID', {
+                params: {
+                    sessionID: sessionID
+                }
+            });
+            const sessionData = response.data.items;
+
+            const workbook = new ExcelJS.Workbook(); // Create a new Excel workbook
+            const worksheet = workbook.addWorksheet('Data'); // Add a worksheet to the workbook
+
+
+
+            const headers = [
+                'SKU(Item Number)*', 'Item Description*', 'Manufacturer Part #', 'Item Manufacturer', 'Alt Item ID (SKU)',
+                'Org. Local Part Number', 'All in one Point-Of-Use (POU), or Area', 'Demand Quantity *', 'Demand Time-Window*',
+                'Security Level', 'Overall vendability Y/N', 'Vendability Notes', '$ Item Cost', '% Expected Gross Profit Mafgin',
+                'Height* inch', 'Width* inch', 'Length* inch', 'Weight* lbl', 'Heavy', 'Fragile', 'Default Issue Type (Unit)*',
+                'Default Issue Qty (inside pk, bx, or cs)*', 'Stackable', 'Loose', 'Store vertically', 'Preferred Machine Type',
+                'Locker vendable   Y/N', '# of Compartments per Locker Door (6 MAX)', 'Capacity for Express Locker',
+                'Capacity for ProStock Locker', 'Capacity for ProLock Locker', 'Carousel vendable Y/N', 'Needs repack for carousel  Y/N',
+                '# of Slots per Item (Max 10, Flex 14)', 'Coil vendable Y/N', 'Needs repack for coil Y/N', 'Coil Pitch / Number of Items per Coil Row',
+                'Coil Type (SINGLE, V-CHANNEL, DUAL, LARGE)', 'Preferred Shelf (Any/Bottom)', 'Preferred Row (Side/Middle/Any)',
+                'Riser Required', 'Flip Bar Required', 'Coil end “clock” position - 3, 6, 9, or 12 (Default is 6)',
+                'Repacking Instructions PDF file url', 'Item Image URL', 'Repacked Image Url'
+            ];
+
+
+            // Add column headers to the worksheet
+            worksheet.addRow(headers);
+
+            // Add data rows to the worksheet and array
+            const data = [headers]; // Start with headers as the first row
+            sessionData.slice(0).forEach(item => {
+                const rowData = [
+                    item.sku,
+                    item.item_description,
+                    item.manufacturer_part_num,
+                    item.item_manufacturer,
+                    item._id,
+                    item.org_local_part_number,
+                    item.point_of_use,
+                    item.demand_quantity,
+                    item.demand_time_window,
+                    item.security_level,
+                    item.overall_vendability,
+                    item.vendability_notes,
+                    item.item_cost,
+                    item.expected_gross_profit_margin,
+                    item.height_inch,
+                    item.width_inch,
+                    item.length_inch,
+                    item.weight_lbs,
+                    item.heavy,
+                    item.fragile,
+                    item.default_issue_type,
+                    item.default_issue_qty,
+                    item.stackable,
+                    item.loose,
+                    item.store_vertically,
+                    item.preferred_machine_type,
+                    item.locker_vendability.locker_vendable,
+                    item.locker_vendability.num_compartments_per_locker_door,
+                    item.locker_vendability.capacity_for_express_locker,
+                    item.locker_vendability.capacity_for_prostock_locker,
+                    item.locker_vendability.capacity_for_prolock_locker,
+                    item.carousel_vendability.carousel_vendable,
+                    item.carousel_vendability.needs_repack_for_carousel,
+                    item.carousel_vendability.num_slots_per_item,
+                    item.coil_vendability.coil_vendable,
+                    item.coil_vendability.needs_repack_for_coil,
+                    item.coil_vendability.coil_pitch,
+                    item.coil_vendability.coil_type,
+                    item.coil_vendability.preferred_shelf,
+                    item.coil_vendability.preferred_row,
+                    item.coil_vendability.riser_required,
+                    item.coil_vendability.flip_bar_required,
+                    item.coil_vendability.coil_end_clock_position,
+                    item.repacking_instructions_pdf_file_url,
+                    item.item_image_url,
+                    item.repacked_image_url
+                ];
+                worksheet.addRow(rowData);
+                data.push(rowData);
+            });
+
+
+            // Generate a buffer from the workbook
+            const buffer = await workbook.xlsx.writeBuffer();
+
+            onExcelUpload(data, 'Session ' + sessionID, sessionID)
+
+            localStorage.setItem('uploadedExcel', JSON.stringify(data));
+            setFilteredData(data);
+            console.log(filteredData);
+        } catch (error) {
+            console.error('Error fetching table from sessionID', error);
+        }
+    };
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
@@ -56,6 +182,24 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         }
     }
 
+    const toggleFilter = async (e) => {
+        var form = document.getElementById("filterChoices");
+        if (form) {
+            form.style.display = form.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    const toggleCollapsible = async (options) => {
+        var content = document.getElementById(options);
+        if (content) {
+            content.style.display = content.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    const clearFilters = async (e) => {
+
+    }
+
     // Function to filter data based on search query
     const filterData = (query) => {
         const filtered = excelData.filter((row, index) => {
@@ -78,16 +222,16 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         filterData(query);
     };
 
-    //Initicates vendibility request for each item currently selected on the table. 
+    // Initicates vendibility request for each item currently selected on the table. 
     const handleVendibiilityRequest = async () => {
-        let updatedData = [...filteredData];
+        let updatedData = [...filteredData.map(row => [...row])];
         //Cycle through each row (item) and request the backend for vendibility. 
         for (const rowIndex of selectedRows) {
-            console.log(`Session: ${sessionId} \n ItemId: ${filteredData[rowIndex][4]}`);
+            console.log(`Session: ${sessionID} \n ItemId: ${filteredData[rowIndex][4]}`);
             try {
                 const response = await axios.get('http://localhost:5001/itemVendibility', {
                     params: {
-                        sessionId: sessionId,
+                        sessionId: sessionID,
                         itemId: filteredData[rowIndex][4]
                     }
                 })
@@ -125,15 +269,15 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                     updatedData[rowIndex][23] = item.loose || updatedData[rowIndex][23];
                     updatedData[rowIndex][24] = item.store_vertically || updatedData[rowIndex][24];
                     updatedData[rowIndex][25] = item.preferred_machine_type || updatedData[rowIndex][25];
-                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable || updatedData[rowIndex][26];
+                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable? 'Y' : 'N' || updatedData[rowIndex][26];
                     updatedData[rowIndex][27] = item.locker_vendability.num_compartments_per_locker_door || updatedData[rowIndex][27];
                     updatedData[rowIndex][28] = item.locker_vendability.capacity_for_express_locker || updatedData[rowIndex][28];
                     updatedData[rowIndex][29] = item.locker_vendability.capacity_for_prostock_locker || updatedData[rowIndex][29];
                     updatedData[rowIndex][30] = item.locker_vendability.capacity_for_prolock_locker || updatedData[rowIndex][30];
-                    updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable || updatedData[rowIndex][31];
+                    updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable ? 'Y' : 'N' || updatedData[rowIndex][31];
                     updatedData[rowIndex][32] = item.carousel_vendability.needs_repack_for_carousel || updatedData[rowIndex][32];
                     updatedData[rowIndex][33] = item.carousel_vendability.num_slots_per_item || updatedData[rowIndex][33];
-                    updatedData[rowIndex][34] = item.coil_vendability.coil_vendable ? 'Y' : 'N' || updatedData[rowIndex][34];
+                    updatedData[rowIndex][34] = item.coil_vendability.coil_vendable || updatedData[rowIndex][34];
                     updatedData[rowIndex][35] = item.coil_vendability.needs_repack_for_coil || updatedData[rowIndex][35];
                     updatedData[rowIndex][36] = item.coil_vendability.coil_pitch || updatedData[rowIndex][36];
                     updatedData[rowIndex][37] = item.coil_vendability.coil_type || updatedData[rowIndex][37];
@@ -159,58 +303,122 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
         localStorage.setItem('uploadedExcel', JSON.stringify(updatedData));
     }
 
-    return (
-        <div>
-            <div className="fixed left-4 top-36 p-4">
+    // Handles the choice of sessionID in the SessionIDs component
+    const handleChosenSessionID = (chosenSessionID) => {
+        localStorage.setItem('chosenSessionID', chosenSessionID);
+        localStorage.setItem('solutionId', chosenSessionID);
+        setChosenSessionID(chosenSessionID);
+        setSessionID(chosenSessionID);
+    }
 
-                Session ID: {sessionId}
-                {isExcelUploaded &&
+    const toggleSelectAll = () => {
+        if (selectAll) {
+            setSelectedRows([]);
+        } else {
+            const allRowIndices = filteredData.map((_, index) => index).slice(1);
+            setSelectedRows(allRowIndices);
+        }
+        setSelectAll(!selectAll);
+    };
+
+    if (isModalOpen) {
+        return (
+            <div>
+                <ItemDetails
+                    rowData={rowData}
+                    columnHeaders={columnHeaders}
+                    onClose={closeModal}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className='flex flex-col'>
+            {isExcelUploaded &&
+                <div className='flex flex-col absolute mt-[5%] w-[100%]'>
                     <div>
-                        <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 w-80 text-left"
-                            placeholder-class="text-gray-400 font-bold text-xl"
-                            value={searchQuery}
-                            onChange={handleSearchInputChange}
-                        />
+                        <div className='flex flex-col items-start pl-28'>
+                            Session ID: {sessionID}
+                        </div>
+                        <br />
+                        <div>
+                            <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row">
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 lg:w-80 md:w-64 sm:w-40 text-left"
+                                    value={searchQuery}
+                                    onChange={handleSearchInputChange}
+                                />
+                                <div className="flex">
+                                    <button onClick={toggleSelectAll} className="ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]">
+                                        {selectAll ? 'Deselect All' : 'Select All'}
+                                    </button>
+                                    <button className='top-44 ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]' onClick={toggleFilter}>Filters</button>
+                                </div>
+                                <div className='content-center'>
+                                    <h1>Legend For AI Generation Confidence</h1>
+                                    <div className='ml-8 flex flex-row'>
+                                        <div className='' style={{ width: "25px", height: "25px", backgroundColor: "red" }} />
+                                        <h1 className='flex text-nowrap ml-1 mr-2'>0-50% Confidence</h1>
+                                        <div style={{ width: "25px", height: "25px", backgroundColor: "gold" }} />
+                                        <h1 className='flex text-nowrap ml-1 mr-2'>50-75% Confidence</h1>
+                                        <div style={{ width: "25px", height: "25px", backgroundColor: "green" }} />
+                                        <h1 className='flex text-nowrap ml-1 mr-2'>75-100% Confidence</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                }
-                <br />
-                <br />
+                </div>
+            }
+
+            <div dir="rtl">
+                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
             </div>
             {isLoading && (
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green">
-                </div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
-            <div className='display-box'>
+            <div className='display-box top-48'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {/* Checkbox to act as Select All/Deselect All - adjusts based on `selectAll` state */}
+                                        <input
+                                            type="checkbox"
+                                            onChange={toggleSelectAll}
+                                            checked={selectAll}
+                                        />
+                                    </th>
+                                    {filteredData[0].map((header, headerIndex) => (
+                                        <th key={headerIndex}>{header}</th>
+                                    ))}
+                                </tr>
+                            </thead>
                             <tbody>
-                                {filteredData.map((row, rowIndex) => (
-                                    <tr key={rowIndex} className={selectedRows.includes(rowIndex) ? 'selected-row' : ''}>
+                                {filteredData.slice(1).map((row, rowIndex) => (
+                                    <tr key={rowIndex + 1} className={selectedRows.includes(rowIndex + 1) ? 'selected-row' : ''}>
                                         <td>
                                             <input
                                                 type="checkbox"
-                                                checked={selectedRows.includes(rowIndex)}
-                                                onChange={() => toggleRow(rowIndex)}
-                                                disabled={rowIndex == 0}
+                                                checked={selectedRows.includes(rowIndex + 1)}
+                                                onChange={() => toggleRow(rowIndex + 1)}
                                             />
                                         </td>
                                         {row.map((cell, cellIndex) => (
                                             <td key={cellIndex}>
-                                                {rowIndex >= 1 && cellIndex === 1 ? (
-                                                    <Link
-                                                        to={"/itemDetails"}
-                                                        state={{ rowData: row, columnHeaders: excelData[0] }}
-                                                    >
-                                                        {cell !== undefined && cell !== null ? String(cell) : ''}
-                                                    </Link>
+                                                {cellIndex === 1 ? (
+                                                    <span style={{ cursor: 'pointer', color: '#666DFA', textDecoration: 'none' }}
+                                                        onClick={() => openModal(row)}>
+                                                        {cell}
+                                                    </span>
                                                 ) : (
-                                                    cell !== undefined && cell !== null ? String(cell) : ''
+                                                    cell
                                                 )}
                                             </td>
                                         ))}
@@ -220,12 +428,27 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded }) => {
                         </table>
                     </div>
                 ) : (
-                    <h1>Test</h1> // SessionIDs table to go here
+                    <SessionIDs chosenSessionID={handleChosenSessionID} />
                 )}
-                {selectedRows.length > 0 &&
-                    <button className='vendibility-button' onClick={handleVendibiilityRequest}> Calculate Vendibility for {selectedRows.length} Item(s) </button>
-                }
+                {selectedRows.length > 0 && (
+                    <button className='vendibility-button' onClick={handleVendibiilityRequest}>Calculate Vendibility for {selectedRows.length} Item(s)</button>
+                )}
             </div>
+            <div id="filterChoices" className="filter-overlay">
+                <div className='filter-container'>
+                    <div className='filter-header'>Filters</div>
+                    <div className='filter-subhead'>
+                        <div>Vendibility</div>
+                        <div>Data Availability</div>
+
+                    </div>
+
+                    <button className='filter-select'>Apply</button>
+                    <button className='filter-select' onClick={clearFilters}>Clear All</button>
+                    <button className='filter-cancel' onClick={toggleFilter}>Cancel</button>
+                </div>
+            </div>
+
         </div>
     );
 }

@@ -208,7 +208,7 @@ const Modal = ({ onExcelUpload }) => {
                                 >
                                     Import
                                 </button>
-                                <button type='button' onClick={toggleModal}
+                                <button type='button' onClick={() => {toggleModal(); setFile(null);}}
                                     style={{ width: "24.7%", color: '#213547' }}
                                 >
                                     Cancel

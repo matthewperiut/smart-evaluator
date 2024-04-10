@@ -19,6 +19,7 @@
     background-color: #fefefe;
     border-radius: 7%;
     padding: 0;
+    animation: slide-up 0.5s ease forwards;
 }
 
 .modal-content {
@@ -113,4 +114,24 @@ li::before {
     content: '\2022';
     /* Unicode character for bullet point */
     margin-right: 0.5em;
+}
+
+@keyframes slide-up {
+    to {
+        transform: translateY(0);
+    }
+
+    from {
+        transform: translateY(100%)
+    }
+}
+
+@keyframes slide-down {
+    to {
+        transform: translateY(100%);
+    }
+
+    from {
+        transform: translateY(0);
+    }
 }
