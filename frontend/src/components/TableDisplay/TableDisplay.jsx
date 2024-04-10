@@ -379,7 +379,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
     return (
         <div className='flex flex-col'>
             {isExcelUploaded &&
-                <div className='flex flex-col absolute mt-[5%] w-[100%]'>
+                <div className='flex flex-col absolute mt-[9%] w-[100%]'>
                     <div>
                         <div className='flex flex-row items-start'>
                             <button onClick={() => displaySessionIDList()}>Session ID List</button>
@@ -388,7 +388,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                             </h1>
                         </div>
                         <br />
-                        <div>
+                        <div className='ml-1'>
                             <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row">
                                 <input
                                     type="text"
@@ -436,7 +436,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
             {isLoading && (
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
-            <div className='display-box top-52'>
+            <div className='display-box top-64'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
