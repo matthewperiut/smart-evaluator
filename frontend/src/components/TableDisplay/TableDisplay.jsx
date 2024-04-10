@@ -388,7 +388,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                             </h1>
                         </div>
                         <br />
-                        <div className='ml-1'>
+                        <div className='ml-2'>
                             <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row">
                                 <input
                                     type="text"
@@ -398,7 +398,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                     onChange={handleSearchInputChange}
                                 />
                                 <div className="flex">
-                                    <button onClick={toggleSelectAll} className="ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]">
+                                    <button onClick={toggleSelectAll} className="ml-2 w-[120px] max-h-[100%] lg:text-[15px] md:text-[14px] sm:text-[12px]">
                                         {selectAll ? 'Deselect All' : 'Select All'}
                                     </button>
                                     <button className='top-44 ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]' onClick={toggleFilter}>Filters</button>
@@ -414,9 +414,9 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                         <h1 className='flex text-nowrap ml-1 mr-2'>75-100% Confidence</h1>
                                     </div>
                                 </div>
-                                <div className='flex flex-row truncate lg:ml-28 md:ml-2'>
+                                <div className='flex flex-row truncate w-[100%] ml-[12.6%]'>
                                 {selectedRows.length > 0 && (
-                                    <button className='flex max-h-[70%] mt-2 items-center bg-[#44A76E]' 
+                                    <button className='flex max-h-[70%] mt-1 items-center bg-[#44A76E]' 
                                     onClick={handleVendibiilityRequest}>
                                         Calculate Vendibility for {selectedRows.length} Item(s)
                                     </button>
