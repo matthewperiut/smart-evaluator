@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import HomePage from './components/HomePage/HomePage.jsx';
-import axios from 'axios';
 
 function App() {
   const [excelData, setExcelData] = useState([]);
@@ -11,7 +10,6 @@ function App() {
 
   const handleExcelUpload = (data, fileName, solutionId) => {
     if (data) {
-      console.log("test");
       localStorage.setItem('uploadedExcel', JSON.stringify(data));
       if (fileName !== null) {
         localStorage.setItem('fileName', fileName);
@@ -50,7 +48,7 @@ function App() {
           <Route
             path="/"
             element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded}
-              onExcelUpload={handleExcelUpload} fileName={fileName} />}
+              onExcelUpload={handleExcelUpload} fileName={fileName} setIsExcelUploaded={setIsExcelUploaded} />}
           />
         </Routes>
       </div>
