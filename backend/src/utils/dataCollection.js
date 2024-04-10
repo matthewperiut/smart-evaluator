@@ -33,10 +33,12 @@ exports.dataCollection = async function(item) {
             "dimensions",
             "string",
             item.default_issue_type == "BX" ?
-            `Dimensional data must be for the boxed form of the item containing exactly ${item.default_issue_qty} pieces. Return the dimensions in inches using the format: <width>x<depth>x<height>` :
+            `Dimensional data must be for the boxed form of the item containing exactly ${item.default_issue_qty} pieces. Return the dimensions in inches rounded to 2 decimal places using the format: <width>x<depth>x<height>` :
             item.default_issue_type == "PK" ?
-            `Dimensional data must be for the packaged form of the item containing exactly ${item.default_issue_qty} pieces. Return the dimensions in inches using the format: <width>x<depth>x<height>` :
-            `Dimensional data must be for the individual form of the item containing exactly 1 piece. Return the dimensions in inches using the format: <width>x<depth>x<height>`)
+            `Dimensional data must be for the packaged form of the item containing exactly ${item.default_issue_qty} pieces. Return the dimensions in inches rounded to 2 decimal places using the format: <width>x<depth>x<height>` :
+            item.default_issue_type == "PR" ?
+            `Dimensional data must be for a single, unboxed pair of the item(s). Return the dimensions in inches rounded to 2 decimal places using the format: <width>x<depth>x<height>` :
+            `Dimensional data must be for the individual, unboxed form of the item containing exactly 1 piece. Return the dimensions in inches rounded to 2 decimal places using the format: <width>x<depth>x<height>`)
             .then(result => {
                 const dimensions = result.match(/(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)/);
                 item.height_inch = parseFloat(dimensions[1]);
