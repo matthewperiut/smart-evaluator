@@ -96,7 +96,7 @@ function formatDuckDuckGoSearchURL(query) {
 }
 
 // Specific function for scraping Bing with certain keywords
-async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
+async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 50) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
     return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
