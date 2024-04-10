@@ -36,6 +36,9 @@ app.post('/addItem', addItem);
 // GET /getTableFromSessionID endpoint returns table data based on sessionID
 app.get('/getTableFromSessionID', getTableFromSessionID)
 
+// POST /updateItem endpoint updates an existing item in a session
+app.post('/updateItem', updateItem);
+
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));
 
