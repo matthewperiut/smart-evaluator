@@ -10,7 +10,6 @@ const SessionIDs = ({ chosenSessionID }) => {
         const fetchSessionIDs = async () => {
             try {
                 const response = await axios.get('http://localhost:5001/getSessionIDs');
-                console.log("Response:", response.data._ids);
                 if (Array.isArray(response.data._ids)) {
                     setSessionIDs(response.data._ids);
                 } else {

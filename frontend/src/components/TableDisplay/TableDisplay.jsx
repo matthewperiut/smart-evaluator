@@ -6,7 +6,7 @@ import './TableDisplay.css';
 import ItemDetails from '../ItemDetails/ItemDetails';
 import SessionIDs from '../SessionIDs/SessionIDs';
 
-const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload }) => {
+const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, setIsExcelUploaded }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -33,7 +33,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
     };
 
     useEffect(() => {
-        if (chosenSessionID) {
+        if (chosenSessionID || chosenSessionID == 0) {
             console.log("test");
             fetchTableFromSessionID(chosenSessionID);
         }
@@ -131,7 +131,6 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
             localStorage.setItem('uploadedExcel', JSON.stringify(data));
             setFilteredData(data);
             setIsSessionIDChosen(true);
-            console.log(filteredData);
         } catch (error) {
             console.error('Error fetching table from sessionID', error);
         }
@@ -139,7 +138,34 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
+    
         if (uploadedExcel) {
+            const parsedExcelData = JSON.parse(uploadedExcel);
+            setFilteredData(parsedExcelData);
+            setIsExcelUploaded(true);
+        } else {
+            setIsExcelUploaded(false);
+        }
+    
+        const sessionID = localStorage.getItem('solutionId');
+        const chosenSessionID = localStorage.getItem('chosenSessionID');
+    
+        if (sessionID || chosenSessionID) {
+            setSessionID(sessionID);
+            setIsSessionIDChosen(true);
+        } else if(chosenSessionID) {
+            setChosenSessionID(chosenSessionID);
+            setIsSessionIDChosen(true);
+        } else {
+            setIsSessionIDChosen(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        console.log("test");
+        const uploadedExcel = localStorage.getItem('uploadedExcel');
+        if (uploadedExcel) {
+            console.log("test");
             const parsedExcelData = JSON.parse(uploadedExcel);
             setFilteredData(parsedExcelData);
         } else if (excelData) {
@@ -268,12 +294,12 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
                     updatedData[rowIndex][23] = item.loose || updatedData[rowIndex][23];
                     updatedData[rowIndex][24] = item.store_vertically || updatedData[rowIndex][24];
                     updatedData[rowIndex][25] = item.preferred_machine_type || updatedData[rowIndex][25];
-                    updatedData[rowIndex][26] = item.locker_vendability ? item.locker_vendability.locker_vendable : '' || updatedData[rowIndex][26];
-                    updatedData[rowIndex][27] = item.locker_vendability ? item.locker_vendability.num_compartments_per_locker_door : '' || updatedData[rowIndex][27];
-                    updatedData[rowIndex][28] = item.locker_vendability ? item.locker_vendability.capacity_for_express_locker : '' || updatedData[rowIndex][28];
-                    updatedData[rowIndex][29] = item.locker_vendability ? item.locker_vendability.capacity_for_prostock_locker : '' || updatedData[rowIndex][29];
-                    updatedData[rowIndex][30] = item.locker_vendability ? item.locker_vendability.capacity_for_prolock_locker : '' || updatedData[rowIndex][30];
-                    updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable || updatedData[rowIndex][31];
+                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable? 'Y' : 'N' || updatedData[rowIndex][26];
+                    updatedData[rowIndex][27] = item.locker_vendability.num_compartments_per_locker_door || updatedData[rowIndex][27];
+                    updatedData[rowIndex][28] = item.locker_vendability.capacity_for_express_locker || updatedData[rowIndex][28];
+                    updatedData[rowIndex][29] = item.locker_vendability.capacity_for_prostock_locker || updatedData[rowIndex][29];
+                    updatedData[rowIndex][30] = item.locker_vendability.capacity_for_prolock_locker || updatedData[rowIndex][30];
+                    updatedData[rowIndex][31] = item.carousel_vendability.carousel_vendable ? 'Y' : 'N' || updatedData[rowIndex][31];
                     updatedData[rowIndex][32] = item.carousel_vendability.needs_repack_for_carousel || updatedData[rowIndex][32];
                     updatedData[rowIndex][33] = item.carousel_vendability.num_slots_per_item || updatedData[rowIndex][33];
                     updatedData[rowIndex][34] = item.coil_vendability.coil_vendable || updatedData[rowIndex][34];
@@ -304,9 +330,11 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
 
     // Handles the choice of sessionID in the SessionIDs component
     const handleChosenSessionID = (chosenSessionID) => {
+        console.log("test");
         localStorage.setItem('chosenSessionID', chosenSessionID);
         localStorage.setItem('solutionId', chosenSessionID);
         localStorage.setItem('isSessionIDChosen', true);
+        setIsSessionIDChosen(true);
         setChosenSessionID(chosenSessionID);
         setSessionID(chosenSessionID);
     }
@@ -325,8 +353,15 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
         localStorage.removeItem('uploadedExcel');
         localStorage.removeItem('chosenSessionID');
         localStorage.removeItem('solutionId');
+        localStorage.removeItem('isSessionIDChosen');
         onExcelUpload(null, '', ''); // Update isExcelUploaded state variable
         setIsSessionIDChosen(false);
+        setFilteredData([]);
+        setChosenSessionID(null);
+
+        console.log(isSessionIDChosen);
+        console.log(isExcelUploaded);
+        console.log(filteredData);
     }
 
     if (isModalOpen) {
@@ -343,7 +378,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
 
     return (
         <div className='flex flex-col'>
-            {isExcelUploaded && isSessionIDChosen &&
+            {isExcelUploaded &&
                 <div className='flex flex-col absolute mt-[5%] w-[100%]'>
                     <div>
                         <div className='flex flex-row items-start'>
@@ -390,19 +425,19 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
                             </div>
                         </div>
                     </div>
-                    <div dir="rtl">
-                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
-                </div>
-                </div>
-                
-            }
 
-            
+                </div>
+            }
+            {isExcelUploaded &&
+            <div dir="rtl">
+                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
+            </div>
+}
             {isLoading && (
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
             <div className='display-box top-52'>
-                {filteredData.length > 0 && isSessionIDChosen ? (
+                {filteredData.length > 0 ? (
                     <div className="scrollable-container">
                         <table>
                             <thead>

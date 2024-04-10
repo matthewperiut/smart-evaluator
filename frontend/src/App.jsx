@@ -14,7 +14,6 @@ function App() {
 
   const handleExcelUpload = (data, fileName, solutionId) => {
     if (data) {
-      console.log("test");
       localStorage.setItem('uploadedExcel', JSON.stringify(data));
       if (fileName !== null) {
         localStorage.setItem('fileName', fileName);
@@ -53,8 +52,8 @@ function App() {
           <Route path="/" element= {<LandingPage />} />
           <Route
             path="/home"
-            element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} 
-              onExcelUpload={handleExcelUpload} fileName={fileName} />}
+            element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded}
+              onExcelUpload={handleExcelUpload} fileName={fileName} setIsExcelUploaded={setIsExcelUploaded} />}
           />
           <Route path="/apidocs" element={<APIDocumentation />} />
           <Route path="/help" element ={<HelpPage />} />

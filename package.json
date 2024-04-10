@@ -1,5 +1,5 @@
 {
-  "name": "excel-proj",
+  "name": "smart-evaluator",
   "version": "1.0.0",
   "scripts": {
     "start": "concurrently \"npm:dev --prefix frontend\" \"npm:start --prefix backend\"",
