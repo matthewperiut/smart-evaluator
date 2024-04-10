@@ -4,12 +4,10 @@ import TableDisplay from '../TableDisplay/TableDisplay';
 import Modal from '../Modal/Modal';
 
 const HomePage = ({ excelData, solutionId, isExcelUploaded, onExcelUpload, fileName }) => {
+
     return (
         <div>
             <Header />
-            <nav className='nav-list'>
-                <button className="nav-link">Existing Session IDs</button>
-            </nav>
             <div>
                 <div>
                     {!isExcelUploaded ? (

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import HomePage from './components/HomePage/HomePage.jsx';
+import LandingPage from './components/LandingPage/LandingPage.jsx';
+import APIDocumentation from './components/APIDocumentation/APIDocumentation.jsx';
+import HelpPage from './components/HelpPage/HelpPage.jsx'
 import axios from 'axios';
 
 function App() {
@@ -38,11 +41,14 @@ function App() {
     <Router>
       <div>
         <Routes>
+          <Route path="/" element= {<LandingPage />} />
           <Route
-            path="/"
+            path="/home"
             element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} 
               onExcelUpload={handleExcelUpload} fileName={fileName} />}
           />
+          <Route path="/apidocs" element={<APIDocumentation />} />
+          <Route path="/help" element ={<HelpPage />} />
         </Routes>
       </div>
     </Router>

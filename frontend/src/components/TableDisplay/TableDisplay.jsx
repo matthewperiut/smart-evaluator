@@ -336,6 +336,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
     return (
         <div className='flex flex-col'>
             {isExcelUploaded &&
+                <div>
                 <div className='flex flex-col absolute mt-[5%] w-[100%]'>
                     <div>
                         <div className='flex flex-col items-start pl-28'>
@@ -371,13 +372,15 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload })
                             </div>
                         </div>
                     </div>
-
                 </div>
+                <div dir="rtl">
+                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
+                </div>
+                </div>
+                
             }
 
-            <div dir="rtl">
-                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
-            </div>
+            
             {isLoading && (
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
             )}
