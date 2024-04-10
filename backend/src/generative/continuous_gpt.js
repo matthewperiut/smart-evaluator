@@ -116,7 +116,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
 
         // Extract the first few search result links
         const linkSelectors = window.document.querySelectorAll('h2 a');
-        console.log(linkSelectors);
+        //console.log(linkSelectors);
         linkSelectors.forEach(link => {
             if (link.href) {
                 links.push(link.href);
@@ -191,7 +191,7 @@ function formatDuckDuckGoSearchURL(query) {
 }
 
 // Specific function for scraping DuckDuckGo with certain keywords
-async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
+async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 7, surroundingChars = 100) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
     return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
