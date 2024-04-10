@@ -19,7 +19,7 @@ const Header = () => {
         <header className='top-bar'>
             <img src={CribmasterLogo} className="logo"></img>
             <nav className='nav-list'>
-                <button className="nav-link">Existing Session IDs</button>
+                
             </nav>
         </header>
     );

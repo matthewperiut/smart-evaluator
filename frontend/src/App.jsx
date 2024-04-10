@@ -10,17 +10,26 @@ function App() {
   const [solutionId, setSolutionId] = useState();
 
   const handleExcelUpload = (data, fileName, solutionId) => {
-    localStorage.setItem('uploadedExcel', JSON.stringify(data));
-    if (fileName !== null) {
-      localStorage.setItem('fileName', fileName); 
+    if (data) {
+      console.log("test");
+      localStorage.setItem('uploadedExcel', JSON.stringify(data));
+      if (fileName !== null) {
+        localStorage.setItem('fileName', fileName);
+      } else {
+        localStorage.setItem('fileName', 'Session ' + solutionId);
+      }
+      localStorage.setItem('solutionId', solutionId)
+      setSolutionId(solutionId);
+      setExcelData(data);
+      setIsExcelUploaded(true);
+      setFileName(fileName);
     } else {
-      localStorage.setItem('fileName', 'Session ' + solutionId);
+      setIsExcelUploaded(false);
+      localStorage.removeItem('uploadedExcel');
+      localStorage.removeItem('chosenSessionID');
+      localStorage.removeItem('solutionId');
+      localStorage.removeItem('fileName');
     }
-    localStorage.setItem('solutionId', solutionId)
-    setSolutionId(solutionId);
-    setExcelData(data);
-    setIsExcelUploaded(true);
-    setFileName(fileName);
   };
 
   useEffect(() => {
@@ -40,7 +49,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded} 
+            element={<HomePage excelData={excelData} solutionId={solutionId} isExcelUploaded={isExcelUploaded}
               onExcelUpload={handleExcelUpload} fileName={fileName} />}
           />
         </Routes>

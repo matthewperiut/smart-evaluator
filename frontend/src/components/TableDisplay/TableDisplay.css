@@ -95,6 +95,9 @@ input[type="checkbox"] {
 
 .vendibility-button {
     display: flex;
+    max-height: 70%;
+    align-items: center;
+    margin-top: 0px;
     background-color: #44A76E;
 }
 
