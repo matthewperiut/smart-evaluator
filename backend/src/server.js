@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-const {getSessionIDs, getItem, uploadSpreadsheet, addItem, createSession, getTableFromSessionID} = require ("./controllers/sessionController")
+const {getSessionIDs, getItem, uploadSpreadsheet, addItem, createSession, getTableFromSessionID, updateItem} = require ("./controllers/sessionController")
 const {itemVendibility} = require ("./controllers/vendibilityController")
 const cors = require('cors'); // Import cors
 const app = express();
@@ -35,6 +35,9 @@ app.post('/addItem', addItem);
 
 // GET /getTableFromSessionID endpoint returns table data based on sessionID
 app.get('/getTableFromSessionID', getTableFromSessionID)
+
+// POST /updateItem endpoint updates an existing item in a session
+app.post('/updateItem', updateItem);
 
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));

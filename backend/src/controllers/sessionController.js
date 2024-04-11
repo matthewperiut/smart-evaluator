@@ -313,3 +313,47 @@ exports.getTableFromSessionID = async function (req, res) {
     res.status(500).json({ error: 'Internal server error' }); // Send error response to client
   }
 }
+
+/*
+{
+  "sessionId": 123,
+  "itemId": 456,
+  "updatedItem": {
+  ... (see addItem)
+  }
+  */
+exports.updateItem = async function (req, res) {
+  const { sessionId, itemId, updatedItem } = req.body;
+
+  try {
+    await db.client.connect();
+
+    // Assuming each session's items are stored in a separate 'Items' collection
+    // Check if the session contains the item before attempting to update
+    const sessionContainsItem = await db.client.db("Backend_Database").collection("Session").findOne({
+      _id: sessionId,
+      uncompleted_items: { $elemMatch: { $eq: itemId } } // This checks if the itemId is in the uncompleted_items array
+    });
+
+    if (!sessionContainsItem) {
+      return res.status(404).json({ error: 'Item not found in the specified session' });
+    }
+
+    // Update the item in the 'Item' collection
+    const result = await db.client.db("Backend_Database").collection("Item").updateOne(
+      { _id: itemId },
+      { $set: updatedItem }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    res.json({ success: true, message: `Item with ID ${itemId} successfully updated.` });
+  } catch (error) {
+    console.error("Error updating item:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.client.close();
+  }
+}
