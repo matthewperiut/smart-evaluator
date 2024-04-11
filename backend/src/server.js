@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-const {getSessionIDs, getItem, uploadSpreadsheet, addItem, createSession, getTableFromSessionID} = require ("./controllers/sessionController")
+const {getSessionIDs, getItem, uploadSpreadsheet, addItem, createSession, getTableFromSessionID, updateItem} = require ("./controllers/sessionController")
 const {itemVendibility} = require ("./controllers/vendibilityController")
 const cors = require('cors'); // Import cors
 const app = express();
