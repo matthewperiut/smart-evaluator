@@ -371,6 +371,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                     rowData={rowData}
                     columnHeaders={columnHeaders}
                     onClose={closeModal}
+                    fetchTableFromSessionID={fetchTableFromSessionID}
                 />
             </div>
         );

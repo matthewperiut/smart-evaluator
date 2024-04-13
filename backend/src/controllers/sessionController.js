@@ -27,6 +27,7 @@ exports.uploadSpreadsheet = async function (req, res) {
                 sku: worksheet.getCell(`A${row}`).value,
                 item_description: worksheet.getCell(`B${row}`).value,
                 manufacturer_part_num: worksheet.getCell(`C${row}`).value,
+                item_manufacturer: worksheet.getCell(`D${row}`).value,
                 point_of_use: worksheet.getCell(`G${row}`).value,
                 overall_vendability: worksheet.getCell(`K${row}`).value,
                 vendability_notes: worksheet.getCell(`L${row}`).value,
@@ -201,6 +202,7 @@ exports.createSession = async function (req, res) {
   "sku": "some_sku_value",
   "item_description": "some_description",
   "manufacturer_part_num": "some_part_number",
+  "item_manufacturer": "some_item_manufacturer",
   "point_of_use": "some_point_of_use",
   "overall_vendability": "some_overall_vendability",
   "vendability_notes": "some_notes",
@@ -323,7 +325,9 @@ exports.getTableFromSessionID = async function (req, res) {
   }
   */
 exports.updateItem = async function (req, res) {
+  console.log(req.body);
   const { sessionId, itemId, updatedItem } = req.body;
+  
 
   try {
     await db.client.connect();

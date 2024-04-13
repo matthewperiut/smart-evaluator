@@ -6,16 +6,19 @@ import Header from '../Header/Header';
 import EditDetailsModal from '../EditDetailsModal/EditDetailsModal';
 
 // Modify the component to accept props, including a close function for the modal
-const ItemDetails = ({ rowData, columnHeaders, onClose }) => {
+const ItemDetails = ({ rowData, columnHeaders, onClose, fetchTableFromSessionID }) => {
   // Assuming rowData and columnHeaders are directly passed as props now.
 
   // State to manage modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Function to toggle modal visibility
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+  const toggleModal = async (e) => {
+    var modal = document.getElementById("editDetails");
+    if (modal) {
+        modal.style.display = modal.style.display === "block" ? "none" : "block";
+    }
+}
 
   return (
     <div>
@@ -42,8 +45,9 @@ const ItemDetails = ({ rowData, columnHeaders, onClose }) => {
           </div>
         )}
       </div>
-      {/* Render the modal component */}
-      <EditDetailsModal isOpen={isModalOpen} onClose={toggleModal} />
+      <div id='editDetails' className='modal-filter'>
+        <EditDetailsModal rowData={rowData} columnHeaders={columnHeaders} onClose={toggleModal} fetchTableFromSessionID={fetchTableFromSessionID} />
+      </div>
     </div>
   );
 };
