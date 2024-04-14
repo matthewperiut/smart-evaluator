@@ -19,14 +19,16 @@
     }
 }
   
-.display-box {
-    position: relative;
+.flex.flex-col {
     display: flex;
-    align-self: center;
     flex-direction: column;
-    top: 21%;
-    height: 76%;
-    width: 95%;
+    height: 100%;
+}
+
+.display-box {
+    flex-grow: 1;
+    width: 100%;
+    margin-top: 20px;
 }
 
 .scrollable-container {
@@ -34,7 +36,6 @@
     overflow-y: auto;
     border: 1px solid #ccc;
     box-shadow: 0 2px 10px #787878;
-    display: block;
     margin: 1%;
 }
 
@@ -42,6 +43,7 @@
     width: 100%;
     border-collapse: collapse;
 }
+
 
 .scrollable-container th {
     position: sticky;

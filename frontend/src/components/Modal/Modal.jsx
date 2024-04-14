@@ -95,8 +95,8 @@ const Modal = ({ onExcelUpload }) => {
     }
 
     return (
-        <div>
-            <button className=' hidden lg:block bg-green text-black absolute w-60 h-12 right-4 top-20 m-4' onClick={toggleModal}>+ Generate New Solution</button>
+        <div style = {{ paddingBottom: '20px' }}>
+            <button className=' hidden lg:block bg-green text-black absolute w-60 h-12 right-4 top-20 bottom-20 m-4' onClick={toggleModal}>+ Generate New Solution</button>
             <div id="generateSolution" className='modal-filter'>
                 <div className='modal-container'>
                     <form onSubmit={handleSubmit} style={{ width: "100%" }}>

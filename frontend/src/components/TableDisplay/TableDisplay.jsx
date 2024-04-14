@@ -377,52 +377,44 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         );
     }
 
-    return (
-        <div className='flex flex-col'>
+    return  (
+        <div className='flex flex-col h-full' style={{ paddingTop: '100px' }}> 
             {isExcelUploaded &&
-                <div className='flex flex-col absolute mt-[9%] w-[100%]'>
+                <div className='flex flex-col w-full'>
                     <div>
-                        <div className='flex flex-row items-start'>
+                        <div className='flex flex-row items-start p-2' style = {{ paddingTop: '20px' }}>
                             <button onClick={() => displaySessionIDList()}>Session ID List</button>
                             <h1 className='self-center ml-10'>
-                            Session ID: {sessionID}
                             </h1>
-                        </div>
-                        <br />
-                        <div className='ml-2'>
-                            <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row">
-                                <input
+                            <input
                                     type="text"
                                     placeholder="Search..."
                                     className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 lg:w-80 md:w-64 sm:w-40 text-left"
                                     value={searchQuery}
                                     onChange={handleSearchInputChange}
                                 />
+                        </div>
+                        <br />
+                        <div className='ml-2'>
+                        <div className='flex flex-row items-start justify-between'>
+                                
                                 <div className="flex">
                                     <button onClick={toggleSelectAll} className="ml-2 w-[120px] max-h-[100%] lg:text-[15px] md:text-[14px] sm:text-[12px]">
                                         {selectAll ? 'Deselect All' : 'Select All'}
                                     </button>
                                     <button className='top-44 ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]' onClick={toggleFilter}>Filters</button>
                                 </div>
-                                <div className='content-center'>
-                                    <h1>Legend For AI Generation Confidence</h1>
-                                    <div className='ml-8 flex flex-row'>
-                                        <div className='' style={{ width: "25px", height: "25px", backgroundColor: "red" }} />
-                                        <h1 className='flex text-nowrap ml-1 mr-2'>0-50% Confidence</h1>
-                                        <div style={{ width: "25px", height: "25px", backgroundColor: "gold" }} />
-                                        <h1 className='flex text-nowrap ml-1 mr-2'>50-75% Confidence</h1>
-                                        <div style={{ width: "25px", height: "25px", backgroundColor: "green" }} />
-                                        <h1 className='flex text-nowrap ml-1 mr-2'>75-100% Confidence</h1>
-                                    </div>
+                                <div className='flex flex-row truncate w-[100%] ml-[12.6%]' style={{ justifyContent: 'flex-end' }}>
+                                    {selectedRows.length > 0 && (
+                                        <button 
+                                            className='vendibility-button flex max-h-[70%] mt-1 items-center bg-[#44A76E]' 
+                                            onClick={handleVendibiilityRequest}
+                                            style={{ marginLeft: 'auto', marginRight: '0px' }}>
+                                            Calculate Vendibility for {selectedRows.length} Item(s)
+                                        </button>
+                                    )}
                                 </div>
-                                <div className='flex flex-row truncate w-[100%] ml-[12.6%]'>
-                                {selectedRows.length > 0 && (
-                                    <button className='flex max-h-[70%] mt-1 items-center bg-[#44A76E]' 
-                                    onClick={handleVendibiilityRequest}>
-                                        Calculate Vendibility for {selectedRows.length} Item(s)
-                                    </button>
-                                )}
-                                </div>
+
                             </div>
                         </div>
                     </div>
