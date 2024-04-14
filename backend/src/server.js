@@ -54,7 +54,7 @@ async function test() {
             height_inch: 0.5,
             width_inch: 0.5,
             length_inch: 0.5,
-            weight_lbs: 0.5,
+            //weight_lbs: 0.5,
             //fragile: false,
             default_issue_type: "ea", 
             default_issue_qty: "1"

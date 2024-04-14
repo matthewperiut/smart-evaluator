@@ -1,6 +1,8 @@
 const { OpenAI } = require('openai');
 const { scrapeBingSearchForKeywords } = require("./gpt");
 const puppeteer = require("puppeteer");
+const axios = require('axios');
+const { JSDOM } = require('jsdom');
 const qs = require("querystring");
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY); // Directly use the API key here
@@ -12,7 +14,8 @@ function log(...text) {
     }
 }
 
-async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars) {
+//Uses Puppeteer to scrape duckduckGo Search, and visit the links found in that search. 
+async function scrapeWebForKeywordsPuppeteer(searchURL, keywords, limit, surroundingChars) {
     try {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
@@ -37,7 +40,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
                 const link = searchResultsLinks[i];
                 log("Processing link:", link); // Debugging output to see the processed link
                 try {
-                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 10000}); // Attempt to navigate with a custom timeout
+                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 30000}); // Attempt to navigate with a custom timeout
                     // Proceed with your scraping logic...
                 } catch (error) {
                     if (error.name === 'TimeoutError') {
@@ -89,14 +92,106 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
     }
 }
 
+//Uses ScrapingBee API to scrape search engine Search, and uses puppeteer to
+// visit the links found in that search. This should avoid some rate limiting.
+async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars) {
+    try {
+        const response = await axios.get('https://app.scrapingbee.com/api/v1/', {
+            params: {
+            api_key: process.env.SCRAPING_BEE_API_KEY,
+            url: searchURL,
+            wait_browser: 'load',
+            render_js: 'true', // Set to 'true' if JavaScript rendering is needed
+            }
+        });
+
+        const { window } = new JSDOM(response.data, { resources: 'usable' });
+        const links = [];
+
+        const loadPromise = new Promise((resolve, reject) => {
+            window.addEventListener('load', resolve);
+            window.addEventListener('error', reject);
+            setTimeout(reject, 10000); // 10 seconds timeout
+        });
+
+        // Extract the first few search result links
+        const linkSelectors = window.document.querySelectorAll('h2 a');
+        //console.log(linkSelectors);
+        linkSelectors.forEach(link => {
+            if (link.href) {
+                links.push(link.href);
+            }
+        });
+        
+        //Begin using puppeteer for links provided.
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+        const dimensionsData = [];
+        for (let i = 0; i < Math.min(limit, links.length); i++) {
+            try {
+                const link = links[i];
+                log("Processing link:", link); // Debugging output to see the processed link
+                try {
+                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 30000}); // Attempt to navigate with a custom timeout
+                    // Proceed with your scraping logic...
+                } catch (error) {
+                    if (error.name === 'TimeoutError') {
+                        log("Page took too long to load:", link);
+                        // Handle the timeout, e.g., by skipping this page or logging the timeout
+                    } else {
+                        log("An error occurred:", error.message);
+                        // Handle other potential errors
+                    }
+                }
+
+                const data = await page.evaluate((keywords, surroundingChars) => {
+                    const bodyText = document.body.innerText;
+                    let cummulativeResults = "";
+                    for (let keyword of keywords) {
+                        const index = bodyText.toLowerCase().indexOf(keyword);
+                        console.log("keyword: " + keyword + "\n");
+                        if (index !== -1) {
+                            cummulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                        }
+                    }
+                    if (cummulativeResults.length > 0) {
+                        return cummulativeResults;
+                    }
+                    else {
+                        return null;
+                    }
+                }, keywords, surroundingChars);
+
+                if (data) {
+                    //can use: dimensionsData.push({url: link, data: data});
+                    log(`This website contains: ${data}`);
+                    dimensionsData.push({data: data});
+                }
+            }
+            catch (error) {
+                log('Error:', error.message);
+                continue;
+            }
+        }
+
+        await browser.close();
+        return dimensionsData;
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        await browser.close();
+        return [];
+    } 
+}
 
 function formatDuckDuckGoSearchURL(query) {
     return `https://www.duckduckgo.com/?${qs.stringify({q: query})}`;
     //return `https://www.bing.com/search?${qs.stringify({q: query})}`;
 }
 
-// Specific function for scraping Bing with certain keywords
-async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 50) {
+// Specific function for scraping DuckDuckGo with certain keywords
+async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
     return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
@@ -128,12 +223,10 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
                 " Please include item description in the question variable." + 
                 (manufacturer_part_num? "the start of individual website data are marked by\"data\", validate the data by"+
                 " checking if the manufacturer part number is found on the data from that website": "") +
-                " If you aren't confident in the data, adjust the keywords and try again." +
+                " If you aren't confident in the data, adjust the keywords and try again. You have up to 4 google searches, so use them." +
                 " When you have found the answer, you may use the second response: `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
                 " However, try not to answer what the variable is until you find it. If you can't find enough data, search again." +
                 " Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
-
-
 
         },
         {
