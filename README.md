@@ -1,11 +1,46 @@
 # Smart Evaluator
 
 ## Usage
+
+### Configuration
+First you must initialize .env in /backend
+```bash
+cd backend
+nano .env
+```
+
+the contents should be
+```
+OPENAI_API_KEY=
+MONGO_DB_USERNAME=
+MONGO_DB_PASSWORD=
+```
+enter relevant data
+
+(Case sensitive)
+The mongoDB should be structured as such:
+```
+Backend_Database.Item
+Backend_Database.Session
+Backend_Database.System_Data
+```
+
+### To start the server after configuring
+
 ```
 npm install
 npm start
 ```
-  
+
+### Networking, exposing to internet
+The backend server and frontend server should be on the same machine  
+```
+Backend Server Port: 5001  
+Frontend Server Port: 5173  
+```
+NOTE: The backend server port should only be exposed to IPs that can use the API. The user of the API should be able to provide usage of the API through their own interface securely. Direct access to the API by the end user will result in the end user being able to view any session and item.  
+For simple demo purposes, you can use apache2 and reverse proxy port 5173.
+
 
 ## API Endpoints Documentation
 
