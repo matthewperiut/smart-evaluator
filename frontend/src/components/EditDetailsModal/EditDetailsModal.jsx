@@ -66,7 +66,7 @@ const EditDetailsModal = ({ rowData, columnHeaders, onClose, fetchTableFromSessi
         const itemId = rowData[4];
         const sessionID = localStorage.getItem("solutionId");
         try {
-            const response = await axios.post('http://localhost:5001/updateItem', {
+            const response = await axios.post('/api/updateItem', {
                 sessionId: parseInt(sessionID),
                 itemId: itemId,
                 updatedItem: updatedFieldChanges

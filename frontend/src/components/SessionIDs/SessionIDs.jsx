@@ -9,7 +9,8 @@ const SessionIDs = ({ chosenSessionID }) => {
     useEffect(() => {
         const fetchSessionIDs = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/getSessionIDs');
+                const response = await axios.get('/api/getSessionIDs');
+                console.log(response);
                 if (Array.isArray(response.data._ids)) {
                     setSessionIDs(response.data._ids);
                 } else {

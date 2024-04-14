@@ -41,7 +41,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
 
     const fetchTableFromSessionID = async (sessionID) => {
         try {
-            const response = await axios.get('http://localhost:5001/getTableFromSessionID', {
+            const response = await axios.get('/api/getTableFromSessionID', {
                 params: {
                     sessionID: sessionID
                 }
@@ -254,7 +254,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         for (const rowIndex of selectedRows) {
             console.log(`Session: ${sessionID} \n ItemId: ${filteredData[rowIndex][4]}`);
             try {
-                const response = await axios.get('http://localhost:5001/itemVendibility', {
+                const response = await axios.get('/api/itemVendibility', {
                     params: {
                         sessionId: sessionID,
                         itemId: filteredData[rowIndex][4]

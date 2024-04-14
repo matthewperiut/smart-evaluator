@@ -17,7 +17,7 @@ const VendibilityRequestDemo = () => {
         e.preventDefault();
         console.log( typeof sessionId , typeof itemId);
         try {
-            const response = await axios.get('http://localhost:5001/itemVendibility', {
+            const response = await axios.get('/api/itemVendibility', {
                 params: {
                     sessionId: sessionId,
                     itemId: itemId

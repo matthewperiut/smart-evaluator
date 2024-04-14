@@ -51,6 +51,9 @@ exports.itemVendibility = async function (req, res) {
             try { result = await dataAnalysis(item_filled_data);}
             catch (e) {console.log(`Error Occurred During Data Analysis Phase ${e}`)}
 
+            if (result === undefined)
+                return;
+
 
             /*-----UPDATE ITEM INFO IN DATABASE------*/
             try {
