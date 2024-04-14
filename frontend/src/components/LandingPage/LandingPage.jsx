@@ -40,6 +40,11 @@ const LandingPage = () => {
                 <button className="hover:scale-105 transition-all duration-300 py-2 px-4 rounded mx-2" onClick={toggleHelp}>
                     Help
                 </button>
+                <a href="https://dawniquecasteele.github.io/smartevaluatorpublic/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <button className="hover:scale-105 transition-all duration-300 py-2 px-4 rounded mx-2">
+                    About Us
+                </button>
+                </a>
             </footer>
         </div>
     );
