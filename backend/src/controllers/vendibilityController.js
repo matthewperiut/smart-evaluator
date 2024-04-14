@@ -29,12 +29,12 @@ exports.itemVendibility = async function (req, res) {
             //for testing
             // const item = {
             //     item_description: `135354 24221 242 REMOVABLE TL 10 ML BO`,
-            //     //sku: "Mar P208";
+            //     sku: "00770791",
             //     manufacturer_part_num: "135354" ,
-            //     height_inch: null,
-            //     width_inch: null,
-            //     length_inch: null,
-            //     //weight_lbs: 0.5,
+            //     height_inch: 0.2,
+            //     width_inch: 0.2,
+            //     length_inch: 0.4,
+            //     weight_lbs: 0.5,
             //     fragile: false,
             //     default_issue_type: "ea", 
             //     default_issue_qty: "1"
@@ -52,8 +52,39 @@ exports.itemVendibility = async function (req, res) {
             catch (e) {console.log(`Error Occurred During Data Analysis Phase ${e}`)}
 
 
+            /*-----UPDATE ITEM INFO IN DATABASE------*/
+            try {
+                // Find the session by ID
+                const session = await client.db("Backend_Database").collection("Session").findOne({ _id: Number(sessionId) });
+                
+                if (session) {
+                    result._id = Number(itemId);
+                    console.log("Updated Item:", result);
+            
+                    // Replace the item in the 'Item' collection
+                    const replaceResult = await client.db("Backend_Database").collection("Item").replaceOne(
+                        { _id: Number(itemId) },
+                        result
+                    );
+            
+                    // Place the item from the uncompleted array to the completed array within session
+                    const updateSessionResult = await client.db("Backend_Database").collection("Session").updateOne(
+                        { _id: Number(sessionId) },
+                        {
+                            $addToSet: { completed_items: Number(itemId) }, // Add itemId to completed_items if it's not already present
+                            $pull: { uncompleted_items: Number(itemId) } // Remove itemId from uncompleted_items
+                        }
+                    );
+                } else {
+                    console.log("Session not found.");
+                }
+            } catch (error) {
+                console.error("Error occurred while updating item info:", error);
+            }
+
+
             //log item to console
-            console.log(`Processed item vendibility request for item with id: ${item._id}`);
+            console.log(`Processed item vendibility request for item with id: ${result._id}`);
             console.log(result);
             
             res.json(result); // Return the resulting item object as JSON response
