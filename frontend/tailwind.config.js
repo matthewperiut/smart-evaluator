@@ -14,6 +14,7 @@ export default {
     fontFamily: {
       'poppins' : ['Poppins', 'sans-serif'],
       'sarabun' : ['Sarabun', 'sans-serif'],
+      'figtree' : ['Figtree', 'sans-serif'],
     },
 
     fontSize : {
@@ -21,7 +22,9 @@ export default {
       'sm' : '20px',
       'base' : '24px',
       'lg' : '30px',
+      'xl' : '54px',
     },
+    
     extend: {},
   },
   plugins: [],

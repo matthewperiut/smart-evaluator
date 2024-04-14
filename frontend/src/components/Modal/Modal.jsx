@@ -112,7 +112,7 @@ const Modal = ({ onExcelUpload }) => {
                             </h2>
                             <hr className='modal-line'></hr>
                             <div className='modal-form'>
-                                <h3 className='sarabun-regular'
+                                <h3 className='figtree-regular'
                                     style={{
                                         fontSize: '18px',
                                         display: 'flex',
@@ -146,7 +146,7 @@ const Modal = ({ onExcelUpload }) => {
                                 </div>
                                 <div className='header-container'>
                                     <div className='input-container'>
-                                        <h3 className='sarabun-regular'
+                                        <h3 className='figtree-regular'
                                             style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
                                         >
                                             Solution Name
@@ -160,7 +160,7 @@ const Modal = ({ onExcelUpload }) => {
                                         />
                                     </div>
                                     <div className='input-container'>
-                                        <h3 className='sarabun-regular'
+                                        <h3 className='figtree-regular'
                                             style={{ fontSize: '18px', color: 'rgb(20, 90, 50)' }}
                                         >
                                             Area Type
@@ -174,7 +174,7 @@ const Modal = ({ onExcelUpload }) => {
                                         />
                                     </div>
                                 </div>
-                                <h3 className='sarabun-regular'
+                                <h3 className='figtree-regular'
                                     style={{ fontSize: '18px', display: 'flex', marginLeft: '15%', color: 'rgb(20, 90, 50)' }}
                                 >
                                     Instructions

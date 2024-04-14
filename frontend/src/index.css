@@ -4,7 +4,7 @@
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  font-family: "Sarabun", sans-serif;
+  font-family: "Figtree", "Sarabun", sans-serif;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -23,6 +23,14 @@
   font-weight: 400;
   font-style: normal;
 }
+
+.figtree-regular {
+  font-family: "Figtree", sans-serif;
+  font-weight: bold;
+  font-style: normal;
+}
+
+
 .sarabun-regular {
   font-family: "Sarabun", sans-serif;
   font-weight: bold;
