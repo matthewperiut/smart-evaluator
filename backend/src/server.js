@@ -43,27 +43,6 @@ const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));
 
 
-const {dataCollection} = require("./utils/dataCollection");
+const {dataCollectionTests} = require("./utils/tests/dataCollectionTests");
 
-async function test() {
-        //Sample item for testing
-        const item = {
-            item_description: `135354 24221 242 REMOVABLE TL 10 ML BO`,
-            //sku: "Mar P208";
-            manufacturer_part_num: "135354" ,
-            height_inch: 0.5,
-            width_inch: 0.5,
-            length_inch: 0.5,
-            //weight_lbs: 0.5,
-            //fragile: false,
-            default_issue_type: "ea", 
-            default_issue_qty: "1"
-        };
-
-        try {await dataCollection(item)} 
-        catch (error) { console.error("Error during GPT prompt:", error)}
-
-        console.log(item);
-}
-
-//test();
+dataCollectionTests(); 

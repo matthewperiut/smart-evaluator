@@ -194,7 +194,7 @@ function formatDuckDuckGoSearchURL(query) {
 async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, surroundingChars = 300) {
     const searchURL = formatDuckDuckGoSearchURL(query);
     log("Search URL:" + searchURL);
-    return await scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars);
+    return await scrapeWebForKeywordsPuppeteer(searchURL, keywords, limit, surroundingChars);
 }
 
 async function promptGPT(messages) {
