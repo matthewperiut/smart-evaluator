@@ -14,6 +14,7 @@ the contents should be
 OPENAI_API_KEY=
 MONGO_DB_USERNAME=
 MONGO_DB_PASSWORD=
+SCRAPING_BEE_API_KEY=
 ```
 enter relevant data
 
@@ -41,6 +42,38 @@ Frontend Server Port: 5173
 NOTE: The backend server port should only be exposed to IPs that can use the API. The user of the API should be able to provide usage of the API through their own interface securely. Direct access to the API by the end user will result in the end user being able to view any session and item.  
 For simple demo purposes, you can use apache2 and reverse proxy port 5173.
 
+### Apache 2
+NOTE: use prod fork if you're using apache2 instead of local development  
+
+Assuming Debian/Ubuntu Server install  
+edit  
+```
+/etc/apache2/sites-available
+```
+it should be something similar to this:
+```
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+
+...
+
+ProxyPreserveHost On
+ProxyRequests Off
+
+# Backend: proxy requests to the server running on port 5001
+ProxyPass /api/ http://localhost:5001/
+ProxyPassReverse /api/ http://localhost:5001/
+
+# Frontend: proxy requests to the server running on port 5173
+ProxyPass / http://localhost:5173/
+ProxyPassReverse / http://localhost:5173/
+</VirtualHost>
+</IfModule>
+```
+make sure to
+```
+systemctl restart apache2
+```
 
 ## API Endpoints Documentation
 

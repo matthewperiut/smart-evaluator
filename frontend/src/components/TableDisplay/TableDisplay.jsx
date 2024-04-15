@@ -16,6 +16,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
     const [sessionID, setSessionID] = useState();
     const [chosenSessionID, setChosenSessionID] = useState();
     const [isSessionIDChosen, setIsSessionIDChosen] = useState(false);
+    const [completedItems, setCompletedItems] = useState([]);
 
     // Selected Item Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -138,7 +139,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
 
     useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
-    
+
         if (uploadedExcel) {
             const parsedExcelData = JSON.parse(uploadedExcel);
             setFilteredData(parsedExcelData);
@@ -146,14 +147,14 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         } else {
             setIsExcelUploaded(false);
         }
-    
+
         const sessionID = localStorage.getItem('solutionId');
         const chosenSessionID = localStorage.getItem('chosenSessionID');
-    
+
         if (sessionID || chosenSessionID) {
             setSessionID(sessionID);
             setIsSessionIDChosen(true);
-        } else if(chosenSessionID) {
+        } else if (chosenSessionID) {
             setChosenSessionID(chosenSessionID);
             setIsSessionIDChosen(true);
         } else {
@@ -162,10 +163,16 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
     }, []);
 
     useEffect(() => {
-        console.log("test");
+        // Check if completedItems exists in local storage
+        const storedCompletedItems = localStorage.getItem('completedItems');
+        if (storedCompletedItems) {
+            setCompletedItems(JSON.parse(storedCompletedItems));
+        }
+    }, []);
+
+    useEffect(() => {
         const uploadedExcel = localStorage.getItem('uploadedExcel');
         if (uploadedExcel) {
-            console.log("test");
             const parsedExcelData = JSON.parse(uploadedExcel);
             setFilteredData(parsedExcelData);
         } else if (excelData) {
@@ -249,6 +256,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
 
     // Initicates vendibility request for each item currently selected on the table. 
     const handleVendibiilityRequest = async () => {
+        setIsLoading(true);
         let updatedData = [...filteredData.map(row => [...row])];
         //Cycle through each row (item) and request the backend for vendibility. 
         for (const rowIndex of selectedRows) {
@@ -294,7 +302,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                     updatedData[rowIndex][23] = item.loose || updatedData[rowIndex][23];
                     updatedData[rowIndex][24] = item.store_vertically || updatedData[rowIndex][24];
                     updatedData[rowIndex][25] = item.preferred_machine_type || updatedData[rowIndex][25];
-                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable? 'Y' : 'N' || updatedData[rowIndex][26];
+                    updatedData[rowIndex][26] = item.locker_vendability.locker_vendable ? 'Y' : 'N' || updatedData[rowIndex][26];
                     updatedData[rowIndex][27] = item.locker_vendability.num_compartments_per_locker_door || updatedData[rowIndex][27];
                     updatedData[rowIndex][28] = item.locker_vendability.capacity_for_express_locker || updatedData[rowIndex][28];
                     updatedData[rowIndex][29] = item.locker_vendability.capacity_for_prostock_locker || updatedData[rowIndex][29];
@@ -326,6 +334,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         }
         setFilteredData(updatedData);
         localStorage.setItem('uploadedExcel', JSON.stringify(updatedData));
+        setIsLoading(false);
     }
 
     // Handles the choice of sessionID in the SessionIDs component
@@ -377,58 +386,60 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         );
     }
 
-    return  (
-        <div className='flex flex-col h-full' style={{ paddingTop: '100px' }}> 
+    return (
+        <div className='flex flex-col h-full' style={{ paddingTop: '100px' }}>
             {isExcelUploaded &&
                 <div className='flex flex-col w-full'>
                     <div>
-                        <div className='flex flex-row items-start p-2' style = {{ paddingTop: '20px' }}>
+                        <div className='flex flex-row items-start p-2' style={{ paddingTop: '20px' }}>
                             <button onClick={() => displaySessionIDList()}>Session ID List</button>
                             <h1 className='self-center ml-10'>
                             </h1>
                             <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 lg:w-80 md:w-64 sm:w-40 text-left"
-                                    value={searchQuery}
-                                    onChange={handleSearchInputChange}
-                                />
+                                type="text"
+                                placeholder="Search..."
+                                className="px-4 text-xs border border-gray-400 rounded-md bg-gray-200 lg:w-80 md:w-64 sm:w-40 text-left"
+                                value={searchQuery}
+                                onChange={handleSearchInputChange}
+                            />
                         </div>
                         <br />
                         <div className='ml-2'>
-                        <div className='flex flex-row items-start justify-between'>
-                                
+                            <div className='flex flex-row items-start justify-between'>
                                 <div className="flex">
                                     <button onClick={toggleSelectAll} className="ml-2 w-[120px] max-h-[100%] lg:text-[15px] md:text-[14px] sm:text-[12px]">
                                         {selectAll ? 'Deselect All' : 'Select All'}
                                     </button>
                                     <button className='top-44 ml-2 lg:text-[16px] md:text-[14px] sm:text-[12px]' onClick={toggleFilter}>Filters</button>
                                 </div>
+                                <div className='flex self-center ml-8'>
+                                        <div style={{ width: "45px", height: "25px", backgroundColor: "#44A76E" }} />
+                                        <h1 className='ml-1 text-[10px]'>in Alt Item ID cell indicates completed vendibility generation</h1>
+                                </div>
                                 <div className='flex flex-row truncate w-[100%] ml-[12.6%]' style={{ justifyContent: 'flex-end' }}>
                                     {selectedRows.length > 0 && (
-                                        <button 
-                                            className='vendibility-button flex max-h-[70%] mt-1 items-center bg-[#44A76E]' 
+                                        <button
+                                            className='vendibility-button flex max-h-[70%] mt-1 items-center bg-[#44A76E]'
                                             onClick={handleVendibiilityRequest}
                                             style={{ marginLeft: 'auto', marginRight: '0px' }}>
                                             Calculate Vendibility for {selectedRows.length} Item(s)
                                         </button>
                                     )}
                                 </div>
-
                             </div>
                         </div>
+                        {isLoading &&
+                            <h1>Generating... (May take some time)</h1>
+                        }
                     </div>
 
                 </div>
             }
             {isExcelUploaded &&
-            <div dir="rtl">
-                <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
-            </div>
-}
-            {isLoading && (
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green"></div>
-            )}
+                <div dir="rtl">
+                    <ExportToExcel excelData={filteredData} selectedRows={selectedRows} />
+                </div>
+            }
             <div className='display-box top-64'>
                 {filteredData.length > 0 ? (
                     <div className="scrollable-container">
@@ -459,14 +470,17 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                             />
                                         </td>
                                         {row.map((cell, cellIndex) => (
-                                            <td key={cellIndex}>
+                                            <td key={cellIndex} className={cellIndex === 4 && completedItems[localStorage.getItem("solutionId")].includes(cell) ? 'completed-item' : ''}>
+                                                {selectedRows.includes(rowIndex + 1) && cellIndex !== 1 && cell === null && isLoading && (
+                                                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-green"></div>
+                                                )}
                                                 {cellIndex === 1 ? (
                                                     <span style={{ cursor: 'pointer', color: '#666DFA', textDecoration: 'none' }}
                                                         onClick={() => openModal(row)}>
                                                         {cell}
                                                     </span>
                                                 ) : (
-                                                    cell
+                                                    cell === true ? 'Y' : cell === false ? 'N' : cell
                                                 )}
                                             </td>
                                         ))}
@@ -476,7 +490,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                         </table>
                     </div>
                 ) : (
-                    <SessionIDs chosenSessionID={handleChosenSessionID} />
+                    <SessionIDs chosenSessionID={handleChosenSessionID} completedItems={completedItems} setCompletedItems={setCompletedItems} />
                 )}
             </div>
             <div id="filterChoices" className="filter-overlay">
