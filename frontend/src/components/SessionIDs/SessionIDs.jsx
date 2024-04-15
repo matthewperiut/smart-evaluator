@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const SessionIDs = ({ chosenSessionID }) => {
+const SessionIDs = ({ chosenSessionID, completedItems, setCompletedItems }) => {
     const [sessionIDs, setSessionIDs] = useState([]);
-    const [completedItems, setCompletedItems] = useState([[]]);
     const [uncompletedItems, setUncompletedItems] = useState([[]]);
 
     useEffect(() => {
@@ -18,6 +17,7 @@ const SessionIDs = ({ chosenSessionID }) => {
 
                 if (Array.isArray(response.data.completedItems)) {
                     setCompletedItems(response.data.completedItems);
+                    localStorage.setItem("completedItems", JSON.stringify(response.data.completedItems));
                 } else {
                     console.error("Invalid response format: expected an array");
                 }

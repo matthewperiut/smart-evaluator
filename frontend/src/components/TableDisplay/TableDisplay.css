@@ -181,3 +181,7 @@ input[type="checkbox"] {
     }
 }
 
+.completed-item {
+    background-color: #44A76E;
+    color: white;
+}
