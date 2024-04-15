@@ -3,15 +3,15 @@ const {dataCollection} = require("../dataCollection");
 exports.dataCollectionTests = async function() {
 //Sample item for testing.
 const item = {
-item_description: 'Random Item, no Manufacturer ID',
-//height_inch: 3.7,
-//width_inch: 1,
-//length_inch: 1,
+item_description: `135354 24221 242 REMOVABLE TL 10 ML BO`,
+height_inch: 3.7,
+width_inch: 1,
+length_inch: 1,
 weight_lbs: 0.5,
 fragile: false,
 default_issue_type: 'ea',
 default_issue_qty: '1',
-manufacturer_part_num: 'random Item, no manufacturer part number.'
+//manufacturer_part_num: "135354" 
 };
 
 

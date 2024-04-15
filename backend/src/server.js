@@ -44,5 +44,7 @@ app.listen(PORT, () => console.log(`Backend server running on http://localhost:$
 
 
 const {dataCollectionTests} = require("./utils/tests/dataCollectionTests");
-
 dataCollectionTests(); 
+
+// const {dataAnalysisTests} = require("./utils/tests/dataAnalysisTests");
+// dataAnalysisTests();
