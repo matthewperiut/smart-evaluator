@@ -133,7 +133,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
                 const link = links[i];
                 log("Processing link:", link); // Debugging output to see the processed link
                 try {
-                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 30000}); // Attempt to navigate with a custom timeout
+                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 10000}); // Attempt to navigate with a custom timeout
                     // Proceed with your scraping logic...
                 } catch (error) {
                     if (error.name === 'TimeoutError') {
@@ -153,6 +153,7 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
                         console.log("keyword: " + keyword + "\n");
                         if (index !== -1) {
                             cummulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                            break;
                         }
                     }
                     if (cummulativeResults.length > 0) {
@@ -211,11 +212,11 @@ async function promptGPT(messages) {
     }
 }
 
-exports.continuous_scrape = async function continuous_scrape(item_desc, manufacturer_part_num, variable, variable_type, additional_info = "") {
+exports.continuous_scrape = async function continuous_scrape(item_desc, manufacturer_part_num, property_data) {
     let messages = [
         {
             role: "system",
-            content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
+            content: "You will be given a description of a physical item, and a list of properties to fill out. You can only reply with two things\n" +
                 " the first is `google(\"question\", \"keywords\")`. If you respond this way, my function will search the internet using the" + 
                 " question that you provide, evaluate the first 10 webpages, and return any text within 100 characters of the keywords. " +
                 " Use | to separate keywords. Example usage: google(\"how tall is mt everest?\", \"height|feet\")" +
@@ -223,20 +224,28 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
                 " Please include item description in the question variable." + 
                 (manufacturer_part_num? "the start of individual website data are marked by\"data\", validate the data by"+
                 " checking if the manufacturer part number is found on the data from that website": "") +
-                " If you aren't confident in the data, adjust the keywords and try again. You have up to 4 google searches, so use them." +
-                " When you have found the answer, you may use the second response: `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
-                " However, try not to answer what the variable is until you find it. If you can't find enough data, search again." +
+                " If you aren't confident in the data, adjust the keywords and try again. You have several google searches, so use them." +
+                " When you have found an answer, you may use the second response: `(Property as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
+                " If you can't find enough data, search again. Once you answer for one property, move on to the next one." +
                 " Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
 
         },
         {
             role: "user",
-            content: `item description is "${item_desc}", ` + (manufacturer_part_num? `Manufacturer part number: ${manufacturer_part_num}`:``) +` variable is "${variable}" as a "${variable_type}", additional info is "${additional_info}"`
+            content: `item description is "${item_desc}", ` + (manufacturer_part_num? `Manufacturer part number: ${manufacturer_part_num}`:``)
         }
     ];
 
+    for (let i = 0; i < property_data.length; i++ ) {
+        messages.push({
+            role: "user",
+            content: `PROPERTY ${i + 1}: "${property_data[i].property_name}" TYPE: "${property_data[i].type}", additional info is "${property_data[i].additional_info}"`
+        });
+    }
+
+    let result = property_data; 
     var keywords = "";
-    let maxTries = 5;
+    let maxTries = 10;
     for (let tries = 0; tries < maxTries; tries++) {
         let response = await promptGPT(messages);
         console.log(response);
@@ -244,32 +253,49 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
         if (response.includes(":") && !response.includes("google")) {
             const colonIndex = response.indexOf(':');
             console.log("returning " + response.substring(colonIndex + 1).trim());
-            return response.substring(colonIndex + 1).trim();
-        }
-
-let match = response.match(/google\("([^"]+)",\s*"([^"]+)"\)/);
-        if (match) {
-            let question = match[1].trim().replace(/^"|"$/g, '');
-            let keywords = match[2].trim().replace(/^"|"$/g, '').replace('"', '').replace('\'', '').split("|");
-            console.log(keywords);
-
-            // Call scrapeBingSearchForKeywords and await its result
-            let content = await scrapeDuckDuckGoSearchForKeywords(question, keywords);
-
-            // Assuming scrapeBingSearchForKeywords returns an object/array that needs to be stringified
-            let jsonContent = JSON.stringify(content);
-
-            // Append the result to messages
-            messages.push({
-                role: "system",
-                content: `Results for "${question}" with keyword "${keywords}": ${jsonContent}`
-            });
+            //Code to output GPT result to appropriate value
+            for (let i = 0; i < property_data.length; i++){
+                if (response.includes(property_data[i].property_name)){
+                    result[i].value = response.substring(colonIndex + 1).trim()
+                    console.log(`Added ${result[i].value} to Property ${property_data[i].property_name}`);
+                    
+                    if(i !== property_data.length -1) {
+                        messages.push({
+                            role: "user",
+                            content: `Processed your Response for ${property_data[i].property_name}, Good Job, please answer the other properties.`
+                        });
+                        break; 
+                    } else {
+                        return result; 
+                    }
+                }
+            }
         } else {
-            // Handle case where response does not match expected format
-            messages.push({
-                role: "system",
-                content: "Sorry, your response did not match the expected format. Please reply with 'google(question, keyword)'."
-            });
+            let match = response.match(/google\("([^"]+)",\s*"([^"]+)"\)/);
+            if (match) {
+                let question = match[1].trim().replace(/^"|"$/g, '');
+                let keywords = match[2].trim().replace(/^"|"$/g, '').replace('"', '').replace('\'', '').split("|");
+                console.log(keywords);
+    
+                // Call scrapeBingSearchForKeywords and await its result
+                let content = await scrapeDuckDuckGoSearchForKeywords(question, keywords);
+    
+                // Assuming scrapeBingSearchForKeywords returns an object/array that needs to be stringified
+                let jsonContent = JSON.stringify(content);
+    
+                // Append the result to messages
+                messages.push({
+                    role: "system",
+                    content: `Results for "${question}" with keyword "${keywords}": ${jsonContent}`
+                });
+            } else {
+                // Handle case where response does not match expected format
+                messages.push({
+                    role: "system",
+                    content: "Sorry, your response did not match the expected format. Please reply with 'google(question, keyword)'."
+                });
+            }
+    
         }
 
         if (tries === (maxTries - 2)) {
