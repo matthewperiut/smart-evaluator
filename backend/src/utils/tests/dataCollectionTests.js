@@ -14,20 +14,52 @@ exports.dataCollectionTests = async function() {
 // manufacturer_part_num: "135354" 
 // };
 
+// const item = {
+//     item_description: 'PEN BLUE MED BALL PNT PENTEL',
+//     manufacturer_part_num: 'BK440C',
+//     point_of_use: 'POU 2',
+//     overall_vendability: null,
+//     vendability_notes: null,
+//     default_issue_type: 'EA',
+//     default_issue_qty: 1,
+//     fragile: false,
+//     // weight_lbs: 0.36,
+//     // height_inch: 5.75,
+//     // width_inch: 3.5,
+//     // length_inch: 1.2
+// };
+
+// const item = {
+//     item_description: 'CL110 CHECKLITE CLEAR LENS',
+//     manufacturer_part_num: 'CL110',
+//     point_of_use: 'POU 2',
+//     overall_vendability: null,
+//     vendability_notes: null,
+//     default_issue_type: 'PR',
+//     default_issue_qty: 1,
+//     // fragile: false,
+//     // weight_lbs: 0.36,
+//     // height_inch: 5.75,
+//     // width_inch: 3.5,
+//     // length_inch: 1.2
+// };
+
 const item = {
-    item_description: 'SHIELD GLASSES SIDE',
-    manufacturer_part_num: 99705,
+    item_description: '1251L LED FLASHLIGHT 2 D BATTERIES',
+    manufacturer_part_num: '1251L',
     point_of_use: 'POU 2',
     overall_vendability: null,
     vendability_notes: null,
-    //height_inch: 2,
-    //width_inch: 0.25,
-    //length_inch: 0.25,
-    //weight_lbs: 0.25,
-    //fragile: false,
     default_issue_type: 'EA',
     default_issue_qty: 1,
+    // fragile: false,
+    // weight_lbs: 0.36,
+    // height_inch: 5.75,
+    // width_inch: 3.5,
+    // length_inch: 1.2
 };
+
+
     
 
 
