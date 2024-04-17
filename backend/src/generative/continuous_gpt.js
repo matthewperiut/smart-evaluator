@@ -182,9 +182,11 @@ async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, su
 async function promptGPT(messages) {
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo", // or your preferred model
+            model: "gpt-4-turbo-preview",
             messages: messages,
-            max_tokens: 150,
+            max_tokens: 150, // Adjust this parameter as needed
+            temperature: 0.7, // Adjust temperature for controlling randomness (optional)
+            top_p: 0.9, // Adjust top_p for controlling diversity (optional)
         });
         return response.choices[0].message.content;
     } catch (error) {
@@ -207,7 +209,6 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
                 " checking if the manufacturer part number is found on the data from that website.": "") +
                 " If you aren't confident in the data, adjust the keywords and try again. You have several google searches, so use them." +
                 " When you have found an answer, you may use the second response: `(Property as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
-                " Example usage: weight_lbs: <3.00> "+  
                 " If you can't find enough data, search again. Once you answer for one property, move on to the next one." +
                 " Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
 

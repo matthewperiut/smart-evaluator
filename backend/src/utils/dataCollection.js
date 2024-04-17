@@ -73,9 +73,11 @@ exports.dataCollection = async function(item) {
             case 'dimensions':
                 if (prop.value){
                 const dimensions = prop.value.match(/(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)/);
-                item.height_inch = parseFloat(dimensions[1]);
-                item.width_inch = parseFloat(dimensions[3]);
-                item.length_inch = parseFloat(dimensions[5]);
+                if (dimensions) {
+                    item.height_inch = parseFloat(dimensions[1]);
+                    item.width_inch = parseFloat(dimensions[3]);
+                    item.length_inch = parseFloat(dimensions[5]);
+                }
                 } else {
                     item.height_inch = null;
                     item.width_inch = null;

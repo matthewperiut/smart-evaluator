@@ -45,8 +45,8 @@ exports.dataCollectionTests = async function() {
 // };
 
 const item = {
-    item_description: '1251L LED FLASHLIGHT 2 D BATTERIES',
-    manufacturer_part_num: '1251L',
+    item_description: 'HEX KEY SET,91,FOLD UP, #91',
+    manufacturer_part_num: '20911',
     point_of_use: 'POU 2',
     overall_vendability: null,
     vendability_notes: null,
@@ -54,9 +54,9 @@ const item = {
     default_issue_qty: 1,
     // fragile: false,
     // weight_lbs: 0.36,
-    // height_inch: 5.75,
-    // width_inch: 3.5,
-    // length_inch: 1.2
+    // height_inch: 3.9,
+    // width_inch: 2.9,
+    // length_inch: 5.9
 };
 
 
