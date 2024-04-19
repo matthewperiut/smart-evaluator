@@ -23,6 +23,18 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
     const [rowData, setRowData] = useState(null);
     const [columnHeaders, setColumnHeaders] = useState(null);
 
+    // Filters
+    const [filters, setFilters] = useState({
+        notvendable: false,
+        allvendable: false,
+        lockervendable: false,
+        coilvendable: false,
+        carouselvendable: false,
+        completed: false,
+        uncompleted: false,
+
+        });
+
     const openModal = (row) => {
         setRowData(row);
         setColumnHeaders(filteredData[0]); // Assuming this is how you determine column headers
@@ -208,7 +220,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
     const toggleRow = (rowIndex) => {
         if (selectedRows.includes(rowIndex)) {
             setSelectedRows(selectedRows.filter(row => row !== rowIndex));
-        }
+        } 
         else {
             setSelectedRows([...selectedRows, rowIndex]);
         }
@@ -219,21 +231,76 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         if (form) {
             form.style.display = form.style.display === "block" ? "none" : "block";
         }
-    }
+    };
 
-    const toggleCollapsible = async (options) => {
-        var content = document.getElementById(options);
-        if (content) {
-            content.style.display = content.style.display === "block" ? "none" : "block";
+    const applyFilters = () => {
+        setSelectedRows([]);
+        if (!excelData) {
+            console.error('Excel data is not available.');
+            return;
         }
-    }
+    
+        const filtered = excelData.filter((row, index) => {
+            if (index === 0) return true; // Include headers
+    
+            // Check if the row meets any active filter condition
+            let includeRow = true;
+    
+            if (filters.allvendable && row[10] !== 'Y' && row[10] !== true) {
+                includeRow = false;
+            }
+    
+            if (filters.notvendable && row[10] !== 'N' && row[10] !== false) {
+                includeRow = false;
+            }
+    
+            if (filters.lockervendable && row[26] !== 'Y' && row[26] !== true) {
+                includeRow = false;
+            }
+    
+            if (filters.coilvendable && row[34] !== 'Y' && row[34] !== true) {
+                includeRow = false;
+            }
+    
+            if (filters.carouselvendable && row[31] !== 'Y' && row[31] !== true) {
+                includeRow = false;
+            }
+    
+
+            if (filters.completed && row[4] && !completedItems[localStorage.getItem("solutionId")].includes(row[4])) {
+                includeRow = false;
+            }
+    
+            if (filters.uncompleted && completedItems[localStorage.getItem("solutionId")].includes(row[4])) {
+                includeRow = false;
+            }
+
+            return includeRow;
+        });
+    
+        console.log('Filtered Data:', filtered);
+    
+        setFilteredData(filtered);
+    };
+    
+    
 
     const clearFilters = async (e) => {
-
-    }
+            setFilters({
+                notvendable: false,
+                allvendable: false,
+                lockervendable: false,
+                coilvendable: false,
+                carouselvendable: false,
+                completed: false,
+                uncompleted: false,
+            });
+            setFilteredData(excelData);
+    };
 
     // Function to filter data based on search query
     const filterData = (query) => {
+        setSelectedRows([]);
         const filtered = excelData.filter((row, index) => {
             // Always include the first row (headers)
             if (index === 0) return true;
@@ -367,6 +434,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
         setIsSessionIDChosen(false);
         setFilteredData([]);
         setChosenSessionID(null);
+        setFilters(false);
 
         console.log(isSessionIDChosen);
         console.log(isExcelUploaded);
@@ -496,13 +564,74 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
             <div id="filterChoices" className="filter-overlay">
                 <div className='filter-container'>
                     <div className='filter-header'>Filters</div>
-                    <div className='filter-subhead'>
-                        <div>Vendibility</div>
-                        <div>Data Availability</div>
+                    <div>
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.allvendable}
+                            onChange={(e) => setFilters({...filters, allvendable: e.target.checked })}
+                            />
+                            Only Vendable
+                        </div>
+
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.notvendable}
+                            onChange={(e) => setFilters({...filters, notvendable: e.target.checked })}
+                            />
+                            Non-Vendable
+                        </div>
+
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.lockervendable}
+                            onChange={(e) => setFilters({...filters, lockervendable: e.target.checked })}
+                            />
+                            Locker Vendable
+                        </div>
+
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.coilvendable}
+                            onChange={(e) => setFilters({...filters, coilvendable: e.target.checked })}
+                            />
+                            Coil Vendable
+                        </div>
+
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.carouselvendable}
+                            onChange={(e) => setFilters({...filters, carouselvendable: e.target.checked })}
+                            />
+                            Carousel Vendable
+                        </div>
+
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.completed}
+                            onChange={(e) => setFilters({...filters, completed: e.target.checked })}
+                            />
+                            Completed Items
+                        </div>
+
+                        <div className='filter-subhead'>
+                            <input 
+                            type="checkbox"
+                            checked={filters.uncompleted}
+                            onChange={(e) => setFilters({...filters, uncompleted: e.target.checked })}
+                            />
+                            Uncompleted Items
+                        </div>
+                        
 
                     </div>
 
-                    <button className='filter-select'>Apply</button>
+                    <button className='filter-select' onClick={() => {applyFilters(); toggleFilter();}}>Apply</button>
                     <button className='filter-select' onClick={clearFilters}>Clear All</button>
                     <button className='filter-cancel' onClick={toggleFilter}>Cancel</button>
                 </div>

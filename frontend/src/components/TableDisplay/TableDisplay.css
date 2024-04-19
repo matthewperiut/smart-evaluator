@@ -118,7 +118,7 @@ input[type="checkbox"] {
 .filter-container {
     position: absolute;
     margin: 10% auto;
-    width: 43%;
+    width: 40%;
     height: 100%;
     background-color: #fefefe;
     border-radius: 0%;
@@ -140,10 +140,14 @@ input[type="checkbox"] {
 
 .filter-subhead {
     font-family: "Poppins";
+    color:#191919;
     font-size: 20px;
     text-align: left;
     margin: 5% auto;
     margin-left: 7%;
+    margin-right: 7%;
+    border:solid 1px #44A76E;
+    border-radius: 15px;
 }
 
 .filter-content{
