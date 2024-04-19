@@ -483,7 +483,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                 </div>
                                 <div className='flex self-center ml-8'>
                                         <div style={{ width: "45px", height: "25px", backgroundColor: "#44A76E" }} />
-                                        <h1 className='ml-1 text-[10px]'>in Alt Item ID cell indicates completed vendibility generation</h1>
+                                        <h1 className='ml-1 text-[10px]'>in column indicates completed vendibility generation</h1>
                                 </div>
                                 <div className='flex flex-row truncate w-[100%] ml-[12.6%]' style={{ justifyContent: 'flex-end' }}>
                                     {selectedRows.length > 0 && (
