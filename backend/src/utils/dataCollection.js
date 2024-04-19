@@ -22,7 +22,7 @@ exports.dataCollection = async function(item) {
             "manufacturer_part_num",
             "string",
             "May be listed as manufacturer model number, manufacturer part number, mpn, item model number, product code, manufacturer # or something similar")
-            .then(result => item.manufacturer_part_num = result));
+            .then(result => item.manufacturer_part_num = result.slice(1, -1)));
 
         console.log("manufacturer part number just fired");
     }
@@ -41,9 +41,18 @@ exports.dataCollection = async function(item) {
             `Dimensional data must be for the individual, unboxed form of the item containing exactly 1 piece. Return the dimensions in inches rounded to 2 decimal places using the format: <width>x<depth>x<height>`)
             .then(result => {
                 const dimensions = result.match(/(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)/);
-                item.height_inch = parseFloat(dimensions[1]);
-                item.width_inch = parseFloat(dimensions[3]);
-                item.length_inch = parseFloat(dimensions[5]);
+                
+                if (dimensions) {
+                    item.height_inch = parseFloat(dimensions[1]);
+                    item.width_inch = parseFloat(dimensions[3]);
+                    item.length_inch = parseFloat(dimensions[5]);
+                } else {
+                    item.height_inch = null;
+                    item.width_inch = null;
+                    item.length_inch = null;
+                    item.vendability_notes = "Unable to find item dimensions. Vendibility cannot be calculated."
+                }
+
             }));
     }
 
