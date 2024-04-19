@@ -153,7 +153,7 @@ const HelpPage = () => {
         <FaqItem
           question="What types of storage  solutions does the software calculate vendibility for?" 
           answer="It calculates vendibility options for locker-based, coil-based, and carousel-based storage solutions.
-            However, the methods of calculations feature specific measurements from CribMaster's ToolBox, ProLock,
+            However, the methods of calculations feature specific measurements from ToolBox, ProLock,
             and Toolbox. To use this software to calculate vendibility to machines of different measurements
             can potentially yield inaccurate results."
         />
