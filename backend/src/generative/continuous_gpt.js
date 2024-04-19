@@ -18,70 +18,47 @@ function log(...text) {
 async function scrapeWebForKeywordsPuppeteer(searchURL, keywords, limit, surroundingChars) {
     try {
         const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto(searchURL);
-
-        // Extract the first few search result links
-        const searchResultsLinks = await page.evaluate(() => {
-            const links = [];
-            const linkSelectors = document.querySelectorAll('h2 a');
-            console.log(linkSelectors);
-            linkSelectors.forEach(link => {
-                if (link.href) {
-                    links.push(link.href);
-                }
-            });
-            return links;
-        });
-
         const dimensionsData = [];
-        for (let i = 0; i < Math.min(limit, searchResultsLinks.length); i++) {
+
+        const searchResultsLinks = await getSearchResultsLinks(browser, searchURL);
+
+        const pagePromises = searchResultsLinks.slice(0, limit).map(async (link) => {
+            const page = await browser.newPage();
             try {
-                const link = searchResultsLinks[i];
-                log("Processing link:", link); // Debugging output to see the processed link
-                try {
-                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 30000}); // Attempt to navigate with a custom timeout
-                    // Proceed with your scraping logic...
-                } catch (error) {
-                    if (error.name === 'TimeoutError') {
-                        log("Page took too long to load:", link);
-                        // Handle the timeout, e.g., by skipping this page or logging the timeout
-                    } else {
-                        log("An error occurred:", error.message);
-                        // Handle other potential errors
-                    }
-                }
+                log("Processing link:", link);
+                await page.goto(link, { waitUntil: 'networkidle0', timeout: 30000 });
 
                 const data = await page.evaluate((keywords, surroundingChars) => {
                     const bodyText = document.body.innerText;
-                    let cummulativeResults = "";
+                    const titleElement = document.querySelector('h1'); // Adjust the selector based on the structure of the webpage
+                    const title = titleElement ? titleElement.innerText : ''; // Get the text content of the title, if it exists
+                    let cumulativeResults = '';
                     for (let keyword of keywords) {
                         const index = bodyText.toLowerCase().indexOf(keyword);
-                        console.log("keyword: " + keyword + "\n");
                         if (index !== -1) {
-                            cummulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                            cumulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                            break;
                         }
                     }
-                    if (cummulativeResults.length > 0) {
-                        return cummulativeResults;
-                    }
-                    else {
-                        return null;
-                    }
+                    return cumulativeResults.length > 0 ? ("Page Title:" + title + ' Results: ' + cumulativeResults) : null;
                 }, keywords, surroundingChars);
 
                 if (data) {
-                    //can use: dimensionsData.push({url: link, data: data});
                     log(`This website contains: ${data}`);
-                    dimensionsData.push({data: data});
+                    dimensionsData.push({ data });
                 }
+            } catch (error) {
+                if (error.name === 'TimeoutError') {
+                    log("Page took too long to load:", link);
+                } else {
+                    log("An error occurred:", error);
+                }
+            } finally {
+                await page.close();
             }
-            catch (error) {
-                log(error);
-                continue;
-            }
-        }
+        });
 
+        await Promise.all(pagePromises);
         await browser.close();
         return dimensionsData;
 
@@ -92,98 +69,103 @@ async function scrapeWebForKeywordsPuppeteer(searchURL, keywords, limit, surroun
     }
 }
 
-//Uses ScrapingBee API to scrape search engine Search, and uses puppeteer to
-// visit the links found in that search. This should avoid some rate limiting.
-async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars) {
-    try {
-        const response = await axios.get('https://app.scrapingbee.com/api/v1/', {
-            params: {
-            api_key: process.env.SCRAPING_BEE_API_KEY,
-            url: searchURL,
-            wait_browser: 'load',
-            render_js: 'true', // Set to 'true' if JavaScript rendering is needed
-            }
-        });
+async function getSearchResultsLinks(browser, searchURL) {
+    const page = await browser.newPage();
+    await page.goto(searchURL);
 
-        const { window } = new JSDOM(response.data, { resources: 'usable' });
+    const links = await page.evaluate(() => {
         const links = [];
-
-        const loadPromise = new Promise((resolve, reject) => {
-            window.addEventListener('load', resolve);
-            window.addEventListener('error', reject);
-            setTimeout(reject, 10000); // 10 seconds timeout
-        });
-
-        // Extract the first few search result links
-        const linkSelectors = window.document.querySelectorAll('h2 a');
-        //console.log(linkSelectors);
+        const linkSelectors = document.querySelectorAll('h2 a');
         linkSelectors.forEach(link => {
             if (link.href) {
                 links.push(link.href);
             }
         });
-        
-        //Begin using puppeteer for links provided.
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
+        return links;
+    });
 
-        const dimensionsData = [];
-        for (let i = 0; i < Math.min(limit, links.length); i++) {
-            try {
-                const link = links[i];
-                log("Processing link:", link); // Debugging output to see the processed link
+    await page.close();
+    return links;
+}
+
+//Uses ScrapingBee API to scrape search engine Search, and uses puppeteer to
+// visit the links found in that search. This should avoid some rate limiting.
+async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars) {
+        try {
+
+            const response = await axios.get('https://app.scrapingbee.com/api/v1/', {
+                params: {
+                api_key: process.env.SCRAPING_BEE_API_KEY,
+                url: searchURL,
+                wait_browser: 'load',
+                render_js: 'true', // Set to 'true' if JavaScript rendering is needed
+                }
+            });
+    
+            const { window } = new JSDOM(response.data, { resources: 'usable' });
+            const searchResultsLinks = [];
+    
+            const loadPromise = new Promise((resolve, reject) => {
+                window.addEventListener('load', resolve);
+                window.addEventListener('error', reject);
+                setTimeout(reject, 10000); // 10 seconds timeout
+            });
+
+            const linkSelectors = window.document.querySelectorAll('h2 a');
+            //console.log(linkSelectors);
+            linkSelectors.forEach(link => {
+                if (link.href) {
+                    searchResultsLinks.push(link.href);
+                }
+            });
+
+
+            const browser = await puppeteer.launch();
+            const dimensionsData = [];
+    
+            const pagePromises = searchResultsLinks.slice(0, limit).map(async (link) => {
+                const page = await browser.newPage();
                 try {
-                    await page.goto(link, {waitUntil: 'networkidle0', timeout: 30000}); // Attempt to navigate with a custom timeout
-                    // Proceed with your scraping logic...
+                    log("Processing link:", link);
+                    await page.goto(link, { waitUntil: 'networkidle0', timeout: 30000 });
+    
+                    const data = await page.evaluate((keywords, surroundingChars) => {
+                        const bodyText = document.body.innerText;
+                        let cumulativeResults = "";
+                        for (let keyword of keywords) {
+                            const index = bodyText.toLowerCase().indexOf(keyword);
+                            if (index !== -1) {
+                                cumulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                            }
+                        }
+                        return cumulativeResults.length > 0 ? cumulativeResults : null;
+                    }, keywords, surroundingChars);
+    
+                    if (data) {
+                        log(`This website contains: ${data}`);
+                        dimensionsData.push({ data });
+                    }
                 } catch (error) {
                     if (error.name === 'TimeoutError') {
                         log("Page took too long to load:", link);
-                        // Handle the timeout, e.g., by skipping this page or logging the timeout
                     } else {
                         log("An error occurred:", error.message);
-                        // Handle other potential errors
                     }
+                } finally {
+                    await page.close();
                 }
-
-                const data = await page.evaluate((keywords, surroundingChars) => {
-                    const bodyText = document.body.innerText;
-                    let cummulativeResults = "";
-                    for (let keyword of keywords) {
-                        const index = bodyText.toLowerCase().indexOf(keyword);
-                        console.log("keyword: " + keyword + "\n");
-                        if (index !== -1) {
-                            cummulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
-                        }
-                    }
-                    if (cummulativeResults.length > 0) {
-                        return cummulativeResults;
-                    }
-                    else {
-                        return null;
-                    }
-                }, keywords, surroundingChars);
-
-                if (data) {
-                    //can use: dimensionsData.push({url: link, data: data});
-                    log(`This website contains: ${data}`);
-                    dimensionsData.push({data: data});
-                }
-            }
-            catch (error) {
-                log('Error:', error.message);
-                continue;
-            }
+            });
+    
+            await Promise.all(pagePromises);
+            await browser.close();
+            return dimensionsData;
+    
+        } catch (error) {
+            console.error('Error:', error.message);
+            await browser.close();
+            return [];
         }
-
-        await browser.close();
-        return dimensionsData;
-
-    } catch (error) {
-        console.error('Error:', error.message);
-        await browser.close();
-        return [];
-    } 
-}
+    }
 
 function formatDuckDuckGoSearchURL(query) {
     return `https://www.duckduckgo.com/?${qs.stringify({q: query})}`;
@@ -200,9 +182,11 @@ async function scrapeDuckDuckGoSearchForKeywords(query, keywords, limit = 10, su
 async function promptGPT(messages) {
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4-turbo-preview", // or your preferred model
+            model: "gpt-4-turbo-preview",
             messages: messages,
-            max_tokens: 150,
+            max_tokens: 150, // Adjust this parameter as needed
+            temperature: 0.7, // Adjust temperature for controlling randomness (optional)
+            top_p: 0.9, // Adjust top_p for controlling diversity (optional)
         });
         return response.choices[0].message.content;
     } catch (error) {
@@ -211,32 +195,40 @@ async function promptGPT(messages) {
     }
 }
 
-exports.continuous_scrape = async function continuous_scrape(item_desc, manufacturer_part_num, variable, variable_type, additional_info = "") {
+exports.continuous_scrape = async function continuous_scrape(item_desc, manufacturer_part_num, property_data) {
     let messages = [
         {
             role: "system",
-            content: "You will be asked for a variable and given a description of the item. You can only reply with two things\n" +
+            content: "You will be given a description of a physical item, and a list of properties to fill out. You can only reply with two things\n" +
                 " the first is `google(\"question\", \"keywords\")`. If you respond this way, my function will search the internet using the" + 
                 " question that you provide, evaluate the first 10 webpages, and return any text within 100 characters of the keywords. " +
-                " Use | to separate keywords. Example usage: google(\"how tall is mt everest?\", \"height|feet\")" +
+                " Use | to separate keywords. Example usage: google(\"how tall is mt everest?\", \"height|size|feet|meters\")" +
                 " If the results is [] it is likely that the keywords did not work." +
                 " Please include item description in the question variable." + 
-                (manufacturer_part_num? "the start of individual website data are marked by\"data\", validate the data by"+
-                " checking if the manufacturer part number is found on the data from that website": "") +
-                " If you aren't confident in the data, adjust the keywords and try again. You have up to 4 google searches, so use them." +
-                " When you have found the answer, you may use the second response: `(variable as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
-                " However, try not to answer what the variable is until you find it. If you can't find enough data, search again." +
+                (manufacturer_part_num? " and Manufactuer part number as a keyword. the start of individual website data are marked by\"data\", validate the data by"+
+                " checking if the manufacturer part number is found on the data from that website.": "") +
+                " If you aren't confident in the data, adjust the keywords and try again. You have several google searches, so use them." +
+                " When you have found an answer, you may use the second response: `(Property as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
+                " If you can't find enough data, search again. Once you answer for one property, move on to the next one." +
                 " Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
 
         },
         {
             role: "user",
-            content: `item description is "${item_desc}", ` + (manufacturer_part_num? `Manufacturer part number: ${manufacturer_part_num}`:``) +` variable is "${variable}" as a "${variable_type}", additional info is "${additional_info}"`
+            content: `item description is "${item_desc}", ` + (manufacturer_part_num? `Manufacturer part number: ${manufacturer_part_num}`:``)
         }
     ];
 
+    for (let i = 0; i < property_data.length; i++ ) {
+        messages.push({
+            role: "user",
+            content: `Property ${i + 1}: "${property_data[i].property_name}" Type: "${property_data[i].type}", additional info is: "${property_data[i].additional_info}"`
+        });
+    }
+
+    let result = property_data; 
     var keywords = "";
-    let maxTries = 5;
+    let maxTries = 10;
     for (let tries = 0; tries < maxTries; tries++) {
         let response = await promptGPT(messages);
         console.log(response);
@@ -244,32 +236,50 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
         if (response.includes(":") && !response.includes("google")) {
             const colonIndex = response.indexOf(':');
             console.log("returning " + response.substring(colonIndex + 1).trim());
-            return response.substring(colonIndex + 1).trim();
-        }
-
-let match = response.match(/google\("([^"]+)",\s*"([^"]+)"\)/);
-        if (match) {
-            let question = match[1].trim().replace(/^"|"$/g, '');
-            let keywords = match[2].trim().replace(/^"|"$/g, '').replace('"', '').replace('\'', '').split("|");
-            console.log(keywords);
-
-            // Call scrapeBingSearchForKeywords and await its result
-            let content = await scrapeDuckDuckGoSearchForKeywords(question, keywords);
-
-            // Assuming scrapeBingSearchForKeywords returns an object/array that needs to be stringified
-            let jsonContent = JSON.stringify(content);
-
-            // Append the result to messages
-            messages.push({
-                role: "system",
-                content: `Results for "${question}" with keyword "${keywords}": ${jsonContent}`
-            });
+            //Code to output GPT result to appropriate value
+            for (let i = 0; i < property_data.length; i++){
+                if (response.includes(property_data[i].property_name)){
+                    result[i].value = response.substring(colonIndex + 1).trim()
+                    console.log(`Added ${result[i].value} to Property ${property_data[i].property_name}`);
+                    
+                    if(i !== property_data.length -1) {
+                        messages.push({
+                            role: "user",
+                            content: `Processed your Response for ${property_data[i].property_name}, Good Job, please answer Property ${i+2}, ${property_data[i+1].property_name}.`
+                        });
+                        break; 
+                    } else {
+                        return result; 
+                    }
+                }
+            }
         } else {
-            // Handle case where response does not match expected format
-            messages.push({
-                role: "system",
-                content: "Sorry, your response did not match the expected format. Please reply with 'google(question, keyword)'."
-            });
+            let match = response.match(/google\("([^"]+)",\s*"([^"]+)"\)/);
+            if (match) {
+                let question = match[1].trim().replace(/^"|"$/g, '');
+                let keywords = match[2].trim().replace(/^"|"$/g, '').replace('"', '').replace('\'', '').split("|");
+                //keywords.push(manufacturer_part_num);
+                console.log(keywords);
+    
+                // Call scrapeBingSearchForKeywords and await its result
+                let content = await scrapeDuckDuckGoSearchForKeywords(question, keywords);
+    
+                // Assuming scrapeBingSearchForKeywords returns an object/array that needs to be stringified
+                let jsonContent = JSON.stringify(content);
+    
+                // Append the result to messages
+                messages.push({
+                    role: "system",
+                    content: `Results for "${question}" with keyword "${keywords}": ${jsonContent}`
+                });
+            } else {
+                // Handle case where response does not match expected format
+                messages.push({
+                    role: "system",
+                    content: "Sorry, your response did not match the expected format. Please reply with 'google(question, keyword)'."
+                });
+            }
+    
         }
 
         if (tries === (maxTries - 2)) {
