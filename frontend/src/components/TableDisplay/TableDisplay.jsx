@@ -17,6 +17,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
     const [chosenSessionID, setChosenSessionID] = useState();
     const [isSessionIDChosen, setIsSessionIDChosen] = useState(false);
     const [completedItems, setCompletedItems] = useState([]);
+    const [isColumnsHidden, setIsColumnsHidden] = useState(false);
 
     // Selected Item Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -510,7 +511,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
             }
             <div className='display-box top-64'>
                 {filteredData.length > 0 ? (
-                    <div className="scrollable-container">
+                    <div className="scrollable-container flex-grow">
                         <table>
                             <thead>
                                 <tr>
@@ -523,7 +524,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                         />
                                     </th>
                                     {filteredData[0].map((header, headerIndex) => (
-                                        <th key={headerIndex}>{header}</th>
+                                        (headerIndex < 8 || headerIndex > 13) && <th key={headerIndex}>{header}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -538,23 +539,29 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                             />
                                         </td>
                                         {row.map((cell, cellIndex) => (
-                                            <td key={cellIndex} className={cellIndex === 4 && completedItems[localStorage.getItem("solutionId")].includes(cell) ? 'completed-item' : ''}>
-                                                {selectedRows.includes(rowIndex + 1) && cellIndex !== 1 && cell === null && isLoading && (
-                                                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-green"></div>
-                                                )}
-                                                {cellIndex === 1 ? (
-                                                    <span style={{ cursor: 'pointer', color: '#666DFA', textDecoration: 'none' }}
-                                                        onClick={() => openModal(row)}>
-                                                        {cell}
-                                                    </span>
-                                                ) : (
-                                                    cell === true ? 'Y' : cell === false ? 'N' : cell
-                                                )}
-                                            </td>
+                                            (cellIndex < 8 || cellIndex > 13) && (
+                                                <td
+                                                    key={cellIndex}
+                                                    className={`${cellIndex >= 14 && cell ? 'completed-item' : ''} ${cellIndex === 4 && completedItems[localStorage.getItem("solutionId")].includes(cell) ? 'completed-item' : ''}`}
+                                                >
+                                                    {selectedRows.includes(rowIndex + 1) && cellIndex !== 1 && cell === null && isLoading && (
+                                                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-green"></div>
+                                                    )}
+                                                    {cellIndex === 1 ? (
+                                                        <span style={{ cursor: 'pointer', color: '#666DFA', textDecoration: 'none' }}
+                                                            onClick={() => openModal(row)}>
+                                                            {cell}
+                                                        </span>
+                                                    ) : (
+                                                        cell === true ? 'Y' : cell === false ? 'N' : cell
+                                                    )}
+                                                </td>
+                                            )
                                         ))}
                                     </tr>
                                 ))}
                             </tbody>
+
                         </table>
                     </div>
                 ) : (
