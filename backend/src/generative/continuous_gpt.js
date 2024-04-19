@@ -123,48 +123,51 @@ async function scrapeWebForKeywords(searchURL, keywords, limit, surroundingChars
             const browser = await puppeteer.launch();
             const dimensionsData = [];
     
-            const pagePromises = searchResultsLinks.slice(0, limit).map(async (link) => {
-                const page = await browser.newPage();
-                try {
-                    log("Processing link:", link);
-                    await page.goto(link, { waitUntil: 'networkidle0', timeout: 30000 });
-    
-                    const data = await page.evaluate((keywords, surroundingChars) => {
-                        const bodyText = document.body.innerText;
-                        let cumulativeResults = "";
-                        for (let keyword of keywords) {
-                            const index = bodyText.toLowerCase().indexOf(keyword);
-                            if (index !== -1) {
-                                cumulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
-                            }
+           const pagePromises = searchResultsLinks.slice(0, limit).map(async (link) => {
+            const page = await browser.newPage();
+            try {
+                log("Processing link:", link);
+                await page.goto(link, { waitUntil: 'networkidle0', timeout: 30000 });
+
+                const data = await page.evaluate((keywords, surroundingChars) => {
+                    const bodyText = document.body.innerText;
+                    const titleElement = document.querySelector('h1'); // Adjust the selector based on the structure of the webpage
+                    const title = titleElement ? titleElement.innerText : ''; // Get the text content of the title, if it exists
+                    let cumulativeResults = '';
+                    for (let keyword of keywords) {
+                        const index = bodyText.toLowerCase().indexOf(keyword);
+                        if (index !== -1) {
+                            cumulativeResults += " " + bodyText.substring(Math.max(0, index - surroundingChars / 2), Math.min(bodyText.length, index + surroundingChars / 2));
+                            break;
                         }
-                        return cumulativeResults.length > 0 ? cumulativeResults : null;
-                    }, keywords, surroundingChars);
-    
-                    if (data) {
-                        log(`This website contains: ${data}`);
-                        dimensionsData.push({ data });
                     }
-                } catch (error) {
-                    if (error.name === 'TimeoutError') {
-                        log("Page took too long to load:", link);
-                    } else {
-                        log("An error occurred:", error.message);
-                    }
-                } finally {
-                    await page.close();
+                    return cumulativeResults.length > 0 ? ("Page Title:" + title + ' Results: ' + cumulativeResults) : null;
+                }, keywords, surroundingChars);
+
+                if (data) {
+                    log(`This website contains: ${data}`);
+                    dimensionsData.push({ data });
                 }
-            });
-    
-            await Promise.all(pagePromises);
-            await browser.close();
-            return dimensionsData;
-    
-        } catch (error) {
-            console.error('Error:', error.message);
-            await browser.close();
-            return [];
-        }
+            } catch (error) {
+                if (error.name === 'TimeoutError') {
+                    log("Page took too long to load:", link);
+                } else {
+                    log("An error occurred:", error);
+                }
+            } finally {
+                await page.close();
+            }
+        });
+
+        await Promise.all(pagePromises);
+        await browser.close();
+        return dimensionsData;
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        await browser.close();
+        return [];
+    }
     }
 
 function formatDuckDuckGoSearchURL(query) {
