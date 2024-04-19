@@ -4,9 +4,7 @@ const {continuous_scrape} = require("../generative/continuous_gpt");
 // Name: dataCollection()
 // Description: This code represents the data analysis phase of a vendibility request.
 // If a field is not filled, this function uses the continuous_scrape() function from continuous_gpt.js
-// To fill that field. These functions currently execute synchonously to avoid rate limiting,
-// but it can be made asynchronous by removing await keywords and un-commenting
-// the last line of the function. 
+// To fill that field.  
 
 // This function makes extensive use of the 'extra information' field in the continuous_scrape() function
 // That 'extra information' field helps us define to the GPT/Webscraping function the type of output we are expecting.
@@ -18,12 +16,13 @@ exports.dataCollection = async function(item) {
     // Check if manufacturer part number exists, if not, scrape for it.
     // Manufacturer part number is critical to the successful operation of the continuous_scrape() function.
     if (!item.manufacturer_part_num) {
-        property_data.push(
-            {
+        let result = await continuous_scrape(item.item_description, "" , 
+            [{
                 property_name: "manufacturer_part_num",
                 property_type: "string",
                 additional_info:"May be listed as manufacturer model number, manufacturer part number, mpn, item model number, product code, manufacturer # or something similar"    
-            });
+            }]);
+        item.manufacturer_part_num = result? result[0].value.slice(1, -1): null; 
     }
 
     // Check if height inch exists, if not, scrape for it

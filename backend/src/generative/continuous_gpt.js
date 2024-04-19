@@ -222,7 +222,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
     for (let i = 0; i < property_data.length; i++ ) {
         messages.push({
             role: "user",
-            content: `PROPERTY ${i + 1}: "${property_data[i].property_name}" TYPE: "${property_data[i].type}", additional info is "${property_data[i].additional_info}"`
+            content: `Property ${i + 1}: "${property_data[i].property_name}" Type: "${property_data[i].type}", additional info is: "${property_data[i].additional_info}"`
         });
     }
 
