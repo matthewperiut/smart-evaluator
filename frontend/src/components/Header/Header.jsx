@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
-import CribmasterLogo from "/src/assets/Cribmaster_Logo_White.png"
+import Logo from "/src/assets/Logo_White.png"
 
 
 const Header = () => {
@@ -17,7 +17,7 @@ const Header = () => {
 
     return (
         <header className='top-bar'>
-            <img src={CribmasterLogo} className="logo"></img>
+            <img src={Logo} className="logo"></img>
             <nav className='nav-list'>
                 
             </nav>

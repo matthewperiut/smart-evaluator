@@ -147,8 +147,8 @@ const HelpPage = () => {
           It can also refer to the capacity of the item that can be fit."
         />
         <FaqItem
-          question="Which CribMaster solutions does the software calculate vendibility for?"
-          answer="Vendibility is calculated for the CribMaster ProLock, ProStock, and ToolBox."
+          question="Which solutions does the software calculate vendibility for?"
+          answer="Vendibility is calculated for the ProLock, ProStock, and ToolBox."
         />
         <FaqItem
           question="What types of storage  solutions does the software calculate vendibility for?" 

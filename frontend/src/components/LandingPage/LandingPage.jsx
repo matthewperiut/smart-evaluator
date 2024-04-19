@@ -25,7 +25,7 @@ const LandingPage = () => {
             <div className="flex-grow flex justify-center items-center flex-col animated fadeIn">
                 <div className="text-center">
                     <div className="text-xl font-poppins">
-                        CribMaster <br />
+                        <br />
                         Smart Evaluator
                     </div>
                     <button className="hover:scale-105 transition-all duration-300 text-xs py-2 px-4 rounded mt-4 " onClick={toggleHome}>
