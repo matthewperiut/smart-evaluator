@@ -25,7 +25,15 @@ Backend_Database.Item
 Backend_Database.Session
 Backend_Database.System_Data
 ```
-
+The System_Data collection must contain a single object that is configured like this.
+```
+  {
+  "_id": <any-id>,
+  "ITEM_COUNTER": "0",
+  "NAME":"COUNTER_INFO",
+  "SESSION_COUNTER":"0"
+  }
+```
 ### To start the server after configuring
 
 ```
