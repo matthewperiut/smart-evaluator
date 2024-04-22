@@ -45,8 +45,8 @@ exports.dataCollectionTests = async function() {
 // };
 
 const item = {
-    item_description: 'HEX KEY SET,91,FOLD UP, #91',
-    //manufacturer_part_num: '20911',
+    item_description: 'Milwaukee Fastback Folding Utility Knife 48-22-1501',
+    manufacturer_part_num: '48-22-1501',
     point_of_use: 'POU 2',
     overall_vendability: null,
     vendability_notes: null,

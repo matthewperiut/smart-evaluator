@@ -199,6 +199,9 @@ async function promptGPT(messages) {
 }
 
 exports.continuous_scrape = async function continuous_scrape(item_desc, manufacturer_part_num, property_data) {
+    //Sanitize item decription input
+    item_desc = item_desc.replace(/"/g, '');
+    
     let messages = [
         {
             role: "system",
@@ -211,7 +214,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
                 (manufacturer_part_num? " and Manufactuer part number as a keyword. the start of individual website data are marked by\"data\", validate the data by"+
                 " checking if the manufacturer part number is found on the data from that website.": "") +
                 " If you aren't confident in the data, adjust the keywords and try again. You have several google searches, so use them." +
-                " When you have found an answer, you may use the second response: `(Property as given): (answer, e.g. \"true\", \"false\", \"number\")`\n"+ 
+                " When you have found an answer, you may use the second response: `<property_name>: <answer, e.g. \"true\", \"false\", \"number\">`\n"+ 
                 " If you can't find enough data, search again. Once you answer for one property, move on to the next one." +
                 " Follow these guidelines strictly. On the final try you will be informed that you can no longer google search, and must reply."
 
@@ -229,27 +232,41 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
         });
     }
 
-    let result = property_data; 
-    var keywords = "";
+    let result = []; 
+
     let maxTries = 10;
     for (let tries = 0; tries < maxTries; tries++) {
         let response = await promptGPT(messages);
         console.log(response);
 
+        messages.push({
+            role: "assistant",
+            content: response
+        })
+
+        //Recognize response call by chatGPT
         if (response.includes(":") && !response.includes("google")) {
             const colonIndex = response.indexOf(':');
             console.log("returning " + response.substring(colonIndex + 1).trim());
             //Code to output GPT result to appropriate value
             for (let i = 0; i < property_data.length; i++){
                 if (response.includes(property_data[i].property_name)){
-                    result[i].value = response.substring(colonIndex + 1).trim()
-                    console.log(`Added ${result[i].value} to Property ${property_data[i].property_name}`);
+                    property_data[i].value = response.substring(colonIndex + 1).trim();
+                    result.push(property_data[i]);
                     
-                    if(i !== property_data.length -1) {
+                    prop_name = property_data[i].property_name; 
+
+                    console.log(`Added ${property_data[i].value} to Property ${prop_name}`);
+                    
+                    // remove property data from array
+                    property_data.splice(i, 1);
+
+                    if(property_data.length !== 0) {
                         messages.push({
-                            role: "user",
-                            content: `Processed your Response for ${property_data[i].property_name}, Good Job, please answer Property ${i+2}, ${property_data[i+1].property_name}.`
+                            role: "system",
+                            content: `Processed your Response for ${prop_name}, Good Job, please answer property \'${property_data[0].property_name}\'.`
                         });
+                        console.log(JSON.stringify(result))
                         break; 
                     } else {
                         return result; 
@@ -293,6 +310,7 @@ exports.continuous_scrape = async function continuous_scrape(item_desc, manufact
         }
         console.log("results from try " + tries + " messages: " + JSON.stringify(messages));
     }
+    return result;
 
     // todo: store messages for further analysis
 
