@@ -53,34 +53,29 @@ exports.itemVendibility = async function (req, res) {
 
 
             /*-----UPDATE ITEM INFO IN DATABASE------*/
-            // try {
-            //     // Find the session by ID
-            //     const session = await client.db("Backend_Database").collection("Session").findOne({ _id: Number(sessionId) });
+            try {
+                // Find the session by ID
+                const session = await client.db("Backend_Database").collection("Session").findOne({ _id: Number(sessionId) });
                 
-            //     if (session) {
-            //         result._id = Number(itemId);
-            //         console.log("Updated Item:", result);
+                if (session) {
+                    result._id = Number(itemId);
+                    console.log("Updated Item:", result);
             
-            //         // Replace the item in the 'Item' collection
-            //         const replaceResult = await client.db("Backend_Database").collection("Item").replaceOne(
-            //             { _id: Number(itemId) },
-            //             result
-            //         );
-            
-            //         // Place the item from the uncompleted array to the completed array within session
-            //         const updateSessionResult = await client.db("Backend_Database").collection("Session").updateOne(
-            //             { _id: Number(sessionId) },
-            //             {
-            //                 $addToSet: { completed_items: Number(itemId) }, // Add itemId to completed_items if it's not already present
-            //                 $pull: { uncompleted_items: Number(itemId) } // Remove itemId from uncompleted_items
-            //             }
-            //         );
-            //     } else {
-            //         console.log("Session not found.");
-            //     }
-            // } catch (error) {
-            //     console.error("Error occurred while updating item info:", error);
-            // }
+                    // Replace the item in the 'Item' collection
+                    const replaceResult = await client.db("Backend_Database").collection("Item").replaceOne(
+                        { _id: Number(itemId) },
+                        result
+                    );
+                    
+                    //Update any sessions referencing the item.
+                    updateSessions(itemId);
+
+                } else {
+                    console.log("Session not found.");
+                }
+            } catch (error) {
+                console.error("Error occurred while updating item info:", error);
+            }
 
 
             //log item to console
@@ -95,4 +90,29 @@ exports.itemVendibility = async function (req, res) {
     } finally {
         await client.close();
     }
+}
+
+
+async function updateSessions(itemID) {
+          // Get all documents from the "Session" collection
+          const sessions = await db.client.db("Backend_Database").collection("Session").find().toArray();
+      
+          // Cycle through each session to check and move completed items
+          for (const session of sessions) {
+            index = session.uncompleted_items.indexOf(itemID)
+            if (index != -1) {
+                completedItems = session.completed_items;
+                uncompletedItems = session.uncompleted_items; 
+
+                completedItems.push(itemID);
+                uncompleted_items.splice(index, 1); 
+
+                //Update session document in the database
+                await db.client.db("Backend_Database").collection("Session").updateOne(
+                    { _id: session._id },
+                    { $set: { completed_items: completedItems, uncompleted_items: completedItems} },
+                    { $inc: { completedItemNum: 1, uncompletedItemNum: -1}}
+                );
+            }
+          }
 }

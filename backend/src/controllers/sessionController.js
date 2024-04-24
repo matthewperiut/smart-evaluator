@@ -19,11 +19,14 @@ exports.uploadSpreadsheet = async function (req, res) {
               _id: SYSTEM_DATA.SESSION_COUNTER,
               completed_items: [],
               uncompleted_items: [],
+              uncompleted_item_num: 0,
+              completed_item_num: 0,
             }
   
             //Create item object for each row in the spreadsheet
             for (let row = 4; row <= worksheet.rowCount; row ++) {
               const item = {
+                complete: false,
                 sku: worksheet.getCell(`A${row}`).value,
                 item_description: worksheet.getCell(`B${row}`).value,
                 manufacturer_part_num: worksheet.getCell(`C${row}`).value,
@@ -76,6 +79,9 @@ exports.uploadSpreadsheet = async function (req, res) {
         //Add item to session's uncompleted_items[]
         session.uncompleted_items.push(result._id);
       }
+
+      session.uncompleted_item_num = uncompleted_items.length();
+      session.completed_item_num = completed_items.length(); 
 
       //Create new session with session counter 
       await db.client.db("Backend_Database").collection("Session").insertOne(session);
