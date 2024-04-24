@@ -61,39 +61,41 @@ exports.dataCollection = async function(item) {
             });
     }
 
-    let result = await continuous_scrape(item.item_description,item.manufacturer_part_num, property_data);
- 
-       // Update item object with scraped data
-       for (const prop of result) {
-        switch (prop.property_name) {
-            case 'manufacturer_part_num':
-                item.manufacturer_part_num = prop.value? prop.value.slice(1, -1): null;
-                break;
-            case 'dimensions':
-                if (prop.value){
-                const dimensions = prop.value.match(/(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)/);
-                if (dimensions) {
-                    item.height_inch = parseFloat(dimensions[1]);
-                    item.width_inch = parseFloat(dimensions[3]);
-                    item.length_inch = parseFloat(dimensions[5]);
-                }
-                } else {
-                    item.height_inch = null;
-                    item.width_inch = null;
-                    item.length_inch_inch = null;
-                }
-                break;
-            case 'weight_lbs':
-                item.weight_lbs = prop.value? parseFloat(prop.value): null;
-                break;
-            case 'fragile':
-                item.fragile = prop.value? String(prop.value).toLowerCase === 'true': false;
-                break;
-            default:
-                // Handle unexpected property names
-                break;
+    if (property_data != []) {
+        let result = await continuous_scrape(item.item_description,item.manufacturer_part_num, property_data);
+    
+        // Update item object with scraped data
+        for (const prop of result) {
+            switch (prop.property_name) {
+                case 'manufacturer_part_num':
+                    item.manufacturer_part_num = prop.value? prop.value.slice(1, -1): null;
+                    break;
+                case 'dimensions':
+                    if (prop.value){
+                    const dimensions = prop.value.match(/(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)/);
+                    if (dimensions) {
+                        item.height_inch = parseFloat(dimensions[1]);
+                        item.width_inch = parseFloat(dimensions[3]);
+                        item.length_inch = parseFloat(dimensions[5]);
+                    }
+                    } else {
+                        item.height_inch = null;
+                        item.width_inch = null;
+                        item.length_inch_inch = null;
+                    }
+                    break;
+                case 'weight_lbs':
+                    item.weight_lbs = prop.value? parseFloat(prop.value): null;
+                    break;
+                case 'fragile':
+                    item.fragile = prop.value? String(prop.value).toLowerCase === 'true': false;
+                    break;
+                default:
+                    // Handle unexpected property names
+                    break;
+            }
         }
     }
-
+ 
     return item;
 }

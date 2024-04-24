@@ -60,6 +60,8 @@ exports.itemVendibility = async function (req, res) {
                 if (session) {
                     result._id = Number(itemId);
                     console.log("Updated Item:", result);
+
+                    result.completed = true; 
             
                     // Replace the item in the 'Item' collection
                     const replaceResult = await client.db("Backend_Database").collection("Item").replaceOne(
@@ -67,8 +69,7 @@ exports.itemVendibility = async function (req, res) {
                         result
                     );
                     
-                    //Update any sessions referencing the item.
-                    updateSessions(itemId);
+
 
                 } else {
                     console.log("Session not found.");
@@ -83,6 +84,8 @@ exports.itemVendibility = async function (req, res) {
             console.log(result);
             
             res.json(result); // Return the resulting item object as JSON response
+            //Update any sessions referencing the item.
+            await updateSessions(result._id, client);
         }
     } catch (e) {
         console.log("Error Connecting to database: " , e);
@@ -93,26 +96,31 @@ exports.itemVendibility = async function (req, res) {
 }
 
 
-async function updateSessions(itemID) {
+async function updateSessions(itemID, client) {
+    try {
           // Get all documents from the "Session" collection
-          const sessions = await db.client.db("Backend_Database").collection("Session").find().toArray();
+          const sessions = await client.db("Backend_Database").collection("Session").find().toArray();
       
           // Cycle through each session to check and move completed items
           for (const session of sessions) {
             index = session.uncompleted_items.indexOf(itemID)
             if (index != -1) {
-                completedItems = session.completed_items;
-                uncompletedItems = session.uncompleted_items; 
+                let completedItems = session.completed_items;
+                let uncompletedItems = session.uncompleted_items; 
 
                 completedItems.push(itemID);
-                uncompleted_items.splice(index, 1); 
+                uncompletedItems.splice(index, 1); 
 
                 //Update session document in the database
-                await db.client.db("Backend_Database").collection("Session").updateOne(
+                await client.db("Backend_Database").collection("Session").updateOne(
                     { _id: session._id },
-                    { $set: { completed_items: completedItems, uncompleted_items: completedItems} },
-                    { $inc: { completedItemNum: 1, uncompletedItemNum: -1}}
+                    { $set: { completed_items: completedItems, uncompleted_items: uncompletedItems} },
+                    { $inc: { completed_item_num: 1, uncompleted_item_num: -1}}
                 );
             }
           }
+    } catch (e) {
+    console.log("Error Updating Sessions " , e);
+    } 
+
 }

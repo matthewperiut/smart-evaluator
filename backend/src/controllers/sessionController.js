@@ -80,8 +80,8 @@ exports.uploadSpreadsheet = async function (req, res) {
         session.uncompleted_items.push(result._id);
       }
 
-      session.uncompleted_item_num = uncompleted_items.length();
-      session.completed_item_num = completed_items.length(); 
+      session.uncompleted_item_num = session.uncompleted_items.length;
+      session.completed_item_num = session.completed_items.length; 
 
       //Create new session with session counter 
       await db.client.db("Backend_Database").collection("Session").insertOne(session);

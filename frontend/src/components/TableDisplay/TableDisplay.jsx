@@ -542,7 +542,7 @@ const TableDisplay = ({ solutionId, excelData, isExcelUploaded, onExcelUpload, s
                                             (cellIndex < 8 || cellIndex > 13) && (
                                                 <td
                                                     key={cellIndex}
-                                                    className={`${cellIndex >= 14 && cell ? 'completed-item' : ''} ${cellIndex === 4 && completedItems[localStorage.getItem("solutionId")].includes(cell) ? 'completed-item' : ''}`}
+                                                    className={``}
                                                 >
                                                     {selectedRows.includes(rowIndex + 1) && cellIndex !== 1 && cell === null && isLoading && (
                                                         <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-green"></div>
