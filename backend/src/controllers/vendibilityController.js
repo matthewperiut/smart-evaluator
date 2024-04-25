@@ -78,6 +78,7 @@ exports.itemVendibility = async function (req, res) {
                 console.error("Error occurred while updating item info:", error);
             }
 
+            await updateSessions(result._id, client);
 
             //log item to console
             console.log(`Processed item vendibility request for item with id: ${result._id}`);
@@ -85,7 +86,7 @@ exports.itemVendibility = async function (req, res) {
             
             res.json(result); // Return the resulting item object as JSON response
             //Update any sessions referencing the item.
-            await updateSessions(result._id, client);
+
         }
     } catch (e) {
         console.log("Error Connecting to database: " , e);
